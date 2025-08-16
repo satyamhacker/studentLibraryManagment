@@ -1,4 +1,4 @@
-import { sequelize } from './modelsImportExport.mjs';
+import { sequelize } from './index.js';
 import { DataTypes } from 'sequelize';
 
 // Define the Student model using the imported sequelize instance
@@ -112,19 +112,19 @@ const Student = sequelize.define('Student', {
   PaymentExpectedDateChanged: {
     type: DataTypes.INTEGER,
     allowNull: true,
-     // Default to 0
-      validate: {
-        isInt: { msg: 'Payment Expected Date Changed must be an integer' },
-      },
-      },
-      PaymentMode: {
-      type: DataTypes.ENUM('online', 'cash'), // Enum for Payment Mode
-      allowNull: true,
-      defaultValue: null, // Default to null
-      validate: {
-        notEmpty: { msg: 'Payment Mode is required' },
-      },
-      },
+    // Default to 0
+    validate: {
+      isInt: { msg: 'Payment Expected Date Changed must be an integer' },
+    },
+  },
+  PaymentMode: {
+    type: DataTypes.ENUM('online', 'cash'), // Enum for Payment Mode
+    allowNull: true,
+    defaultValue: null, // Default to null
+    validate: {
+      notEmpty: { msg: 'Payment Mode is required' },
+    },
+  },
   AdmissionAmount: {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: false,
@@ -133,8 +133,8 @@ const Student = sequelize.define('Student', {
       isDecimal: { msg: 'Admission Amount must be a valid number' },
     },
   },
-    }, {
-      tableName: 'students', // Explicit table name
+}, {
+  tableName: 'students', // Explicit table name
   timestamps: true, // Adds createdAt and updatedAt fields
   underscored: false, // Use camelCase column names
 });

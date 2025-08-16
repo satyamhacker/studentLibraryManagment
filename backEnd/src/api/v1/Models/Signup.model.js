@@ -1,4 +1,4 @@
-import { sequelize } from './modelsImportExport.mjs'
+import { sequelize } from './index.js'
 import { DataTypes } from 'sequelize';
 
 
