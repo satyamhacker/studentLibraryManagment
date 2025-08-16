@@ -1,5 +1,6 @@
 import {sequelize} from './modelsImportExport.mjs'
 import { DataTypes } from 'sequelize';
+import bcrypt from 'bcrypt';
 
 // Define the Signup model using the imported sequelize instance
 const SignupData = sequelize.define('SignupData', {
@@ -29,6 +30,14 @@ const SignupData = sequelize.define('SignupData', {
   tableName: 'signup_data', // Explicit table name (snake_case is common in SQL)
   timestamps: true, // Adds createdAt and updatedAt fields
   underscored: false, // Use camelCase column names (set to true for snake_case)
+});
+
+// Add beforeCreate hook to hash password
+SignupData.addHook('beforeCreate', async (user, options) => {
+  if (user.password) {
+    const saltRounds = 10;
+    user.password = await bcrypt.hash(user.password, saltRounds);
+  }
 });
 
 // Optional: Sync the model (uncomment if you want to sync from this file, better in main app)
