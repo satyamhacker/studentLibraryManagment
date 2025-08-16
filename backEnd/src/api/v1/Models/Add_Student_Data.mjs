@@ -1,4 +1,4 @@
-import { sequelize } from './index.js';
+import { sequelize } from './index.model.js';
 import { DataTypes } from 'sequelize';
 
 // Define the Student model using the imported sequelize instance
