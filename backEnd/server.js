@@ -28,6 +28,8 @@ app.use(cors()); // Enable CORS for all routes
 // Middleware to parse JSON requests (no need for bodyParser, it's part of Express)
 app.use(express.json());
 
+app.use("/api/v1", mainRoutes);
+
 app.post("/signup", signupCreate); // Route for signup
 app.post("/login", login); // Route for login
 app.post('/sendOtp', sendOtp);
