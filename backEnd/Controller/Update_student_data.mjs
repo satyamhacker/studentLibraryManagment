@@ -1,0 +1,77 @@
+import { Student } from '../Models/modelsImportExport.mjs'; // Adjust path to your Student model
+import { Op, literal } from 'sequelize'; // Ensure Op and literal are imported
+
+export const updateStudentData = async (req, res) => {
+  const { id } = req.params; // Extract student ID from request parameters
+  const updatePayload = req.body; // Extract update data from request body
+
+  try {
+    // Find the student by primary key (id)
+    const existingStudent = await Student.findByPk(id);
+
+    if (!existingStudent) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    // Destructure and exclude specific fields from the update payload
+    const { RegistrationNumber, SeatNumber, TimeSlots, ...filteredUpdatePayload } = updatePayload;
+
+
+    // Check if SeatNumber and TimeSlots are provided
+    if (SeatNumber && TimeSlots && SeatNumber !== "0") {
+      // Find conflicting students for the same SeatNumber and overlapping TimeSlots
+      const conflictingStudent = await Student.findOne({
+        where: {
+          SeatNumber,
+          [Op.and]: [
+            literal(`JSON_OVERLAPS(TimeSlots, '${JSON.stringify(TimeSlots)}')`)
+          ],
+          id: { [Op.ne]: id } // Exclude the current student being updated
+        },
+      });
+
+      if (conflictingStudent) {
+        // Find free time slots for the seat
+        const occupiedTimeSlots = conflictingStudent.TimeSlots;
+        const allTimeSlots = [
+          "06:00-10:00",
+          "10:00-14:00",
+          "14:00-18:00",
+          "18:00-22:00",
+          "22:00-06:00",
+          "reserved"
+        ];
+        const availableTimeSlots = allTimeSlots.filter(slot => !occupiedTimeSlots.includes(slot));
+
+        return res.status(409).json({
+          error: 'This time slot is occupied by another user.',
+          occupiedBy: conflictingStudent.StudentName,
+          availableTimeSlots
+        });
+      }
+
+      // Add SeatNumber and TimeSlots to the filtered update payload
+      filteredUpdatePayload.SeatNumber = SeatNumber;
+      filteredUpdatePayload.TimeSlots = TimeSlots;
+    }
+
+    // Update the student with the filtered update payload
+    await existingStudent.update({
+      ...filteredUpdatePayload,
+      SeatNumber:SeatNumber || existingStudent.SeatNumber,
+      TimeSlots: TimeSlots || existingStudent.TimeSlots
+    });
+
+    // Fetch the updated student (optional, Sequelize updates in place)
+    const updatedStudent = await Student.findByPk(id);
+
+    res.status(200).json(updatedStudent); // Send the updated student back
+  } catch (error) {
+    console.error('Error updating student:', error);
+    if (error.name === 'SequelizeValidationError') {
+      const validationErrors = error.errors.map(err => err.message);
+      return res.status(400).json({ error: 'Validation failed', details: validationErrors });
+    }
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};

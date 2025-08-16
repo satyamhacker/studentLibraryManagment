@@ -1,0 +1,21 @@
+
+======Note for this project==========
+
+===problem========
+
+
+============================Features to add======================
+
+1.Add functionality of fast2sms so that all students whose fess are dues
+can be sent a message to pay their fees. with checkbox by default for 
+all so that admin can change it to whom to send the message...
+
+
+NO problem everytheing is done only regres testing is left...
+
+==================================================================
+
+1.There can be users who don't have locker for them in locker input box give 0...
+2.There can be few students whose seat is not fixed so give 0 in seatNumber for them and it will work ...
+
+

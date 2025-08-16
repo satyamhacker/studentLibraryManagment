@@ -1,0 +1,128 @@
+/* Header styling */
+.neon-header {
+    background: #1a1a1a;
+    color: #fff;
+    font-size: 24px;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3), 0 0 40px rgba(255, 255, 255, 0.2);
+    margin-bottom: 30px;
+    letter-spacing: 2px;
+  }
+  
+  /* Seat container styling */
+  .neon-seat-container {
+    background: linear-gradient(145deg, #e6e6e6, #ffffff);
+    border-radius: 15px;
+    box-shadow: 10px 10px 20px #d1d1d1, -10px -10px 20px #ffffff;
+    padding: 20px;
+  }
+  
+  /* Seat styling */
+  .neon-seat {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    cursor: default;
+  }
+  
+  /* Occupied seat styling (green with neon glow) */
+  .neon-seat.occupied {
+    background: #1a1a1a !important;
+    border: 2px solid #00ff00 !important;
+    color: #fff;
+    box-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00;
+    cursor: pointer;
+  }
+  
+  .neon-seat.occupied:hover {
+    box-shadow: 0 0 15px #00ff00, 0 0 30px #00ff00, 0 0 45px #00ff00;
+    background: #00ff00 !important;
+    color: #000 !important;
+  }
+  
+  /* Vacant seat styling (grey with subtle glow) */
+  .neon-seat.vacant {
+    background: #333 !important;
+    border: 2px solid #666 !important;
+    color: #999;
+    box-shadow: 0 0 5px #666;
+  }
+  
+  .neon-seat.vacant:hover {
+    box-shadow: 0 0 10px #666, 0 0 15px #666;
+  }
+  
+  /* Modal styling */
+  .neon-modal .modal-content {
+    background: #1a1a1a !important;
+    border: 2px solid #ffd700 !important;
+    border-radius: 10px !important;
+    box-shadow: 0 0 20px #ffd700, 0 0 40px #ffd700 !important;
+  }
+  
+  .neon-modal-title {
+    color: #fff !important;
+    font-weight: bold !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+  }
+  
+  .neon-modal-body {
+    color: #fff !important;
+  }
+  
+  /* Card styling inside modal */
+  .neon-card {
+    background: #333 !important;
+    border: 2px solid #ffd700 !important;
+    border-radius: 10px !important;
+    box-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700 !important;
+  }
+  
+  .neon-card-title {
+    color: #ffd700 !important;
+    font-weight: bold !important;
+    font-size: 18px !important;
+  }
+  
+  .neon-card-text {
+    color: #fff !important;
+  }
+  
+  .neon-card-text p {
+    margin-bottom: 10px;
+    font-size: 16px;
+  }
+  
+  .neon-card-text strong {
+    color: #ffd700;
+  }
+  
+  /* Button styling */
+  .neon-button {
+    background: #1a1a1a !important;
+    color: #fff !important;
+    font-size: 14px !important;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: 2px solid #ffd700 !important;
+    border-radius: 10px !important;
+    padding: 8px 16px !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700 !important;
+  }
+  
+  .neon-button:hover {
+    box-shadow: 0 0 15px #ffd700, 0 0 30px #ffd700, 0 0 45px #ffd700 !important;
+    background: #ffd700 !important;
+    color: #000 !important;
+  }

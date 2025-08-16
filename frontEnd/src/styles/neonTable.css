@@ -1,0 +1,162 @@
+/* Header styling */
+.neon-header {
+  background: #1a1a1a;
+  color: #fff;
+  font-size: 24px;
+  font-weight: bold;
+  text-transform: uppercase;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3), 0 0 40px rgba(255, 255, 255, 0.2);
+  margin-bottom: 20px;
+  letter-spacing: 2px;
+}
+
+/* Search container styling */
+.neon-search-container {
+  display: flex;
+  align-items: center;
+}
+
+.neon-input .MuiOutlinedInput-root {
+  background: #1a1a1a !important;
+  border-radius: 10px !important;
+  color: #fff !important;
+}
+
+.neon-input .MuiOutlinedInput-notchedOutline {
+  border-color: #ffd700 !important;
+  border-width: 2px !important;
+}
+
+.neon-input .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: #ffd700 !important;
+  box-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700 !important;
+}
+
+.neon-input .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #ffd700 !important;
+  box-shadow: 0 0 15px #ffd700, 0 0 30px #ffd700 !important;
+}
+
+.neon-input .MuiInputBase-input {
+  color: #fff !important;
+}
+
+.neon-input .MuiInputAdornment-root .neon-icon {
+  color: #ffd700 !important;
+}
+
+/* Table container styling */
+.neon-table-container {
+  background: linear-gradient(145deg, #e6e6e6, #ffffff);
+  border-radius: 15px;
+  box-shadow: 10px 10px 20px #d1d1d1, -10px -10px 20px #ffffff;
+  padding: 20px;
+  overflow-x: auto;
+}
+
+/* Table styling */
+.neon-table {
+  background: #1a1a1a !important;
+  color: #fff !important; /* This applies to the entire table by default */
+  border: 2px solid #ffd700 !important;
+}
+
+.neon-table th,
+.neon-table td {
+  border-color: #ffd700 !important;
+  padding: 12px !important;
+  text-align: left !important;
+}
+
+.neon-table th {
+  background: #333 !important;
+  font-weight: bold !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  color: #fff !important; /* Keep header text white for contrast */
+}
+
+.neon-table td {
+  color: hwb(253 5% 16%) !important; /* Change table body text to yellow */
+}
+
+.neon-table tbody tr:hover {
+  background: #2a2a2a !important;
+  box-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700 !important;
+  transition: all 0.3s ease !important;
+}
+
+/* Button styling */
+.neon-button {
+  background: #1a1a1a !important;
+  color: #fff !important;
+  font-size: 14px !important;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border: 2px solid #ffd700 !important;
+  border-radius: 10px !important;
+  padding: 8px 16px !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700 !important;
+}
+
+.neon-button:hover {
+  box-shadow: 0 0 15px #ffd700, 0 0 30px #ffd700, 0 0 45px #ffd700 !important;
+  background: #ffd700 !important;
+  color: #000 !important;
+}
+
+/* Icon button styling */
+.neon-icon-button {
+  color: #ffd700 !important;
+  transition: all 0.3s ease !important;
+}
+
+.neon-icon-button:hover {
+  color: #fff !important;
+  box-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700 !important;
+}
+
+/* Modal styling */
+.neon-modal .modal-content {
+  background: #e42626 !important;
+  border: 2px solid #ffd700 !important;
+  border-radius: 10px !important;
+  box-shadow: 0 0 20px #ffd700, 0 0 40px #ffd700 !important;
+}
+
+.neon-modal-title {
+  color: #ff0000 !important; /* Change modal title text to red */
+  font-weight: bold !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+}
+
+.neon-modal-body {
+  color: #f01111 !important;
+}
+
+.neon-modal .form-control {
+  background: #333 !important;
+  color: #fff !important;
+  border: 2px solid #ffd700 !important;
+  border-radius: 10px !important;
+}
+
+.neon-modal .form-control:focus {
+  box-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700 !important;
+  border-color: #ffd700 !important;
+}
+
+.neon-input .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline {
+  border-color: #ffd700 !important;
+}
+
+/* Custom CSS for Form.Label */
+.neon-modal .form-label {
+  color: #ff0000 !important; /* Red color */
+  font-weight: bold !important; /* Bold text */
+}

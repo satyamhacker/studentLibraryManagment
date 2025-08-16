@@ -1,0 +1,112 @@
+.filter-container {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.filter-button {
+  background-color: #007bff;
+  border: none;
+  color: white;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.filter-button:hover {
+  background-color: #0056b3;
+}
+
+.filter-modal .modal-header {
+  background-color: #007bff;
+  color: white;
+}
+
+.filter-modal .modal-body {
+  background-color: #f8f9fa;
+}
+
+.filter-modal .modal-footer {
+  background-color: #f8f9fa;
+}
+
+.filter-modal .form-control {
+  border-radius: 5px;
+  border: 1px solid #ced4da;
+}
+
+.filter-modal .form-control:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.neon-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  font-weight: bold;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 10px rgba(0, 123, 255, 0.5), 0 0 20px rgba(0, 123, 255, 0.5);
+  transition: box-shadow 0.3s ease;
+}
+
+.neon-button:hover {
+  box-shadow: 0 0 20px rgba(0, 123, 255, 0.7), 0 0 30px rgba(0, 123, 255, 0.7);
+}
+
+.neon-text {
+  color: #e81212;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+.neon-input {
+  border: 1px solid #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.neon-input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+}
+
+.neon-dropdown {
+  background-color: #1475d7;
+  color: #007bff;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+  border: 1px solid #007bff;
+}
+
+.neon-dropdown option {
+  display: block;
+  background-color: #1475d7;
+  color: #007bff;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+.neon-dropdown option:hover {
+  background-color: #0056b3;
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+}
+
+.neon-dropdown:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+}
+
+.toggle-dark-mode {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  z-index: 1000;
+}
+
+.toggle-dark-mode:hover {
+  background-color: #0056b3;
+}

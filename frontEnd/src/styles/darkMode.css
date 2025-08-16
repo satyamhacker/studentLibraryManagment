@@ -1,0 +1,53 @@
+body.dark-mode {
+  background-color: #121212;
+  color: #ffffff;
+}
+
+.dark-mode .filter-container,
+.dark-mode .neon-table-container,
+.dark-mode .neon-form-container,
+.dark-mode .neon-card-container,
+.dark-mode .neon-locker-container,
+.dark-mode .neon-seat-container {
+  background-color: #1e1e1e;
+  color: #ffffff;
+}
+
+.dark-mode .filter-button,
+.dark-mode .neon-button,
+.dark-mode .neon-input,
+.dark-mode .neon-dropdown,
+.dark-mode .neon-table,
+.dark-mode .neon-modal,
+.dark-mode .neon-modal-title,
+.dark-mode .neon-modal-body,
+.dark-mode .neon-header,
+.dark-mode .neon-text {
+  background-color: #333333;
+  color: #ffffff;
+  border-color: #444444;
+}
+
+.dark-mode .filter-button:hover,
+.dark-mode .neon-button:hover {
+  background-color: #555555;
+}
+
+.dark-mode .neon-input:focus,
+.dark-mode .neon-dropdown:focus {
+  border-color: #666666;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.dark-mode .neon-icon {
+  color: #ffffff;
+}
+
+.dark-mode .neon-table th,
+.dark-mode .neon-table td {
+  border-color: #444444;
+}
+
+.dark-mode .neon-modal-body {
+  background-color: #1e1e1e;
+}

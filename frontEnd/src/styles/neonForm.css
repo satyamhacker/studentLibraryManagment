@@ -1,0 +1,87 @@
+/* Header styling */
+.neon-header {
+    background: #dbd1d1;
+    color: #eaf9e5;
+    font-size: 24px;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3), 0 0 40px rgba(255, 255, 255, 0.2);
+    margin-bottom: 30px;
+    letter-spacing: 2px;
+  }
+  
+  /* Form container styling */
+  .neon-form-container {
+    background: linear-gradient(145deg, #e6e6e6, #ffffff);
+    border-radius: 15px;
+    box-shadow: 10px 10px 20px #d1d1d1, -10px -10px 20px #ffffff;
+    padding: 20px;
+  }
+  
+  /* Input field styling with neon effect */
+  .neon-input .MuiOutlinedInput-root {
+    background: #ebdddd !important;
+    border-radius: 10px !important;
+    color: #fff !important;
+  }
+  
+  .neon-input .MuiOutlinedInput-notchedOutline {
+    border-color: #ffd700 !important;
+    border-width: 2px !important;
+  }
+  
+  .neon-input .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+    border-color: #ffd700 !important;
+    box-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700 !important;
+  }
+  
+  .neon-input .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+    border-color: #ffd700 !important;
+    box-shadow: 0 0 15px #ffd700, 0 0 30px #ffd700 !important;
+  }
+  
+  .neon-input .MuiInputBase-input {
+    color: #fff !important;
+  }
+  
+  .neon-input .MuiInputAdornment-root {
+    color: #ffd700 !important;
+  }
+  
+  /* Button styling with neon effect */
+  .neon-button {
+    background: #1a1a1a !important;
+    color: #fff !important;
+    font-size: 16px !important;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: 2px solid #ffd700 !important;
+    border-radius: 10px !important;
+    padding: 10px !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700 !important;
+  }
+  
+  .neon-button:hover {
+    box-shadow: 0 0 15px #ffd700, 0 0 30px #ffd700, 0 0 45px #ffd700 !important;
+    background: #ffd700 !important;
+    color: #000 !important;
+  }
+  
+  /* General form styling */
+  .Form {
+    color: #fff;
+  }
+  
+  .Form .form-label {
+    color: #fff;
+    font-weight: 500;
+  }
+  
+  .Form .MuiFormHelperText-root {
+    color: #ff0000 !important;
+  }
+
