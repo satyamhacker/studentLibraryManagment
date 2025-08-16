@@ -2,6 +2,7 @@ import express from "express"; // Import Express
 import cors from "cors"; // Import CORS middleware
 
 import dotenv from 'dotenv';
+import mainRoutes from "./src/api/v1/Routes/index.routes.js"; // Import main routes
 
 // Load environment variables from .env file
 dotenv.config({ path: '../.env' });
