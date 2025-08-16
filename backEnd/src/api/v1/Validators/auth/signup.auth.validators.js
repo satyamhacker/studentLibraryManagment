@@ -1,4 +1,5 @@
 import Joi from 'joi';
+import { StatusCodes } from 'http-status-codes';
 
 /**
  * Signup validation schema using Joi
@@ -61,7 +62,7 @@ export const validateSignup = (req, res, next) => {
       message: detail.message
     }));
 
-    return res.status(400).json({
+    return res.status(StatusCodes.BAD_REQUEST).json({
       success: false,
       message: 'Validation failed',
       errors: errorMessages
