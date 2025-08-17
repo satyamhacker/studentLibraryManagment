@@ -1,9 +1,11 @@
 import joi from 'joi';
 
-import { SignupValidator } from './signup.auth.validators.js';
+import { SignupValidator, LoginValidator } from './signupLogin.auth.validators.js';
 
 export const validators = {
     auth: {
-        SignupValidator: SignupValidator
+        SignupValidator: SignupValidator,
+        LoginValidator: LoginValidator
+
     },
 }
