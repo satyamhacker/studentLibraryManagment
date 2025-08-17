@@ -6,7 +6,7 @@ import {
 } from "../../Controller/index.controller.js"; // Import your signupLogin controller
 
 import validator from "../../Middleware/validators/validators.middleware.js";
-import { validators } from "../../Validators/auth/index.validators.js";
+import { validators } from "../../Validators/index.validators.js";
 import { VerifyUserJwt } from "../../Middleware/jwt.middleware.js";
 
 const router = express.Router();
