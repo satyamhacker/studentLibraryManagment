@@ -1,5 +1,8 @@
+
 import { Student } from '../Models/modelsImportExport.mjs'; // Adjust path to your Student model
 import { Op, literal } from 'sequelize'; // Ensure Op and literal are imported
+import { StatusCodes } from 'http-status-codes';
+import MESSAGE from '../Constants/message.js';
 
 export const updateStudentData = async (req, res) => {
   const { id } = req.params; // Extract student ID from request parameters
@@ -10,7 +13,7 @@ export const updateStudentData = async (req, res) => {
     const existingStudent = await Student.findByPk(id);
 
     if (!existingStudent) {
-      return res.status(404).json({ message: 'Student not found' });
+      return res.status(StatusCodes.NOT_FOUND).json({ message: MESSAGE.none });
     }
 
     // Destructure and exclude specific fields from the update payload
@@ -43,8 +46,9 @@ export const updateStudentData = async (req, res) => {
         ];
         const availableTimeSlots = allTimeSlots.filter(slot => !occupiedTimeSlots.includes(slot));
 
-        return res.status(409).json({
-          error: 'This time slot is occupied by another user.',
+        return res.status(StatusCodes.CONFLICT).json({
+          error: MESSAGE.put.fail,
+          details: 'This time slot is occupied by another user.',
           occupiedBy: conflictingStudent.StudentName,
           availableTimeSlots
         });
@@ -58,20 +62,20 @@ export const updateStudentData = async (req, res) => {
     // Update the student with the filtered update payload
     await existingStudent.update({
       ...filteredUpdatePayload,
-      SeatNumber:SeatNumber || existingStudent.SeatNumber,
+      SeatNumber: SeatNumber || existingStudent.SeatNumber,
       TimeSlots: TimeSlots || existingStudent.TimeSlots
     });
 
     // Fetch the updated student (optional, Sequelize updates in place)
     const updatedStudent = await Student.findByPk(id);
 
-    res.status(200).json(updatedStudent); // Send the updated student back
+    res.status(StatusCodes.OK).json({ message: MESSAGE.put.succ, data: updatedStudent }); // Send the updated student back
   } catch (error) {
     console.error('Error updating student:', error);
     if (error.name === 'SequelizeValidationError') {
       const validationErrors = error.errors.map(err => err.message);
-      return res.status(400).json({ error: 'Validation failed', details: validationErrors });
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: MESSAGE.put.fail, details: validationErrors });
     }
-    res.status(500).json({ message: 'Internal Server Error' });
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: MESSAGE.error });
   }
 };
