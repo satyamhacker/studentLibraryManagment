@@ -1,5 +1,7 @@
+
 import { Student } from '../Models/index.model.js'; // Adjusted path and import
 import { Op, fn, literal } from 'sequelize'; // Ensure Op, fn, and literal are imported
+import { StatusCodes } from 'http-status-codes';
 
 export const addStudentData = async (req, res) => {
   try {
@@ -36,7 +38,7 @@ export const addStudentData = async (req, res) => {
       !PaymentMode ||
       !AdmissionAmount
     ) {
-      return res.status(400).json({ error: 'All required fields must be provided and TimeSlots must be a non-empty array' });
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: 'All required fields must be provided and TimeSlots must be a non-empty array' });
     }
 
     // Check if RegistrationNumber or ContactNumber already exists
@@ -51,13 +53,13 @@ export const addStudentData = async (req, res) => {
 
     if (existingStudent) {
       if (existingStudent.RegistrationNumber === RegistrationNumber) {
-        return res.status(400).json({
+        return res.status(StatusCodes.BAD_REQUEST).json({
           error: 'This Registration Number is already in use.',
           field: 'RegistrationNumber',
         });
       }
       if (existingStudent.ContactNumber === ContactNumber) {
-        return res.status(400).json({
+        return res.status(StatusCodes.BAD_REQUEST).json({
           error: 'This Contact Number is already in use.',
           field: 'ContactNumber',
         });
@@ -78,7 +80,7 @@ export const addStudentData = async (req, res) => {
 
 
       if (conflictingStudent) {
-        return res.status(409).json({
+        return res.status(StatusCodes.CONFLICT).json({
           error: 'This seat is already occupied for one or more of the requested time slots.',
           conflictingStudent: conflictingStudent.toJSON(),
         });
@@ -94,7 +96,7 @@ export const addStudentData = async (req, res) => {
       });
 
       if (existingLocker) {
-        return res.status(409).json({
+        return res.status(StatusCodes.CONFLICT).json({
           error: 'This locker is already assigned to another student.',
           assignedTo: existingLocker.StudentName,
         });
@@ -121,7 +123,7 @@ export const addStudentData = async (req, res) => {
     });
 
     // Respond with the newly created student data
-    res.status(201).json({
+    res.status(StatusCodes.CREATED).json({
       message: 'Student data added successfully',
       data: newStudentData.toJSON(),
     });
@@ -129,10 +131,10 @@ export const addStudentData = async (req, res) => {
     console.error('Error adding student data:', error);
     if (error.name === 'SequelizeValidationError') {
       const errors = error.errors.map(err => err.message);
-      return res.status(400).json({ error: 'Validation failed', details: errors });
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: 'Validation failed', details: errors });
     } else if (error.name === 'SequelizeUniqueConstraintError') {
-      return res.status(400).json({ error: 'Duplicate entry found', field: error.fields });
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: 'Duplicate entry found', field: error.fields });
     }
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
   }
 };
