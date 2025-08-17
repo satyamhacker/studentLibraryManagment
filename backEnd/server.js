@@ -5,6 +5,8 @@ import dotenv from 'dotenv';
 
 import mainRoutes from "./src/api/v1/Routes/index.routes.js"; // Import main routes
 import './src/api/v1/Models/associateModels.js'; // Ensure model associations are set up
+import { sequelize } from "./src/api/v1/Models/index.model.js"; // adjust path if needed
+
 
 // Load environment variables from .env file
 dotenv.config({ path: '../.env' });
@@ -19,7 +21,10 @@ app.use(express.json());
 
 app.use("/api/v1", mainRoutes);
 
-
+// Sync all models with the database
+sequelize.sync({ alter: true }).then(() => {
+    console.log("All models were synchronized successfully.");
+});
 
 app.listen(port, () => {
     console.log(`Server is listening on port ${port}`);
