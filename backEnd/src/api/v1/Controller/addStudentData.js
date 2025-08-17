@@ -1,4 +1,4 @@
-import { Student } from '../Models/modelsImportExport.mjs'; // Adjusted path and import
+import { Student } from '../Models/index.model.js'; // Adjusted path and import
 import { Op, fn, literal } from 'sequelize'; // Ensure Op, fn, and literal are imported
 
 export const addStudentData = async (req, res) => {
