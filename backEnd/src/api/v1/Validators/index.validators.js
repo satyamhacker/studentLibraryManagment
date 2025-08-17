@@ -1,7 +1,7 @@
 import joi from 'joi';
 
 import { SignupValidator, LoginValidator } from './auth/signupLogin.auth.validators.js';
-import { studentDataValidator } from './studentData/studentData.validator.js';
+import { studentDataValidator, updateStudentDataValidator } from './studentData/studentData.validator.js';
 
 export const validators = {
     auth: {
@@ -10,6 +10,7 @@ export const validators = {
 
     },
     studentData: {
-        addStudentDataValidator: studentDataValidator
+        addStudentDataValidator: studentDataValidator,
+        updateStudentData: updateStudentDataValidator
     }
 }
