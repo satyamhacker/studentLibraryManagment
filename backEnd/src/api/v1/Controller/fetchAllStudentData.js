@@ -1,6 +1,6 @@
-import {Student} from '../Models/modelsImportExport.mjs';
-
-
+import { Student } from '../Models/modelsImportExport.mjs';
+import { StatusCodes } from 'http-status-codes';
+import MESSAGE from '../Constants/message.js';
 
 // Controller to fetch student data
 export const fetchStudentsData = async (req, res) => {
@@ -10,13 +10,13 @@ export const fetchStudentsData = async (req, res) => {
 
     // If no students found, return an empty array
     if (!students || students.length === 0) {
-      return res.status(200).json([]); // Return empty array if no students are found
+      return res.status(StatusCodes.OK).json({ message: MESSAGE.get.empty, data: [] });
     }
 
     // Send the fetched student data as response
-    res.status(200).json(students);
+    res.status(StatusCodes.OK).json({ message: MESSAGE.get.succ, data: students });
   } catch (error) {
     console.error('Error fetching student data:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: MESSAGE.error });
   }
 };
