@@ -3,7 +3,7 @@ import express from "express";
 import {
     signupCreate,
     login,
-} from "../../Controller/signupLogin.js"; // Import your signupLogin controller
+} from "../../Controller/signupLogin.controller.js"; // Import your signupLogin controller
 
 import validator from "../../Middleware/validators/validators.middleware.js";
 import { validators } from "../../Validators/auth/index.validators.js";
