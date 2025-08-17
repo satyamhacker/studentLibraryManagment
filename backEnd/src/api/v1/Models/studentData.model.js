@@ -133,10 +133,28 @@ const Student = sequelize.define('Student', {
       isDecimal: { msg: 'Admission Amount must be a valid number' },
     },
   },
+  signupId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    unique: true,
+    references: {
+      model: 'signup_data',
+      key: 'id'
+    },
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
+  }
 }, {
   tableName: 'studentsdata', // Explicit table name
   timestamps: true, // Adds createdAt and updatedAt fields
   underscored: false, // Use camelCase column names
+});
+
+// Define association
+Student.belongsTo(SignupData, {
+  foreignKey: 'signupId',
+  onDelete: 'CASCADE',
+  onUpdate: 'CASCADE'
 });
 
 // Optional: Sync the model (uncomment if you want to sync from this file, but better in main app)
