@@ -25,8 +25,6 @@ export const SignupValidator = Joi.object({
         .min(8)
         .max(255)
         // Require at least one uppercase, one lowercase, one number, and one special character
-        // Use + to ensure the whole string matches allowed chars (works with min/max)
-        .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]+$'))
         .required()
         .messages({
             'string.empty': 'Password is required',
