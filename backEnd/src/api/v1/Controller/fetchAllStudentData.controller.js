@@ -1,9 +1,9 @@
-import { Student } from '../Models/modelsImportExport.mjs';
+import { Student } from '../Models/index.model.js';
 import { StatusCodes } from 'http-status-codes';
 import MESSAGE from '../Constants/message.js';
 
 // Controller to fetch student data
-export const fetchStudentsData = async (req, res) => {
+export const fetchAllStudentData = async (req, res) => {
   try {
     // Fetch all student data from the database
     const students = await Student.findAll();
