@@ -1,5 +1,5 @@
-import { EncodeUserJwt } from "../Middleware/Jwt.mjs";
-import SignupData from "../Models/SignupData.mjs";
+import EncodeUserJwt from "../Middleware/index.middleware.js";
+import SignupData from "../Models/signup.model.js";
 import bcrypt from "bcrypt"; // Import bcrypt for password hashing
 
 export const signupCreate = async (req, res) => {
