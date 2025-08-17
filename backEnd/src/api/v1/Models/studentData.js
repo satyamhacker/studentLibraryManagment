@@ -134,7 +134,7 @@ const Student = sequelize.define('Student', {
     },
   },
 }, {
-  tableName: 'students', // Explicit table name
+  tableName: 'studentsdata', // Explicit table name
   timestamps: true, // Adds createdAt and updatedAt fields
   underscored: false, // Use camelCase column names
 });
