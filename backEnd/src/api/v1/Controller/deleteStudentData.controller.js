@@ -1,4 +1,4 @@
-import {Student} from '../Models/modelsImportExport.mjs'; // Adjust path to your Student model
+import { Student } from '../Models/index.model.js'; // Adjust path to your Student model
 
 export const deleteStudentData = async (req, res) => {
   const { id } = req.params;
