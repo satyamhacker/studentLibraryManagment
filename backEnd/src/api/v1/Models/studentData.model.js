@@ -1,5 +1,7 @@
+
 import { sequelize } from './index.model.js';
 import { DataTypes } from 'sequelize';
+import SignupData from './Signup.model.js';
 
 // Define the Student model using the imported sequelize instance
 const Student = sequelize.define('Student', {
