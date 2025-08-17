@@ -11,7 +11,7 @@ const secretKey = process.env.SECRET_KEY;
 
 
 // Function to encode user JWT
-export const EncodeUserJwt = (email) => {
+export function EncodeUserJwt(email) {
   // Payload data to include in the token
   const payload = { email };
   // Options for the token (e.g., expiration time)
@@ -20,7 +20,7 @@ export const EncodeUserJwt = (email) => {
   // Generate the token
   const token = jwt.sign(payload, secretKey, options);
   return token;
-};
+}
 
 // Function to verify user JWT
 
