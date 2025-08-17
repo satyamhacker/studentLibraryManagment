@@ -1,9 +1,10 @@
-import jwt from "jsonwebtoken";
 
+import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import { StatusCodes } from "http-status-codes";
 
 // Load environment variables from .env file
-dotenv.config({ path: '../.env' });
+dotenv.config();
 
 // Get the secret key from environment variables
 const secretKey = process.env.SECRET_KEY;
@@ -27,8 +28,9 @@ export const VerifyUserJwt = (req, res, next) => {
   // Get the token from the request headers
   const token = req.headers.authorization?.split(" ")[1];
 
+
   if (!token) {
-    return res.status(401).json({ error: "Access denied. No token provided." });
+    return res.status(StatusCodes.UNAUTHORIZED).json({ error: "Access denied. No token provided." });
   }
 
   try {
@@ -38,6 +40,6 @@ export const VerifyUserJwt = (req, res, next) => {
     next(); // Proceed to the next middleware or route handler
   } catch (error) {
     console.error("JWT verification error:", error);
-    return res.status(400).json({ error: "Invalid token." });
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: "Invalid token." });
   }
 };
