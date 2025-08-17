@@ -1,12 +1,16 @@
+
+import express from "express";
 import {
     signupCreate,
     login,
 } from "../../Controller/signupLogin.js"; // Import your signupLogin controller
 
 import validator from "../../Middleware/validators/validators.middleware.js";
-import { validators } from "../../Validators/auth/index.validators.js"
+import { validators } from "../../Validators/auth/index.validators.js";
 
-app.post("/signup", validator(validators.auth.SignupValidator), signupCreate); // Route for signup
-app.post("/login", login); // Route for login
+const router = express.Router();
 
-export default app;
+router.post("/signup", validator(validators.auth.SignupValidator), signupCreate); // Route for signup
+router.post("/login", login); // Route for login
+
+export default router;

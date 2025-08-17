@@ -152,12 +152,7 @@ const Student = sequelize.define('Student', {
   underscored: false, // Use camelCase column names
 });
 
-// Define association
-Student.belongsTo(SignupData, {
-  foreignKey: 'signupId',
-  onDelete: 'CASCADE',
-  onUpdate: 'CASCADE'
-});
+// ...association moved to associateModels.js...
 
 // Optional: Sync the model (uncomment if you want to sync from this file, but better in main app)
 // (async () => {

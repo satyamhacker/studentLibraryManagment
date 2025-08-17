@@ -2,7 +2,9 @@ import express from "express"; // Import Express
 import cors from "cors"; // Import CORS middleware
 
 import dotenv from 'dotenv';
+
 import mainRoutes from "./src/api/v1/Routes/index.routes.js"; // Import main routes
+import './src/api/v1/Models/associateModels.js'; // Ensure model associations are set up
 
 // Load environment variables from .env file
 dotenv.config({ path: '../.env' });

@@ -33,11 +33,6 @@ const SignupData = sequelize.define('SignupData', {
   paranoid: true, // Enable soft deletes
 });
 
-// Define association
-SignupData.hasOne(Student, {
-  foreignKey: 'signupId',
-  onDelete: 'CASCADE',
-  onUpdate: 'CASCADE'
-});
+// ...association moved to associateModels.js...
 
 export default SignupData; // Export the SignupData model for use in other files
