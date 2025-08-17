@@ -5,8 +5,8 @@ import Student from './studentData.model.js';
 // Define the Signup model using the imported sequelize instance
 const SignupData = sequelize.define('SignupData', {
   id: {
-    type: DataTypes.INTEGER,
-    autoIncrement: true,
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
     primaryKey: true,
   },
   email: {

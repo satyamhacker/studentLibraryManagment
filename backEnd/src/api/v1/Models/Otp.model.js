@@ -4,8 +4,8 @@ import { DataTypes } from 'sequelize';
 // Define the Otp model using the imported sequelize instance
 const Otp = sequelize.define('Otp', {
   id: {
-    type: DataTypes.INTEGER,
-    autoIncrement: true,
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
     primaryKey: true,
   },
   email: {
