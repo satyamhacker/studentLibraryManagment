@@ -1,5 +1,5 @@
 import { StatusCodes } from "http-status-codes";
-import MESSAGE from "../../constants/message.js";
+import MESSAGE from "../../Constants/message.js";
 
 export const validator = (schema, property = null) => {
     return (req, res, next) => {

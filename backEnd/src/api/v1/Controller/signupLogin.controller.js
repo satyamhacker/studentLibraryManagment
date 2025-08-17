@@ -1,6 +1,9 @@
+
 import EncodeUserJwt from "../Middleware/index.middleware.js";
 import SignupData from "../Models/signup.model.js";
 import bcrypt from "bcrypt"; // Import bcrypt for password hashing
+import { StatusCodes } from "http-status-codes";
+import MESSAGE from "../Constants/message.js";
 
 export const signupCreate = async (req, res) => {
   try {
@@ -10,9 +13,10 @@ export const signupCreate = async (req, res) => {
 
 
     // Check if the user already exists
+
     const existingUser = await SignupData.findOne({ email });
     if (existingUser) {
-      return res.status(409).json({ error: "User already exists" }); // Conflict status
+      return res.status(StatusCodes.CONFLICT).json({ error: MESSAGE.post.sameEntry });
     }
 
     // Hash the password before saving
@@ -25,10 +29,10 @@ export const signupCreate = async (req, res) => {
     });
 
     // Respond with the newly created signup data
-    res.status(201).json("User created");
+    res.status(StatusCodes.CREATED).json({ message: MESSAGE.post.succ });
   } catch (error) {
     console.error("Error creating signup data:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: MESSAGE.error });
   }
 };
 
@@ -38,21 +42,23 @@ export const login = async (req, res) => {
     const { email, password } = req.body;
 
 
+
     const user = await SignupData.findOne({ email });
     if (!user) {
-      return res.status(401).json({ error: "Invalid email or password" }); // Unauthorized if user not found
+      return res.status(StatusCodes.UNAUTHORIZED).json({ error: MESSAGE.get.fail });
     }
 
     // Compare the provided password with the hashed password in the database
     const isMatch = await bcrypt.compare(password, user.password);
+
     if (!isMatch) {
-      return res.status(401).json({ error: "Invalid email or password" }); // Unauthorized if passwords do not match
+      return res.status(StatusCodes.UNAUTHORIZED).json({ error: MESSAGE.get.fail });
     }
 
     const EncodeUserJwtToken = EncodeUserJwt(email);
-    res.status(200).json(["Login successful", EncodeUserJwtToken]); // Changed status to 200 for success
+    res.status(StatusCodes.OK).json({ message: MESSAGE.get.succ, token: EncodeUserJwtToken });
   } catch (error) {
     console.error("Error checking login data:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: MESSAGE.error });
   }
 };
