@@ -24,23 +24,7 @@ export const addStudentData = async (req, res) => {
       AdmissionAmount,
     } = req.body;
 
-    // Validate required fields
-    if (
-      !RegistrationNumber ||
-      !AdmissionDate ||
-      !StudentName ||
-      !FatherName ||
-      !Address ||
-      !ContactNumber ||
-      !TimeSlots || !Array.isArray(TimeSlots) || TimeSlots.length === 0 ||
-      !Shift ||
-      !FeesPaidTillDate ||
-      !AmountPaid ||
-      !PaymentMode ||
-      !AdmissionAmount
-    ) {
-      return res.status(StatusCodes.BAD_REQUEST).json({ error: MESSAGE.post.fail, details: 'All required fields must be provided and TimeSlots must be a non-empty array' });
-    }
+    // Validation is now handled by middleware (Joi validator)
 
     // Check if RegistrationNumber or ContactNumber already exists
     const existingStudent = await Student.findOne({
