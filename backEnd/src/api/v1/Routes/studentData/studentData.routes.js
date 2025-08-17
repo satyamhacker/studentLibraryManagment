@@ -9,7 +9,7 @@ import { VerifyUserJwt } from "../../Middleware/jwt.middleware.js";
 
 const router = express.Router();
 
-router.post("/add-student-data", validator(validators.auth.SignupValidator), addStudentData); // Route for signup
+router.post("/add-student-data", validator(validators.studentData.addStudentDataValidator), addStudentData); // Route for signup
 
 
 export default router;
