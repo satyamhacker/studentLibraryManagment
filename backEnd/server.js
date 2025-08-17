@@ -25,6 +25,9 @@ app.use("/api/v1", mainRoutes);
 sequelize.sync({ alter: true }).then(() => {
     console.log("All models were synchronized successfully.");
 });
+// sequelize.sync({ force: true }).then(() => {
+//     console.log("All models were synchronized successfully.");
+// });
 
 app.listen(port, () => {
     console.log(`Server is listening on port ${port}`);
