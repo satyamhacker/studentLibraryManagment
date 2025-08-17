@@ -1,4 +1,4 @@
-import { signupCreate, login } from "./signupLogin.js";
+import { signupCreate, login } from "./signupLogin.controller.js";
 
 export {
   signupCreate,
