@@ -1,5 +1,5 @@
 // This file sets up associations between models to avoid circular dependencies.
-import SignupData from './Signup.model.js';
+import SignupData from './signup.model.js';
 import Student from './studentData.model.js';
 
 // Define associations after both models are imported
