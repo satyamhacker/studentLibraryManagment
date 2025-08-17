@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt';
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 
-dotenv.config({ path: '../.env' });
+dotenv.config();
 
 const generateOtp = () => {
   return Math.floor(1000 + Math.random() * 9000).toString(); // Generate a 4-digit OTP
@@ -14,13 +14,13 @@ const sendOtpEmail = async (email, otp) => {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: process.env.GMAIL_USER,
-      pass: process.env.GMAIL_APP_PASSWORD,
+      user: process.env.MAIL_USER,
+      pass: process.env.MAIL_PASS,
     },
   });
 
   const mailOptions = {
-    from: process.env.GMAIL_USER,
+    from: process.env.MAIL_USER,
     to: email,
     subject: 'Your Library OTP Code For Reset Password',
     text: `Your OTP code is ${otp}`,
