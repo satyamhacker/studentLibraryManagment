@@ -1,4 +1,15 @@
+// Validator for filterStudentData
 import Joi from 'joi';
+
+export const filterStudentDataValidator = Joi.object({
+    year: Joi.number().integer().min(1900).max(2100).optional(),
+    month: Joi.string().valid(
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+    ).optional(),
+    dateRange: Joi.string().pattern(/^\d{2}\/\d{2}\/\d{4} - \d{2}\/\d{2}\/\d{4}$/).optional(),
+    paymentMode: Joi.string().valid('online', 'cash').optional(),
+});
 
 export const studentDataValidator = Joi.object({
     RegistrationNumber: Joi.string().max(50).required(),
