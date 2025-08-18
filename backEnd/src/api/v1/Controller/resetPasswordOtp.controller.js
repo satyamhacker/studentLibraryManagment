@@ -1,6 +1,6 @@
 
-import Otp from '../Models/Otp.mjs';
-import SignupData from '../Models/SignupData.mjs';
+import Otp from '../Models/otp.model.js';
+import SignupData from '../Models/signup.model.js';
 import bcrypt from 'bcrypt';
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';

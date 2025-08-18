@@ -1,4 +1,5 @@
 import { signupCreate, login } from "./signupLogin.controller.js";
+import { sendOtp, verifyOtp, resetPassword } from "./resetPasswordOtp.controller.js";
 import { addStudentData } from "./addStudentData.controller.js";
 import { deleteStudentData } from "./deleteStudentData.controller.js";
 import { fetchAllStudentData } from "./fetchAllStudentData.controller.js";
@@ -11,5 +12,8 @@ export {
   deleteStudentData,
   fetchAllStudentData,
   updatePaymentExpectedDate,
-  filterStudentData
+  filterStudentData,
+  sendOtp,
+  verifyOtp,
+  resetPassword
 };

@@ -1,4 +1,4 @@
-import { sequelize } from './modelsImportExport.mjs';
+import { sequelize } from './index.model.js';
 import { DataTypes } from 'sequelize';
 
 // Define the Otp model using the imported sequelize instance
