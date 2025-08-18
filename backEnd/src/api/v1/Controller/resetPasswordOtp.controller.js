@@ -36,6 +36,12 @@ export const sendOtp = async (req, res) => {
   const { email } = req.body;
 
   try {
+    // Check if email exists in SignupData
+    const user = await SignupData.findOne({ where: { email } });
+    if (!user) {
+      return res.status(StatusCodes.NOT_FOUND).json({ success: false, message: "Email not registered" });
+    }
+
     const otp = generateOtp();
     await Otp.create({ email, otp });
 
