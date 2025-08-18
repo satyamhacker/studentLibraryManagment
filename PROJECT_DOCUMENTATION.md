@@ -75,72 +75,77 @@ A comprehensive web-based library management system designed specifically for st
 
 ## API Endpoints Structure
 
+
 ### Authentication Routes
-- `POST /signup` - User registration
-- `POST /login` - User authentication
-- `POST /reset-password` - Password reset request
-- `POST /verify-otp` - OTP verification
+- `POST /auth/signup` - User registration
+- `POST /auth/login` - User authentication
+- `POST /auth/send-otp` - Send OTP for password reset
+- `POST /auth/verify-otp` - OTP verification
+- `POST /auth/reset-password` - Password reset request
+
 
 ### Student Management Routes
-- `POST /add-student` - Add new student
-- `GET /students` - Fetch all students
-- `GET /student/:id` - Get specific student
-- `PUT /update-student/:id` - Update student information
-- `DELETE /delete-student/:id` - Remove student
-- `PUT /update-payment-date/:id` - Update payment expected date
+- `POST /studentData/add-student-data` - Add new student
+- `GET /studentData/fetch-all-student-data` - Fetch all students
+- `DELETE /studentData/delete-student-data/:id` - Remove student
+- `PATCH /studentData/update-student-data/:id` - Update student information
+- `PATCH /studentData/update-payment-expected-date/:id` - Update payment expected date
+- `POST /studentData/filter-student-data` - Filter students by various criteria
+
 
 ### Data Export Routes
-- `GET /export-students` - Export student data to Excel
+- `GET /studentData/export-student-data-excel` - Export student data to Excel
+
 
 ### Filter & Search Routes
-- `GET /filter-students` - Filter students by various criteria
-- `GET /students-with-dues` - Get students with pending payments
-- `GET /subscription-ending` - Get students with ending subscriptions
-- `GET /unallocated-seats` - Get students without seat allocation
+- `POST /studentData/filter-student-data` - Filter students by various criteria
+// (Other specialized filter/search endpoints can be added as needed)
 
 ## Database Schema
 
+
 ### Students Table
 ```sql
-- id (Primary Key, Auto Increment)
-- RegistrationNumber (String, Required, Unique)
-- AdmissionDate (Date, Required)
-- StudentName (String, Required)
-- FatherName (String, Required)
-- Address (String, Required)
-- ContactNumber (String, 10 digits, Required)
-- TimeSlots (JSON Array, Required)
-- Shift (String, Required)
-- SeatNumber (String, Optional)
-- FeesPaidTillDate (Date, Required)
-- AmountPaid (Decimal, Required)
-- AmountDue (Decimal, Optional)
-- LockerNumber (String, Optional)
-- PaymentExpectedDate (Date, Optional)
-- PaymentExpectedDateChanged (Integer, Optional)
-- PaymentMode (Enum: 'online'/'cash', Optional)
-- AdmissionAmount (Decimal, Required)
-- createdAt (Timestamp)
-- updatedAt (Timestamp)
+id (Primary Key, UUID)
+RegistrationNumber (String, Required, Unique)
+AdmissionDate (Date, Required)
+StudentName (String, Required)
+FatherName (String, Required)
+Address (String, Required)
+ContactNumber (String, 10 digits, Required)
+TimeSlots (JSON Array, Required)
+Shift (String, Required)
+SeatNumber (String, Optional)
+FeesPaidTillDate (Date, Required)
+AmountPaid (Decimal, Required)
+AmountDue (Decimal, Optional)
+LockerNumber (String, Optional)
+PaymentExpectedDate (Date, Optional)
+PaymentExpectedDateChanged (Integer, Optional)
+PaymentMode (Enum: 'online'/'cash', Optional)
+AdmissionAmount (Decimal, Required)
+createdAt (Timestamp)
+updatedAt (Timestamp)
 ```
+
 
 ### Signup Data Table
 ```sql
-- id (Primary Key, Auto Increment)
-- email (String, Required, Unique)
-- password (String, Hashed, Required)
-- createdAt (Timestamp)
-- updatedAt (Timestamp)
+id (Primary Key, UUID)
+email (String, Required, Unique)
+password (String, Hashed, Required)
+createdAt (Timestamp)
+updatedAt (Timestamp)
 ```
+
 
 ### OTP Table
 ```sql
-- id (Primary Key, Auto Increment)
-- email (String, Required)
-- otp (String, Required)
-- expiresAt (Timestamp, Required)
-- createdAt (Timestamp)
-- updatedAt (Timestamp)
+id (Primary Key, UUID)
+email (String, Required)
+otp (String, Required)
+createdAt (Timestamp)
+updatedAt (Timestamp)
 ```
 
 ## Frontend Components Structure
@@ -233,10 +238,12 @@ Use the provided `run.bat` file to start both backend and frontend servers autom
 studentStudyLibraryManagment/
 ├── backEnd/
 │   ├── src/api/v1/
-│   │   ├── Controller/     # API controllers
-│   │   ├── Models/         # Database models
-│   │   ├── Middleware/     # Authentication middleware
-│   │   └── exportsStudentData/  # Export functionality
+│   │   ├── Controller/         # API controllers
+│   │   ├── Models/             # Database models
+│   │   ├── Middleware/         # Authentication & validation middleware
+│   │   ├── exportsStudentData/ # Exported Excel files
+│   │   ├── Routes/             # Express route files
+│   │   └── Validators/         # Joi validation schemas
 │   └── package.json
 ├── frontEnd/
 │   ├── src/
