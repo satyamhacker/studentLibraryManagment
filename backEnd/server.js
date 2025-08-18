@@ -22,9 +22,14 @@ app.use(express.json());
 app.use("/api/v1", mainRoutes);
 
 // Sync all models with the database
-sequelize.sync({ alter: true }).then(() => {
+sequelize.sync().then(() => {
     console.log("All models were synchronized successfully.");
+}).catch((error) => {
+    console.error("Error synchronizing models:", error);
 });
+// sequelize.sync({ alter: true }).then(() => {
+//     console.log("All models were synchronized successfully.");
+// });
 // sequelize.sync({ force: true }).then(() => {
 //     console.log("All models were synchronized successfully.");
 // });

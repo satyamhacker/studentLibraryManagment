@@ -9,6 +9,8 @@ export const updatePaymentExpectedDate = async (req, res) => {
     const { id } = req.params;
     const { PaymentExpectedDate, PaymentExpectedDateChanged } = req.body;
 
+    console.log("testing ", id)
+
     // Validate required fields
     if (!PaymentExpectedDate || PaymentExpectedDateChanged === undefined) {
       return res.status(StatusCodes.BAD_REQUEST).json({ error: MESSAGE.put.fail, details: 'PaymentExpectedDate and PaymentExpectedDateChanged must be provided' });
