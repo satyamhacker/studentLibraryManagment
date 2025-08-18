@@ -54,7 +54,7 @@ export const login = async (req, res) => {
       return res.status(StatusCodes.UNAUTHORIZED).json({ error: MESSAGE.get.fail });
     }
 
-    const EncodeUserJwtToken = EncodeUserJwt(email);
+    const EncodeUserJwtToken = EncodeUserJwt(user.id, user.email);
     res.status(StatusCodes.OK).json({ message: MESSAGE.get.succ, token: EncodeUserJwtToken });
   } catch (error) {
     console.error("Error checking login data:", error);

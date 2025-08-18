@@ -107,6 +107,7 @@ export const addStudentData = async (req, res) => {
       LockerNumber,
       PaymentMode,
       AdmissionAmount: parseFloat(AdmissionAmount),
+      signupId: req.user.userId, // Set the foreign key from JWT
     });
 
     // Respond with the newly created student data
