@@ -13,6 +13,7 @@ const router = express.Router();
 
 router.post("/signup", validator(validators.auth.SignupValidator), signupCreate); // Route for signup
 router.post("/login", validator(validators.auth.LoginValidator), login); // Route for login
+// router.post("/reset-password",)
 
 
 export default router;
