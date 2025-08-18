@@ -1,8 +1,6 @@
-import { Student } from '../Models/modelsImportExport.mjs';
-import ExcelJS from 'exceljs';
-import path from 'path';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
+
+import { StatusCodes } from 'http-status-codes';
+import MESSAGE from '../Constants/message.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,7 +10,10 @@ export const exportStudentDataToExcel = async (req, res) => {
     const students = await Student.findAll();
 
     if (!students || students.length === 0) {
-      return res.status(404).json({ message: 'No student data found' });
+      return res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: MESSAGE.get.empty
+      });
     }
 
     const workbook = new ExcelJS.Workbook();
@@ -74,11 +75,19 @@ export const exportStudentDataToExcel = async (req, res) => {
     res.download(filePath, 'students_data.xlsx', (err) => {
       if (err) {
         console.error('Error downloading the file:', err);
-        res.status(500).json({ message: 'Error downloading the file' });
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+          success: false,
+          message: MESSAGE.get.custom('Error downloading the file')
+        });
       }
+      // Optionally, you can log or send a message on successful download trigger
+      // But download() does not send a JSON response on success
     });
   } catch (error) {
     console.error('Error exporting student data:', error);
-    res.status(500).json({ message: 'Internal Server Error' });
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: MESSAGE.get.custom('Internal server error while exporting student data')
+    });
   }
 };
