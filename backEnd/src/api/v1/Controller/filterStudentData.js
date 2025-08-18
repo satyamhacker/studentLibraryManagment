@@ -1,5 +1,8 @@
+
 import { Student } from '../Models/modelsImportExport.mjs'; // Adjust path to your Student model
 import { Op } from 'sequelize';
+import { StatusCodes } from 'http-status-codes';
+import MESSAGE from '../Constants/message.js';
 
 const convertStringToDate = (dateString) => {
   const [day, month, year] = dateString.split('/').map(Number);
@@ -32,7 +35,7 @@ export const filterStudentData = async (req, res) => {
       const startDate = convertStringToDate(startDateString);
       const endDate = convertStringToDate(endDateString);
       if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-        return res.status(400).json({ message: 'Invalid date range' });
+        return res.status(StatusCodes.BAD_REQUEST).json({ error: MESSAGE.get.fail, details: 'Invalid date range' });
       }
       whereClause.AdmissionDate = {
         [Op.gte]: startDate,
@@ -46,9 +49,12 @@ export const filterStudentData = async (req, res) => {
 
     const filteredStudents = await Student.findAll({ where: whereClause });
 
-    res.status(200).json(filteredStudents);
+    if (!filteredStudents || filteredStudents.length === 0) {
+      return res.status(StatusCodes.OK).json({ message: MESSAGE.get.empty, data: [] });
+    }
+    res.status(StatusCodes.OK).json({ message: MESSAGE.get.succ, data: filteredStudents });
   } catch (error) {
     console.error('Error filtering student data:', error);
-    res.status(500).json({ message: 'Internal Server Error' });
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: MESSAGE.error });
   }
 };
