@@ -1,8 +1,11 @@
+
 import Otp from '../Models/Otp.mjs';
 import SignupData from '../Models/SignupData.mjs';
 import bcrypt from 'bcrypt';
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
+import { StatusCodes } from 'http-status-codes';
+import MESSAGE from '../Constants/message.js';
 
 dotenv.config();
 
@@ -38,10 +41,10 @@ export const sendOtp = async (req, res) => {
 
     await sendOtpEmail(email, otp);
 
-    res.status(200).json({ success: true, message: 'OTP sent to your email.' });
+    res.status(StatusCodes.OK).json({ success: true, message: MESSAGE.post.succ });
   } catch (error) {
     console.error('Error sending OTP:', error);
-    res.status(500).json({ success: false, message: 'Error sending OTP.' });
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGE.post.fail });
   }
 };
 
@@ -52,15 +55,15 @@ export const verifyOtp = async (req, res) => {
     const otpRecord = await Otp.findOne({ where: { email, otp } });
 
     if (!otpRecord) {
-      return res.status(400).json({ success: false, message: 'Invalid OTP.' });
+      return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: MESSAGE.get.fail });
     }
 
     await Otp.destroy({ where: { email, otp } }); // Remove OTP after verification
 
-    res.status(200).json({ success: true, message: 'OTP verified successfully.' });
+    res.status(StatusCodes.OK).json({ success: true, message: MESSAGE.get.succ });
   } catch (error) {
     console.error('Error verifying OTP:', error);
-    res.status(500).json({ success: false, message: 'Error verifying OTP.' });
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGE.get.fail });
   }
 };
 
@@ -71,15 +74,15 @@ export const resetPassword = async (req, res) => {
     const user = await SignupData.findOne({ where: { email } });
 
     if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found.' });
+      return res.status(StatusCodes.NOT_FOUND).json({ success: false, message: MESSAGE.none });
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     await user.update({ password: hashedPassword });
 
-    res.status(200).json({ success: true, message: 'Password reset successfully.' });
+    res.status(StatusCodes.OK).json({ success: true, message: MESSAGE.put.succ });
   } catch (error) {
     console.error('Error resetting password:', error);
-    res.status(500).json({ success: false, message: 'Error resetting password.' });
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGE.put.fail });
   }
 };
