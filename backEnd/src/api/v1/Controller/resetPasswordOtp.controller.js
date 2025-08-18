@@ -1,5 +1,6 @@
 
 import Otp from '../Models/otp.model.js';
+import { Op } from 'sequelize';
 import SignupData from '../Models/signup.model.js';
 import bcrypt from 'bcrypt';
 import nodemailer from 'nodemailer';
@@ -41,6 +42,14 @@ export const sendOtp = async (req, res) => {
     if (!user) {
       return res.status(StatusCodes.NOT_FOUND).json({ success: false, message: "Email not registered" });
     }
+
+
+    // Delete OTPs older than 15 minutes
+    await Otp.destroy({
+      where: {
+        createdAt: { [Op.lt]: new Date(Date.now() - 15 * 60 * 1000) }
+      }
+    });
 
     const otp = generateOtp();
     await Otp.create({ email, otp });
