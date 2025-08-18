@@ -65,7 +65,7 @@ export const LoginValidator = Joi.object({
         }),
 
     password: Joi.string()
-        .min(8)
+        .min(4)
         .max(255)
         // Require at least one uppercase, one lowercase, one number, and one special character
         .required()

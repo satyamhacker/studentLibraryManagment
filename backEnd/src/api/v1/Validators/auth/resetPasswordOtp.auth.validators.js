@@ -11,5 +11,5 @@ export const verifyOtpValidator = Joi.object({
 
 export const resetPasswordValidator = Joi.object({
     email: Joi.string().email().required(),
-    newPassword: Joi.string().min(6).required(),
+    newPassword: Joi.string().required(),
 });

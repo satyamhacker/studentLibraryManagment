@@ -44,18 +44,28 @@ export const login = async (req, res) => {
 
     const user = await SignupData.findOne({ email });
     if (!user) {
-      return res.status(StatusCodes.UNAUTHORIZED).json({ error: MESSAGE.get.fail });
+      return res.status(StatusCodes.UNAUTHORIZED).json({
+        success: false,
+        message: "Invalid email or password"
+      });
     }
 
     // Compare the provided password with the hashed password in the database
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-      return res.status(StatusCodes.UNAUTHORIZED).json({ error: MESSAGE.get.fail });
+      return res.status(StatusCodes.UNAUTHORIZED).json({
+        success: false,
+        message: "Invalid email or password"
+      });
     }
 
     const EncodeUserJwtToken = EncodeUserJwt(user.id, user.email);
-    res.status(StatusCodes.OK).json({ message: MESSAGE.get.succ, token: EncodeUserJwtToken });
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: "Login successful",
+      token: EncodeUserJwtToken
+    });
   } catch (error) {
     console.error("Error checking login data:", error);
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: MESSAGE.error });
