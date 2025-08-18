@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Container, Row, Col, Modal, Button, Card } from "react-bootstrap";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 import "../styles/neonSeats.css"; // Custom CSS file for neon effects
 import { getRequest } from "../utils/api"; // Import the utility functions

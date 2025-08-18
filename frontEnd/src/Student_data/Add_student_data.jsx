@@ -1,9 +1,4 @@
 import React, { useState } from "react";
-import { Form, Button, Container, Row, Col } from "react-bootstrap";
-import { TextField, InputAdornment, MenuItem } from "@mui/material";
-import PersonIcon from "@mui/icons-material/Person";
-import ContactPhoneIcon from "@mui/icons-material/ContactPhone";
-import PaymentIcon from "@mui/icons-material/Payment";
 import axios from "axios";
 import "../styles/neonForm.css"; // Custom CSS file for neon effects
 

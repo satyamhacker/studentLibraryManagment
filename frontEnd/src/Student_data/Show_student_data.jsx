@@ -1,17 +1,4 @@
 import React, { useEffect, useState } from "react";
-import {
-  Table,
-  Button,
-  Modal,
-  Form,
-  Container,
-  Row,
-  Col,
-} from "react-bootstrap";
-import { IconButton, TextField, MenuItem, InputAdornment } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import SearchIcon from "@mui/icons-material/Search";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../styles/neonTable.css"; // Custom CSS file for neon effects
@@ -97,8 +84,7 @@ const ShowStudentData = () => {
       }
 
       await updateRequest(
-        `${import.meta.env.VITE_BACKEND_BASE_URL}/updateStudent/${
-          currentStudent.id
+        `${import.meta.env.VITE_BACKEND_BASE_URL}/updateStudent/${currentStudent.id
         }`,
         currentStudent,
         navigate

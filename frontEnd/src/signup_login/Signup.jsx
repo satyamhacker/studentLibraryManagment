@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { Form, Button } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { postRequest } from "../utils/api"; // Import the postRequest function
 
@@ -64,41 +63,43 @@ const Signup = () => {
     >
       <div className="signup-container">
         <h2 className="bg-blue-500 text-white p-2">{page}</h2>
-        {errorMessage && <p className="text-danger">{errorMessage}</p>}{" "}
-        {/* Display error message */}
-        <Form onSubmit={handleSubmit}>
-          <Form.Group controlId="formBasicEmail">
-            <Form.Label className="bg-white-1000 text-black p-2 text-lg font-bold">
+        {errorMessage && <p className="text-danger">{errorMessage}</p>}
+        {/* Signup form using standard HTML */}
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label htmlFor="email" className="bg-white-1000 text-black p-2 text-lg font-bold block">
               Email address
-            </Form.Label>
-            <Form.Control
+            </label>
+            <input
               type="email"
-              placeholder="Enter email"
+              id="email"
               name="email"
+              className="form-control block w-full p-2 border rounded"
+              placeholder="Enter email"
               value={formData.email}
               onChange={handleInputChange}
               required
             />
-          </Form.Group>
-
-          <Form.Group controlId="formBasicPassword">
-            <Form.Label className="bg-white-900 text-black p-2 text-lg font-bold">
+          </div>
+          <div className="mb-4">
+            <label htmlFor="password" className="bg-white-900 text-black p-2 text-lg font-bold block">
               Password
-            </Form.Label>
-            <Form.Control
+            </label>
+            <input
               type="password"
-              placeholder="Password"
+              id="password"
               name="password"
+              className="form-control block w-full p-2 border rounded"
+              placeholder="Password"
               value={formData.password}
               onChange={handleInputChange}
               required
             />
-          </Form.Group>
-
-          <Button className="bg-blue-700" type="submit">
+          </div>
+          <button className="bg-blue-700 text-white p-2 rounded w-full hover:bg-blue-800 transition" type="submit">
             Signup
-          </Button>
-        </Form>
+          </button>
+        </form>
         <div className="mt-4 active:bg-green-600 underline">
           <Link to="/login" className="font-bold bg-white">
             Go to login page
