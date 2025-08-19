@@ -1,17 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import BeatLoader from "react-spinners/BeatLoader"; // For loading spinner; install: npm install react-spinners
 
-// Assuming you have a postRequest utility function like this (define it if not):
-// const postRequest = async (url, data, navigate) => {
-//   try {
-//     const res = await fetch(url, { method: 'POST', body: JSON.stringify(data), headers: { 'Content-Type': 'application/json' } });
-//     return res.json();
-//   } catch (err) {
-//     console.error(err);
-//     throw err;
-//   }
-// };
+import { createApi } from "../api/api.js";
+import { loginUrl } from "../url/urlConfig.js";
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -37,29 +28,29 @@ const Login = () => {
     }
 
     try {
-      const response = await postRequest(
-        `${import.meta.env.VITE_BACKEND_BASE_URL}/login`,
-        formData,
-        navigate
-      );
+      const response = await createApi(loginUrl, formData);
 
-      if (response && response.length > 0) {
-        const userData = response[0];
-        alert("Login successful"); // Consider replacing with a toast library like react-toastify for better UX
-
-
-
-        // Note: Storing JWT in localStorage is common but not the most secure. Consider httpOnly cookies.
-        localStorage.setItem("jwtToken", response);
+      if (response.success === true) {
+        alert(response.message || "Login successful!");
+        localStorage.setItem("jwtToken", response.token);
         localStorage.setItem("isLoggedIn", "true");
-
         navigate("/home");
+      } else if (response.message) {
+        setError(response.message);
+      } else if (response.error) {
+        setError(response.error);
       } else {
         setError("Login failed. Please check your credentials.");
       }
     } catch (error) {
       console.error("Login failed:", error);
-      setError("An error occurred. Please try again.");
+      if (error?.message) {
+        setError(error.message);
+      } else if (error?.error) {
+        setError(error.error);
+      } else {
+        setError("An error occurred. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
