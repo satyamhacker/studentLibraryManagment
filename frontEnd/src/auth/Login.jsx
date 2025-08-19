@@ -83,41 +83,41 @@ const Login = () => {
       <div className="w-full max-w-md p-8 space-y-8 bg-white shadow-lg rounded-lg md:w-1/3">
         <h2 className="text-2xl font-bold text-center text-blue-600">Library Login</h2>
         {error && <p className="text-red-500 text-center">{error}</p>}
-        <Form onSubmit={handleSubmit}>
-          <Form.Group controlId="formBasicEmail" className="mb-4">
-            <Form.Label className="block text-sm font-medium text-gray-700">Email address</Form.Label>
-            <Form.Control
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="mb-4">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email address</label>
+            <input
               type="email"
-              placeholder="Enter your email"
+              id="email"
               name="email"
+              placeholder="Enter your email"
               value={formData.email}
               onChange={handleInputChange}
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-          </Form.Group>
-
-          <Form.Group controlId="formBasicPassword" className="mb-6">
-            <Form.Label className="block text-sm font-medium text-gray-700">Password</Form.Label>
-            <Form.Control
+          </div>
+          <div className="mb-6">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
+            <input
               type="password"
-              placeholder="Enter your password"
+              id="password"
               name="password"
+              placeholder="Enter your password"
               value={formData.password}
               onChange={handleInputChange}
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-          </Form.Group>
-
-          <Button
+          </div>
+          <button
             type="submit"
             disabled={loading}
             className="w-full py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
           >
             {loading ? <BeatLoader color="#ffffff" size={8} /> : "Login"}
-          </Button>
-        </Form>
+          </button>
+        </form>
         <div className="flex justify-between mt-4 text-sm">
           <Link to="/" className="text-blue-600 hover:underline">Go to Signup</Link>
           <Link to="/forgotPassword" className="text-blue-600 hover:underline">Forgot Password?</Link>
