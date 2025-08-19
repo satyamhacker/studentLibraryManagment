@@ -1,6 +1,7 @@
 
 import { StatusCodes } from 'http-status-codes';
 import MESSAGE from '../Constants/message.js';
+import Student from '../Models/studentData.model.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
