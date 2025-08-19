@@ -1,7 +1,12 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom"; // useNavigate added for potential redirects; already in your deps
-import { postRequest } from "../utils/api";
 import BeatLoader from "react-spinners/BeatLoader"; // Already in your package.json
+import { createApi } from "../api/api.js";
+import {
+  sendOtpUrl,
+  verifyOtpUrl,
+  resetPasswordUrl
+} from "../url/index.url.js"
 
 export default function ForgotPassword() {
   const [step, setStep] = useState(1);
@@ -13,6 +18,7 @@ export default function ForgotPassword() {
   const [isError, setIsError] = useState(false); // To style messages as error (red) or success (green)
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate(); // Optional: For redirects if needed
+
 
   const handleSendOtp = async () => {
     setMessage("");
@@ -28,20 +34,29 @@ export default function ForgotPassword() {
     }
 
     try {
-      const response = await postRequest(
-        `${import.meta.env.VITE_BACKEND_BASE_URL}/sendOtp`,
-        { email }
-      );
+      const response = await createApi(sendOtpUrl, { email });
       if (response.success) {
-        setMessage("OTP sent to your email.");
+        setMessage(response.message || "OTP sent to your email.");
         setStep(2);
+      } else if (response.message) {
+        setMessage(response.message);
+        setIsError(true);
+      } else if (response.error) {
+        setMessage(response.error);
+        setIsError(true);
       } else {
         setMessage("Failed to send OTP. Please try again.");
         setIsError(true);
       }
     } catch (error) {
       console.error("Error sending OTP:", error);
-      setMessage("Error sending OTP. Please try again.");
+      if (error?.message) {
+        setMessage(error.message);
+      } else if (error?.error) {
+        setMessage(error.error);
+      } else {
+        setMessage("Error sending OTP. Please try again.");
+      }
       setIsError(true);
     } finally {
       setLoading(false);
@@ -62,20 +77,29 @@ export default function ForgotPassword() {
     }
 
     try {
-      const response = await postRequest(
-        `${import.meta.env.VITE_BACKEND_BASE_URL}/verifyOtp`,
-        { email, otp }
-      );
+      const response = await createApi(verifyOtpUrl, { email, otp });
       if (response.success) {
-        setMessage("OTP verified successfully.");
+        setMessage(response.message || "OTP verified successfully.");
         setStep(3);
+      } else if (response.message) {
+        setMessage(response.message);
+        setIsError(true);
+      } else if (response.error) {
+        setMessage(response.error);
+        setIsError(true);
       } else {
         setMessage("Invalid OTP. Please try again.");
         setIsError(true);
       }
     } catch (error) {
       console.error("Error verifying OTP:", error);
-      setMessage("Error verifying OTP. Please try again.");
+      if (error?.message) {
+        setMessage(error.message);
+      } else if (error?.error) {
+        setMessage(error.error);
+      } else {
+        setMessage("Error verifying OTP. Please try again.");
+      }
       setIsError(true);
     } finally {
       setLoading(false);
@@ -102,20 +126,29 @@ export default function ForgotPassword() {
     }
 
     try {
-      const response = await postRequest(
-        `${import.meta.env.VITE_BACKEND_BASE_URL}/resetPassword`,
-        { email, newPassword }
-      );
+      const response = await createApi(resetPasswordUrl, { email, newPassword });
       if (response.success) {
-        setMessage("Password reset successfully. You can now log in.");
+        setMessage(response.message || "Password reset successfully. You can now log in.");
         setStep(4);
+      } else if (response.message) {
+        setMessage(response.message);
+        setIsError(true);
+      } else if (response.error) {
+        setMessage(response.error);
+        setIsError(true);
       } else {
         setMessage("Failed to reset password. Please try again.");
         setIsError(true);
       }
     } catch (error) {
       console.error("Error resetting password:", error);
-      setMessage("Error resetting password. Please try again.");
+      if (error?.message) {
+        setMessage(error.message);
+      } else if (error?.error) {
+        setMessage(error.error);
+      } else {
+        setMessage("Error resetting password. Please try again.");
+      }
       setIsError(true);
     } finally {
       setLoading(false);

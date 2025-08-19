@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 
 import { createApi } from "../api/api.js";
-import { loginUrl } from "../url/urlConfig.js";
+import { loginUrl } from "../url/index.url.js";
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });

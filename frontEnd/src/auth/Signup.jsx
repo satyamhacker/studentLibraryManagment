@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import BeatLoader from "react-spinners/BeatLoader"; // For loading spinner; install: npm install react-spinners
 import { createApi } from "../api/api.js";
-import { signupUrl } from "../url/urlConfig.js"
+import { signupUrl } from "../url/index.url.js"
 
 const Signup = () => {
   const page = "Library Signup Page";
