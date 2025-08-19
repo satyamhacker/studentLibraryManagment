@@ -6,7 +6,7 @@ import { signupUrl } from "../url/urlConfig.js"
 
 const Signup = () => {
   const page = "Library Signup Page";
-  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [formData, setFormData] = useState({ email: "", password: "", confirmPassword: "" });
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -30,8 +30,15 @@ const Signup = () => {
       setLoading(false);
       return;
     }
+
     if (formData.password.length < 6) {
       setErrorMessage("Password must be at least 6 characters.");
+      setLoading(false);
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setErrorMessage("Password and Confirm Password do not match.");
       setLoading(false);
       return;
     }
@@ -42,17 +49,25 @@ const Signup = () => {
       );
 
       // Check if the response indicates success
-      if (response === "User created") {
-        alert("User created. Now you can login."); // Consider replacing with a toast for better UX
+      if (response.success === true) {
+        alert(response.message || "Signup successful!");
         navigate("/login");
-      } else if (response.error === "User already exists") {
-        setErrorMessage("User already exists. Please use a different email.");
+      } else if (response.message) {
+        setErrorMessage(response.message);
+      } else if (response.error) {
+        setErrorMessage(response.error);
       } else {
         setErrorMessage("There was an error creating the user. Please try again.");
       }
     } catch (error) {
       console.error("Signup failed:", error);
-      setErrorMessage("There is some network error. Please try again later.");
+      if (error?.message) {
+        setErrorMessage(error.message);
+      } else if (error?.error) {
+        setErrorMessage(error.error);
+      } else {
+        setErrorMessage("There is some network error. Please try again later.");
+      }
     } finally {
       setLoading(false);
     }
@@ -95,6 +110,21 @@ const Signup = () => {
               name="password"
               placeholder="Enter your password"
               value={formData.password}
+              onChange={handleInputChange}
+              required
+              className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+              Confirm Password
+            </label>
+            <input
+              type="password"
+              id="confirmPassword"
+              name="confirmPassword"
+              placeholder="Confirm your password"
+              value={formData.confirmPassword}
               onChange={handleInputChange}
               required
               className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
