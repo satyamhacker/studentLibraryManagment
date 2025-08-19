@@ -9,13 +9,14 @@ export const signupCreate = async (req, res) => {
     // Extract data from the request body
     const { email, password } = req.body;
 
-
-
     // Check if the user already exists
 
-    const existingUser = await SignupData.findOne({ email });
+    const existingUser = await SignupData.findOne({ where: { email } });
     if (existingUser) {
-      return res.status(StatusCodes.CONFLICT).json({ error: MESSAGE.post.sameEntry });
+      return res.status(StatusCodes.CONFLICT).json({
+        success: false,
+        message: "Email already exists. Please use a different email or login."
+      });
     }
 
     // Hash the password before saving
@@ -28,10 +29,16 @@ export const signupCreate = async (req, res) => {
     });
 
     // Respond with the newly created signup data
-    res.status(StatusCodes.CREATED).json({ message: MESSAGE.post.succ });
+    res.status(StatusCodes.CREATED).json({
+      success: true,
+      message: "Signup successful! You can now login with your credentials."
+    });
   } catch (error) {
     console.error("Error creating signup data:", error);
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: MESSAGE.error });
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "An error occurred while creating your account. Please try again later."
+    });
   }
 };
 
@@ -42,11 +49,11 @@ export const login = async (req, res) => {
 
 
 
-    const user = await SignupData.findOne({ email });
+    const user = await SignupData.findOne({ where: { email } });
     if (!user) {
       return res.status(StatusCodes.UNAUTHORIZED).json({
         success: false,
-        message: "Invalid email or password"
+        message: "Invalid email or password. Please check your credentials and try again."
       });
     }
 
@@ -56,18 +63,21 @@ export const login = async (req, res) => {
     if (!isMatch) {
       return res.status(StatusCodes.UNAUTHORIZED).json({
         success: false,
-        message: "Invalid email or password"
+        message: "Invalid email or password. Please check your credentials and try again."
       });
     }
 
     const EncodeUserJwtToken = EncodeUserJwt(user.id, user.email);
     res.status(StatusCodes.OK).json({
       success: true,
-      message: "Login successful",
+      message: "Login successful! Welcome back.",
       token: EncodeUserJwtToken
     });
   } catch (error) {
     console.error("Error checking login data:", error);
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: MESSAGE.error });
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "An error occurred during login. Please try again later."
+    });
   }
 };

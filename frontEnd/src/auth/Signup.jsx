@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { postRequest } from "../utils/api"; // Import the postRequest function
 import BeatLoader from "react-spinners/BeatLoader"; // For loading spinner; install: npm install react-spinners
+import { createApi } from "../api/api.js";
+import { signupUrl } from "../url/urlConfig.js"
 
 const Signup = () => {
   const page = "Library Signup Page";
@@ -36,10 +37,8 @@ const Signup = () => {
     }
 
     try {
-      const response = await postRequest(
-        `${import.meta.env.VITE_BACKEND_BASE_URL}/signup`,
+      const response = await createApi(signupUrl,
         formData,
-        navigate
       );
 
       // Check if the response indicates success
