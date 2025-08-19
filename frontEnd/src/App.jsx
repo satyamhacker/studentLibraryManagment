@@ -1,19 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Login from "./signup_login/Login";
-import Signup from "./signup_login/Signup";
-import AddStudent from "./Student_data/Add_student_data";
-import ShowStudentData from "./Student_data/Show_student_data";
-import HomePage from "./Student_data/Home_page";
-import UnallocatedStudentsSeat from "./Student_data/Unallocated_students_seat";
-import StudentWithDues from "./Student_data/Student_with_dues";
-import StudentsWithLocker from "./Student_data/Show_students_haveLocker";
-import ShowVacantSeats from "./Student_data/Show_studentsName_seatsUnallocated";
-import ShowStudentsWithEndedMonth from "./Student_data/Students_subscription_ends";
-import PublicRoute from "./Student_data/PublicRoute"; // Import the PublicRoute component
-import PrivateRoute from "./Student_data/PrivateRoute"; // Import the PrivateRoute component
-import ForgotPassword from "./signup_login/ForgotPassword";
-import FilterStudentData from "./Student_data/Filter_student_data";
+import { Login, Signup } from "./auth/index.auth.js"
+import { PublicRoute } from "./studentData/index.studentData.js"
+
 import "./styles/darkMode.css"; // Import dark mode styles
 
 function App() {
@@ -49,13 +38,14 @@ function App() {
         <Routes>
           <Route path="/login" element={<PublicRoute element={<Login />} />} />
           <Route path="/" element={<PublicRoute element={<Signup />} />} />
+          {/* 
           <Route
             path="/forgotPassword"
             element={<PublicRoute element={<ForgotPassword />} />}
-          />
+          /> */}
 
           {/* Private Routes */}
-          <Route
+          {/* <Route
             path="/addStudent"
             element={<PrivateRoute element={<AddStudent />} />}
           />
@@ -92,7 +82,8 @@ function App() {
           <Route
             path="/home"
             element={<PrivateRoute element={<HomePage />} />}
-          />
+          /> */}
+
         </Routes>
       </div>
     </BrowserRouter>

@@ -1,8 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Form, Button } from "react-bootstrap"; // Assuming you're using react-bootstrap; install if needed: npm install react-bootstrap bootstrap
 import BeatLoader from "react-spinners/BeatLoader"; // For loading spinner; install: npm install react-spinners
-import { Context } from "../path/to/your/Context"; // Replace with your actual Context import path
 
 // Assuming you have a postRequest utility function like this (define it if not):
 // const postRequest = async (url, data, navigate) => {
@@ -20,7 +18,6 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const ContextData = useContext(Context); // Assuming Context is properly set up
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -50,8 +47,7 @@ const Login = () => {
         const userData = response[0];
         alert("Login successful"); // Consider replacing with a toast library like react-toastify for better UX
 
-        ContextData.Mail(userData.email);
-        ContextData.logIn();
+
 
         // Note: Storing JWT in localStorage is common but not the most secure. Consider httpOnly cookies.
         localStorage.setItem("jwtToken", response);
