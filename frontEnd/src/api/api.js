@@ -1,10 +1,10 @@
 import axios from "axios";
-
+import { localStorageToken } from "../url/urlConfig";
 const BASE_URL = import.meta.env.VITE_BASE_URL; // Ensure this is the correct environment variable
 
 // Function to get current token from localStorage
 const getToken = () => {
-    return localStorage.getItem("libraryToken");
+    return localStorageToken;
 };
 
 // Helper function to construct the API URL without double slashes
