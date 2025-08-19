@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { Login, Signup } from "./auth/index.auth.js"
 import { PublicRoute } from "./studentData/index.studentData.js"
-
 import "./styles/darkMode.css"; // Import dark mode styles
+
+import { Login, Signup, ForgotPassword } from "./auth/index.auth.js"
+
+
 
 function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -38,11 +40,10 @@ function App() {
         <Routes>
           <Route path="/login" element={<PublicRoute element={<Login />} />} />
           <Route path="/" element={<PublicRoute element={<Signup />} />} />
-          {/* 
           <Route
             path="/forgotPassword"
             element={<PublicRoute element={<ForgotPassword />} />}
-          /> */}
+          />
 
           {/* Private Routes */}
           {/* <Route
