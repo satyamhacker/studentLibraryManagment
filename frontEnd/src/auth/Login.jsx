@@ -34,7 +34,7 @@ const Login = () => {
         alert(response.message || "Login successful!");
         localStorage.setItem("jwtToken", response.token);
         localStorage.setItem("isLoggedIn", "true");
-        navigate("/home");
+        navigate("/homePage");
       } else if (response.message) {
         setError(response.message);
       } else if (response.error) {

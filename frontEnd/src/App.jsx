@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { PublicRoute } from "./studentData/index.studentData.js"
+import { PublicRoute, PrivateRoute } from "./studentData/index.studentData.js"
 import "./styles/darkMode.css"; // Import dark mode styles
 
 import { Login, Signup, ForgotPassword } from "./auth/index.auth.js"
-
+import { HomePage } from "./studentData/index.studentData.js"
 
 
 function App() {
@@ -45,6 +45,11 @@ function App() {
             element={<PublicRoute element={<ForgotPassword />} />}
           />
 
+          <Route
+            path="/homePage"
+            element={<PrivateRoute element={<HomePage />} />}
+          />
+
           {/* Private Routes */}
           {/* <Route
             path="/addStudent"
@@ -78,11 +83,6 @@ function App() {
           <Route
             path="/filterStudentData"
             element={<PrivateRoute element={<FilterStudentData />} />}
-          />
-
-          <Route
-            path="/home"
-            element={<PrivateRoute element={<HomePage />} />}
           /> */}
 
         </Routes>
