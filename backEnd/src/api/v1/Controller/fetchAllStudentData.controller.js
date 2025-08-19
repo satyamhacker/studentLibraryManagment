@@ -10,13 +10,24 @@ export const fetchAllStudentData = async (req, res) => {
 
     // If no students found, return an empty array
     if (!students || students.length === 0) {
-      return res.status(StatusCodes.OK).json({ message: MESSAGE.get.empty, data: [] });
+      return res.status(StatusCodes.OK).json({
+        success: true,
+        message: MESSAGE.get.empty,
+        data: []
+      });
     }
 
     // Send the fetched student data as response
-    res.status(StatusCodes.OK).json({ message: MESSAGE.get.succ, data: students });
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: MESSAGE.get.succ,
+      data: students
+    });
   } catch (error) {
     console.error('Error fetching student data:', error);
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: MESSAGE.error });
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: MESSAGE.error
+    });
   }
 };

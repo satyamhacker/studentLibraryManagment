@@ -9,7 +9,7 @@ const verifyOtpUrl = '/auth/verify-otp'
 const resetPasswordUrl = '/auth/reset-password'
 
 const addStudentDataUrl = '/student-data/add-student-data'
-
+const fetchAllStudentDataUrl = '/student-data/fetch-all-student-data'
 
 
 
@@ -21,5 +21,6 @@ export {
     sendOtpUrl,
     verifyOtpUrl,
     resetPasswordUrl,
-    addStudentDataUrl
+    addStudentDataUrl,
+    fetchAllStudentDataUrl
 }
