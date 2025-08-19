@@ -4,7 +4,7 @@ const BASE_URL = import.meta.env.VITE_BASE_URL; // Ensure this is the correct en
 
 // Function to get current token from localStorage
 const getToken = () => {
-    return localStorage.getItem("token");
+    return localStorage.getItem("libraryToken");
 };
 
 // Helper function to construct the API URL without double slashes
