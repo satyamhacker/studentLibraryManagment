@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+// import axios from "axios";
 import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
 import MenuItem from "@mui/material/MenuItem";
@@ -7,6 +7,9 @@ import PaymentIcon from '@mui/icons-material/Payment';
 import PersonIcon from '@mui/icons-material/Person';
 import ContactPhoneIcon from '@mui/icons-material/ContactPhone';
 import '../styles/neonForm.css'; // neon CSS for accents if wanted
+
+import { addStudentDataUrl } from "../url/index.url.js";
+import { createApi } from "../api/api.js";
 
 const AddStudentData = () => {
   const [studentData, setStudentData] = useState({
@@ -118,49 +121,54 @@ const AddStudentData = () => {
         AmountDue: studentData.AmountDue.replace("₹", "").trim(),
         AdmissionAmount: studentData.AdmissionAmount.replace("₹", "").trim(),
       };
-      const token = localStorage.getItem("jwtToken");
-      const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_BASE_URL}/addStudent`,
-        formattedData,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      alert(response.data.message);
-      setStudentData({
-        RegistrationNumber: "",
-        AdmissionDate: "",
-        StudentName: "",
-        FatherName: "",
-        Address: "",
-        ContactNumber: "",
-        TimeSlots: [],
-        Shift: "",
-        SeatNumber: "",
-        FeesPaidTillDate: "",
-        AmountPaid: "",
-        AmountDue: "",
-        LockerNumber: "",
-        PaymentMode: "",
-        AdmissionAmount: "",
-      });
-      setErrors({});
-    } catch (error) {
-      if (error.response?.status === 409) {
-        const { conflictingStudent, assignedTo } = error.response.data;
-        if (conflictingStudent) {
-          alert(
-            `Seat ${studentData.SeatNumber} is occupied by ${conflictingStudent.StudentName} for time slots: ${conflictingStudent.TimeSlots.join(", ")}`
-          );
-        } else if (assignedTo) {
-          alert(
-            `Locker ${studentData.LockerNumber} is already assigned to ${assignedTo}`
-          );
-        }
+      const response = await createApi(addStudentDataUrl, formattedData);
+      if (response.success) {
+        alert(response.message || "Student data added successfully");
+        setStudentData({
+          RegistrationNumber: "",
+          AdmissionDate: "",
+          StudentName: "",
+          FatherName: "",
+          Address: "",
+          ContactNumber: "",
+          TimeSlots: [],
+          Shift: "",
+          SeatNumber: "",
+          FeesPaidTillDate: "",
+          AmountPaid: "",
+          AmountDue: "",
+          LockerNumber: "",
+          PaymentMode: "",
+          AdmissionAmount: "",
+        });
+        setErrors({});
       } else {
-        const errorMessage = error.response?.data?.error || "Error adding student data";
-        alert(errorMessage);
+        // Show field-specific error if provided
+        if (response.field && response.error) {
+          setErrors({ [response.field]: response.error });
+          // Scroll to the first error field for better UX
+          setTimeout(() => {
+            const errorElem = document.querySelector(`[name='${response.field}']`);
+            if (errorElem) errorElem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 100);
+        } else if (response.conflictingStudent) {
+          alert(
+            `Seat ${studentData.SeatNumber} is occupied by ${response.conflictingStudent.StudentName} for time slots: ${response.conflictingStudent.TimeSlots.join(", ")}`
+          );
+        } else if (response.assignedTo) {
+          alert(
+            `Locker ${studentData.LockerNumber} is already assigned to ${response.assignedTo}`
+          );
+        } else if (response.details) {
+          alert(response.details);
+        } else if (response.error) {
+          alert(response.error);
+        } else {
+          alert("Failed to add student data");
+        }
       }
+    } catch (error) {
+      alert("Error adding student data");
     }
   };
 

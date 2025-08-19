@@ -39,12 +39,14 @@ export const addStudentData = async (req, res) => {
     if (existingStudent) {
       if (existingStudent.RegistrationNumber === RegistrationNumber) {
         return res.status(StatusCodes.BAD_REQUEST).json({
+          success: false,
           error: MESSAGE.post.sameEntry,
           field: 'RegistrationNumber',
         });
       }
       if (existingStudent.ContactNumber === ContactNumber) {
         return res.status(StatusCodes.BAD_REQUEST).json({
+          success: false,
           error: MESSAGE.post.sameEntry,
           field: 'ContactNumber',
         });
@@ -66,6 +68,7 @@ export const addStudentData = async (req, res) => {
 
       if (conflictingStudent) {
         return res.status(StatusCodes.CONFLICT).json({
+          success: false,
           error: MESSAGE.post.fail,
           details: 'This seat is already occupied for one or more of the requested time slots.',
           conflictingStudent: conflictingStudent.toJSON(),
@@ -83,6 +86,7 @@ export const addStudentData = async (req, res) => {
 
       if (existingLocker) {
         return res.status(StatusCodes.CONFLICT).json({
+          success: false,
           error: MESSAGE.post.fail,
           details: 'This locker is already assigned to another student.',
           assignedTo: existingLocker.StudentName,
@@ -112,6 +116,7 @@ export const addStudentData = async (req, res) => {
 
     // Respond with the newly created student data
     res.status(StatusCodes.CREATED).json({
+      success: true,
       message: MESSAGE.post.succ,
       data: newStudentData.toJSON(),
     });
@@ -119,10 +124,21 @@ export const addStudentData = async (req, res) => {
     console.error('Error adding student data:', error);
     if (error.name === 'SequelizeValidationError') {
       const errors = error.errors.map(err => err.message);
-      return res.status(StatusCodes.BAD_REQUEST).json({ error: MESSAGE.post.fail, details: errors });
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        error: MESSAGE.post.fail,
+        details: errors
+      });
     } else if (error.name === 'SequelizeUniqueConstraintError') {
-      return res.status(StatusCodes.BAD_REQUEST).json({ error: MESSAGE.post.sameEntry, field: error.fields });
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        error: MESSAGE.post.sameEntry,
+        field: error.fields
+      });
     }
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: MESSAGE.error });
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: MESSAGE.error
+    });
   }
 };

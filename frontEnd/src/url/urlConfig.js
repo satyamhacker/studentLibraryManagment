@@ -8,6 +8,8 @@ const sendOtpUrl = '/auth/send-otp'
 const verifyOtpUrl = '/auth/verify-otp'
 const resetPasswordUrl = '/auth/reset-password'
 
+const addStudentDataUrl = '/student-data/add-student-data'
+
 
 
 
@@ -18,5 +20,6 @@ export {
     loginUrl,
     sendOtpUrl,
     verifyOtpUrl,
-    resetPasswordUrl
+    resetPasswordUrl,
+    addStudentDataUrl
 }
