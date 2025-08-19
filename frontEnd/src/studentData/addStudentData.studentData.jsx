@@ -30,6 +30,7 @@ const AddStudentData = () => {
     AdmissionAmount: "",
   });
   const [errors, setErrors] = useState({});
+  const [alertShown, setAlertShown] = useState({ SeatNumber: false, LockerNumber: false });
   const timeOptions = [
     { label: "06:00 - 10:00", value: "06:00-10:00" },
     { label: "10:00 - 14:00", value: "10:00-14:00" },
@@ -54,20 +55,32 @@ const AddStudentData = () => {
         setErrors({ ...errors, ContactNumber: "Contact Number must be numeric" });
       }
     } else if (name === "SeatNumber") {
+      if (value === "") {
+        setStudentData({ ...studentData, [name]: value });
+        setAlertShown({ ...alertShown, SeatNumber: false });
+        return;
+      }
       const seatNumber = parseInt(value, 10);
       if (seatNumber >= 0 && seatNumber <= 136) {
         setStudentData({ ...studentData, [name]: value });
         setErrors({ ...errors, [name]: "" });
-      } else {
+      } else if (!alertShown.SeatNumber) {
         alert("SeatNumber is from 0 to 136 only. 0 is for temporary student.");
+        setAlertShown({ ...alertShown, SeatNumber: true });
       }
     } else if (name === "LockerNumber") {
+      if (value === "") {
+        setStudentData({ ...studentData, [name]: value });
+        setAlertShown({ ...alertShown, LockerNumber: false });
+        return;
+      }
       const lockerNumber = parseInt(value, 10);
       if (lockerNumber >= 0 && lockerNumber <= 100) {
         setStudentData({ ...studentData, [name]: value });
         setErrors({ ...errors, [name]: "" });
-      } else {
+      } else if (!alertShown.LockerNumber) {
         alert("Locker range is from 0 to 100. 0 is for no locker.");
+        setAlertShown({ ...alertShown, LockerNumber: true });
       }
     } else {
       setStudentData({ ...studentData, [name]: value });
@@ -122,6 +135,7 @@ const AddStudentData = () => {
         AdmissionAmount: studentData.AdmissionAmount.replace("₹", "").trim(),
       };
       const response = await createApi(addStudentDataUrl, formattedData);
+      console.log('API Response:', response);
       if (response.success) {
         alert(response.message || "Student data added successfully");
         setStudentData({
@@ -143,32 +157,14 @@ const AddStudentData = () => {
         });
         setErrors({});
       } else {
-        // Show field-specific error if provided
-        if (response.field && response.error) {
-          setErrors({ [response.field]: response.error });
-          // Scroll to the first error field for better UX
-          setTimeout(() => {
-            const errorElem = document.querySelector(`[name='${response.field}']`);
-            if (errorElem) errorElem.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }, 100);
-        } else if (response.conflictingStudent) {
-          alert(
-            `Seat ${studentData.SeatNumber} is occupied by ${response.conflictingStudent.StudentName} for time slots: ${response.conflictingStudent.TimeSlots.join(", ")}`
-          );
-        } else if (response.assignedTo) {
-          alert(
-            `Locker ${studentData.LockerNumber} is already assigned to ${response.assignedTo}`
-          );
-        } else if (response.details) {
-          alert(response.details);
-        } else if (response.error) {
-          alert(response.error);
-        } else {
-          alert("Failed to add student data");
-        }
+        alert(response.details || response.error || "Failed to add student data");
       }
     } catch (error) {
-      alert("Error adding student data");
+      console.log('Caught Error:', error);
+      const errorMessage = error.field 
+        ? `${error.field}: ${error.error || error.details || error.message}` 
+        : (error.details || error.error || error.message || "Error adding student data");
+      alert(errorMessage);
     }
   };
 
@@ -318,7 +314,11 @@ const AddStudentData = () => {
                 onChange={handleChange}
                 InputProps={{ className: "rounded-md bg-white focus:ring-2 focus:ring-indigo-300" }}
                 error={!!errors.SeatNumber}
-                helperText={errors.SeatNumber}
+                helperText={errors.SeatNumber || (
+                  <span className="text-blue-600 font-medium">
+                    💺 Range: 0-136 (0 for temporary student)
+                  </span>
+                )}
                 fullWidth
               />
               <TextField
@@ -329,7 +329,11 @@ const AddStudentData = () => {
                 onChange={handleChange}
                 InputProps={{ className: "rounded-md bg-white focus:ring-2 focus:ring-indigo-300" }}
                 error={!!errors.LockerNumber}
-                helperText={errors.LockerNumber}
+                helperText={errors.LockerNumber || (
+                  <span className="text-blue-600 font-medium">
+                    🔒 Range: 0-100 (0 for no locker)
+                  </span>
+                )}
                 fullWidth
               />
               <TextField

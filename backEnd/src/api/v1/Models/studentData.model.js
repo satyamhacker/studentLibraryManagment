@@ -136,14 +136,12 @@ const Student = sequelize.define('Student', {
     },
   },
   signupId: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
     allowNull: true,
-    unique: true,
     references: {
       model: 'signup_data',
       key: 'id'
     },
-    type: DataTypes.UUID,
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE'
   }

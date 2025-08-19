@@ -130,10 +130,11 @@ export const addStudentData = async (req, res) => {
         details: errors
       });
     } else if (error.name === 'SequelizeUniqueConstraintError') {
+      const fieldName = Object.keys(error.fields)[0];
       return res.status(StatusCodes.BAD_REQUEST).json({
         success: false,
         error: MESSAGE.post.sameEntry,
-        field: error.fields
+        field: fieldName
       });
     }
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
