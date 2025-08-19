@@ -69,8 +69,8 @@ export default function ForgotPassword() {
     setLoading(true);
 
     // Basic validation
-    if (otp.length !== 6) { // Assuming OTP is 6 digits; adjust as needed
-      setMessage("OTP should be 6 digits.");
+    if (otp.length !== 4) { // OTP is 4 digits
+      setMessage("OTP should be 4 digits.");
       setIsError(true);
       setLoading(false);
       return;
