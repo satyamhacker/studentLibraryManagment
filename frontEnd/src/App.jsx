@@ -4,7 +4,7 @@ import { PublicRoute, PrivateRoute } from "./studentData/index.studentData.js"
 import "./styles/darkMode.css"; // Import dark mode styles
 
 import { Login, Signup, ForgotPassword } from "./auth/index.auth.js"
-import { HomePage } from "./studentData/index.studentData.js"
+import { HomePage, AddStudentData } from "./studentData/index.studentData.js"
 
 
 function App() {
@@ -49,12 +49,14 @@ function App() {
             path="/homePage"
             element={<PrivateRoute element={<HomePage />} />}
           />
+          <Route
+            path="/addStudent"
+            element={<PrivateRoute element={<AddStudentData />} />}
+          />
 
           {/* Private Routes */}
-          {/* <Route
-            path="/addStudent"
-            element={<PrivateRoute element={<AddStudent />} />}
-          />
+          {/*
+           
           <Route
             path="/showStudentsData"
             element={<PrivateRoute element={<ShowStudentData />} />}
