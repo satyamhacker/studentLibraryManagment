@@ -162,10 +162,11 @@ const ShowStudentData = () => {
   // Use deleteApiById for deleting a student
   const deleteStudent = async (id) => {
     try {
-      await deleteApiById(deleteStudentUrl, id);
-      fetchStudentData();
+      const response = await deleteApiById(deleteStudentUrl, id);
       setShowDeleteModal(false);
       setStudentToDelete(null);
+      fetchStudentData();
+      alert(response?.message || "Student deleted successfully!");
     } catch (error) {
       console.error("Error deleting student:", error);
       alert("Error deleting student");
