@@ -6,7 +6,7 @@ import ShowVacantSeats from "./showVacantSeats.studentData.jsx";
 import ShowStudentData from "./showAllStudentDetails.studentData.jsx"
 import ShowLockers from "./showStudentsHaveLocker.jsx";
 import UnallocatedStudentsSeat from "./unallocatedStudentsSeat.jsx";
-
+import ShowStudentsWithEndedMonth from "./studentsWhoseSubsciptionEnds.jsx";
 export {
     PublicRoute,
     PrivateRoute,
@@ -15,5 +15,6 @@ export {
     ShowVacantSeats,
     ShowStudentData,
     ShowLockers,
-    UnallocatedStudentsSeat
+    UnallocatedStudentsSeat,
+    ShowStudentsWithEndedMonth
 }
