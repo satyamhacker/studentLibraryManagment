@@ -106,40 +106,40 @@ const ShowVacantSeats = () => {
       {/* Modal for displaying student details */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm">
-          <div className="bg-gradient-to-br from-green-50 via-white to-emerald-100 rounded-3xl shadow-2xl border-4 border-green-400 max-w-xl w-full p-8 relative animate-fadeIn">
+          <div className="bg-gradient-to-br from-slate-800 via-slate-700 to-slate-800 rounded-3xl shadow-2xl border-4 border-green-400 max-w-xl w-full p-8 relative animate-fadeIn">
             <button
-              className="absolute top-4 right-4 text-green-700 hover:text-red-500 text-3xl font-bold focus:outline-none"
+              className="absolute top-4 right-4 text-green-400 hover:text-red-400 text-3xl font-bold focus:outline-none"
               onClick={handleCloseModal}
               aria-label="Close"
             >
               ×
             </button>
-            <h3 className="text-3xl font-extrabold text-green-700 mb-6 neon-header flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-green-500"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118A7.5 7.5 0 0112 15.75a7.5 7.5 0 017.5 4.368" /></svg>
+            <h3 className="text-3xl font-extrabold text-green-400 mb-6 neon-header flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-green-400"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118A7.5 7.5 0 0112 15.75a7.5 7.5 0 017.5 4.368" /></svg>
               Student Details
             </h3>
             <div className="overflow-y-auto max-h-[60vh] pr-2">
               {selectedStudents.map((student, index) => (
-                <div key={index} className="mb-6 p-6 rounded-2xl bg-gradient-to-br from-green-100 via-white to-emerald-50 border border-green-200 shadow neon-card-ui">
-                  <div className="text-2xl font-bold text-emerald-700 mb-3 neon-card-title flex items-center gap-2">
-                    <svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' strokeWidth={1.5} stroke='currentColor' className='w-6 h-6 text-green-500'><path strokeLinecap='round' strokeLinejoin='round' d='M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z' /><path strokeLinecap='round' strokeLinejoin='round' d='M4.501 20.118A7.5 7.5 0 0112 15.75a7.5 7.5 0 017.5 4.368' /></svg>
+                <div key={index} className="mb-6 p-6 rounded-2xl bg-gradient-to-br from-slate-600 via-slate-500 to-slate-600 border border-green-400 shadow-lg">
+                  <div className="text-2xl font-bold text-green-300 mb-3 flex items-center gap-2">
+                    <svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' strokeWidth={1.5} stroke='currentColor' className='w-6 h-6 text-green-300'><path strokeLinecap='round' strokeLinejoin='round' d='M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z' /><path strokeLinecap='round' strokeLinejoin='round' d='M4.501 20.118A7.5 7.5 0 0112 15.75a7.5 7.5 0 017.5 4.368' /></svg>
                     {student.StudentName}
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-gray-700 neon-card-text text-base">
-                    <div><span className="font-bold text-green-700">Reg. No:</span> {student.RegistrationNumber}</div>
-                    <div><span className="font-bold text-green-700">Admission:</span> {formatDate(student.AdmissionDate)}</div>
-                    <div><span className="font-bold text-green-700">Father's Name:</span> {student.FatherName}</div>
-                    <div><span className="font-bold text-green-700">Contact:</span> {student.ContactNumber}</div>
-                    <div className="sm:col-span-2"><span className="font-bold text-green-700">Address:</span> {student.Address}</div>
-                    <div><span className="font-bold text-green-700">Time Slots:</span> {student.TimeSlots.join(", ")}</div>
-                    <div><span className="font-bold text-green-700">Shift:</span> {student.Shift}</div>
-                    <div><span className="font-bold text-green-700">Seat:</span> {student.SeatNumber}</div>
-                    <div><span className="font-bold text-green-700">Paid:</span> ₹{student.AmountPaid}</div>
-                    <div><span className="font-bold text-green-700">Due:</span> ₹{student.AmountDue || "0"}</div>
-                    <div><span className="font-bold text-green-700">Locker:</span> {student.LockerNumber}</div>
-                    <div><span className="font-bold text-green-700">Fees Till:</span> {formatDate(student.FeesPaidTillDate)}</div>
-                    <div><span className="font-bold text-green-700">Payment Mode:</span> {student.PaymentMode}</div>
-                    <div><span className="font-bold text-green-700">Admission Amt:</span> ₹{student.AdmissionAmount}</div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-gray-200 text-base">
+                    <div><span className="font-bold text-green-400">Reg. No:</span> <span className="text-white">{student.RegistrationNumber}</span></div>
+                    <div><span className="font-bold text-green-400">Admission:</span> <span className="text-white">{formatDate(student.AdmissionDate)}</span></div>
+                    <div><span className="font-bold text-green-400">Father's Name:</span> <span className="text-white">{student.FatherName}</span></div>
+                    <div><span className="font-bold text-green-400">Contact:</span> <span className="text-white">{student.ContactNumber}</span></div>
+                    <div className="sm:col-span-2"><span className="font-bold text-green-400">Address:</span> <span className="text-white">{student.Address}</span></div>
+                    <div><span className="font-bold text-green-400">Time Slots:</span> <span className="text-white">{student.TimeSlots.join(", ")}</span></div>
+                    <div><span className="font-bold text-green-400">Shift:</span> <span className="text-white">{student.Shift}</span></div>
+                    <div><span className="font-bold text-green-400">Seat:</span> <span className="text-white">{student.SeatNumber}</span></div>
+                    <div><span className="font-bold text-green-400">Paid:</span> <span className="text-white">₹{student.AmountPaid}</span></div>
+                    <div><span className="font-bold text-green-400">Due:</span> <span className="text-white">₹{student.AmountDue || "0"}</span></div>
+                    <div><span className="font-bold text-green-400">Locker:</span> <span className="text-white">{student.LockerNumber}</span></div>
+                    <div><span className="font-bold text-green-400">Fees Till:</span> <span className="text-white">{formatDate(student.FeesPaidTillDate)}</span></div>
+                    <div><span className="font-bold text-green-400">Payment Mode:</span> <span className="text-white">{student.PaymentMode}</span></div>
+                    <div><span className="font-bold text-green-400">Admission Amt:</span> <span className="text-white">₹{student.AdmissionAmount}</span></div>
                   </div>
                 </div>
               ))}
