@@ -42,6 +42,12 @@ const ShowStudentData = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [studentToDelete, setStudentToDelete] = useState(null);
   const [errors, setErrors] = useState({});
+  const [successMessage, setSuccessMessage] = useState("");
+  const [filters, setFilters] = useState({
+    shift: "",
+    paymentMode: "",
+    timeSlot: ""
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -87,18 +93,65 @@ const ShowStudentData = () => {
         setErrors({ TimeSlots: "At least one time slot is required" });
         return;
       }
-      const response = await updateApiById(updateStudentUrl, currentStudent.id, currentStudent);
+      
+      // Remove id and other non-updatable fields from the payload
+      const { id, createdAt, updatedAt, signupId, ...updatePayload } = currentStudent;
+      
+      const response = await updateApiById(updateStudentUrl, currentStudent.id, updatePayload);
+      
       if (response && response.success) {
         setShowEditModal(false);
+        setCurrentStudent(null);
+        setErrors({});
+        setSuccessMessage("Student data updated successfully!");
+        setTimeout(() => setSuccessMessage(""), 3000);
         fetchStudentData();
-      } else if (response && response.error) {
-        setErrors({ ...errors, api: response.error });
       } else {
-        setErrors({ ...errors, api: "Failed to update student." });
+        // Handle different error response structures
+        const apiErrors = {};
+        
+        // Check for validation errors in response.err.details
+        if (response?.err?.details && Array.isArray(response.err.details)) {
+          response.err.details.forEach(detail => {
+            const fieldName = detail.path?.[0] || 'unknown';
+            apiErrors[fieldName] = detail.message || 'Invalid value';
+          });
+        }
+        
+        // Set main error message
+        if (response?.message) {
+          apiErrors.api = response.message;
+        } else if (response?.error) {
+          apiErrors.api = response.error;
+        } else if (response?.err?.message) {
+          apiErrors.api = response.err.message;
+        } else {
+          apiErrors.api = "Failed to update student";
+        }
+        
+        console.log('API Error Response:', response); // Debug log
+        setErrors(apiErrors);
       }
     } catch (error) {
-      setErrors({ ...errors, api: "Error updating student." });
       console.error("Error updating student:", error);
+      
+      // Handle network or parsing errors
+      if (error.response?.data) {
+        const errorData = error.response.data;
+        const apiErrors = {};
+        
+        if (errorData.err?.details) {
+          errorData.err.details.forEach(detail => {
+            const fieldName = detail.path?.[0] || 'unknown';
+            apiErrors[fieldName] = detail.message || 'Invalid value';
+          });
+        }
+        
+        apiErrors.api = errorData.message || errorData.error || "Update failed";
+        setErrors(apiErrors);
+      } else {
+        setErrors({ api: "Network error: " + (error.message || "Unable to update student") });
+      }
     }
   };
   // Use deleteApiById for deleting a student
@@ -118,6 +171,7 @@ const ShowStudentData = () => {
     setCurrentStudent(student);
     setShowEditModal(true);
     setErrors({});
+    setSuccessMessage("");
   };
 
   const confirmDeleteStudent = (student) => {
@@ -141,13 +195,28 @@ const ShowStudentData = () => {
     }));
   };
 
-  const filteredStudents = students.filter((student) =>
-    Object.values(student).some((value) =>
-      value
-        ? value.toString().toLowerCase().includes(searchTerm.toLowerCase())
-        : false
-    )
-  );
+  const filteredStudents = students.filter((student) => {
+    // Search filter
+    const matchesSearch = searchTerm === "" || Object.values(student).some((value) =>
+      value ? value.toString().toLowerCase().includes(searchTerm.toLowerCase()) : false
+    );
+    
+    // Additional filters
+    const matchesShift = filters.shift === "" || student.Shift?.toLowerCase().includes(filters.shift.toLowerCase());
+    const matchesPaymentMode = filters.paymentMode === "" || student.PaymentMode === filters.paymentMode;
+    const matchesTimeSlot = filters.timeSlot === "" || student.TimeSlots?.includes(filters.timeSlot);
+    
+    return matchesSearch && matchesShift && matchesPaymentMode && matchesTimeSlot;
+  });
+
+  const handleFilterChange = (filterType, value) => {
+    setFilters(prev => ({ ...prev, [filterType]: value }));
+  };
+
+  const clearFilters = () => {
+    setFilters({ shift: "", paymentMode: "", timeSlot: "" });
+    setSearchTerm("");
+  };
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -159,16 +228,23 @@ const ShowStudentData = () => {
     return isNaN(date.getTime()) ? "" : date.toISOString().split("T")[0];
   };
 
-  const handleTimeChange = (e) => {
-    const selectedTimes = e.target.value;
+  const handleTimeChange = (timeValue) => {
+    const currentTimeSlots = currentStudent?.TimeSlots || [];
+    let updatedTimeSlots;
+    
+    if (currentTimeSlots.includes(timeValue)) {
+      updatedTimeSlots = currentTimeSlots.filter(slot => slot !== timeValue);
+    } else {
+      updatedTimeSlots = [...currentTimeSlots, timeValue];
+    }
+    
     setCurrentStudent((prev) => ({
       ...prev,
-      TimeSlots: selectedTimes,
+      TimeSlots: updatedTimeSlots,
     }));
     setErrors((prev) => ({
       ...prev,
-      TimeSlots:
-        selectedTimes.length > 0 ? "" : "At least one time slot is required",
+      TimeSlots: updatedTimeSlots.length > 0 ? "" : "At least one time slot is required",
     }));
   };
 
@@ -210,27 +286,69 @@ const ShowStudentData = () => {
 
         {/* Controls Section */}
         <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 p-6 mb-6">
-          <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
-            <div className="relative flex-1 max-w-md">
-              <SearchIcon />
-              <input
-                type="text"
-                placeholder="Search students..."
-                value={searchTerm}
-                onChange={handleSearch}
-                className="w-full pl-12 pr-4 py-3 bg-white/90 border border-white/30 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-gray-800 placeholder-gray-500"
-              />
-              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                <SearchIcon />
+          <div className="flex flex-col gap-6">
+            {/* Search and Export Row */}
+            <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
+              <div className="relative flex-1 max-w-md">
+                <input
+                  type="text"
+                  placeholder="Search students..."
+                  value={searchTerm}
+                  onChange={handleSearch}
+                  className="w-full pl-12 pr-4 py-3 bg-white/90 border border-white/30 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-gray-800 placeholder-gray-500"
+                />
+                <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                  <SearchIcon />
+                </div>
               </div>
+              <button
+                onClick={exportStudentDataToExcel}
+                className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+              >
+                <ExportIcon />
+                Export to Excel
+              </button>
             </div>
-            <button
-              onClick={exportStudentDataToExcel}
-              className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
-            >
-              <ExportIcon />
-              Export to Excel
-            </button>
+            
+            {/* Filters Row */}
+            <div className="flex flex-col md:flex-row gap-4 items-center">
+              <span className="text-white font-semibold text-sm">🔍 Filters:</span>
+              <select
+                value={filters.shift}
+                onChange={(e) => handleFilterChange('shift', e.target.value)}
+                className="px-3 py-2 bg-white/90 border border-white/30 rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-400"
+              >
+                <option value="">All Shifts</option>
+                <option value="morning">Morning</option>
+                <option value="evening">Evening</option>
+                <option value="night">Night</option>
+              </select>
+              <select
+                value={filters.paymentMode}
+                onChange={(e) => handleFilterChange('paymentMode', e.target.value)}
+                className="px-3 py-2 bg-white/90 border border-white/30 rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-400"
+              >
+                <option value="">All Payment Modes</option>
+                <option value="online">Online</option>
+                <option value="cash">Cash</option>
+              </select>
+              <select
+                value={filters.timeSlot}
+                onChange={(e) => handleFilterChange('timeSlot', e.target.value)}
+                className="px-3 py-2 bg-white/90 border border-white/30 rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-400"
+              >
+                <option value="">All Time Slots</option>
+                {timeOptions.map((option) => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </select>
+              <button
+                onClick={clearFilters}
+                className="px-4 py-2 bg-red-500/80 hover:bg-red-600 text-white rounded-lg text-sm font-medium transition-all duration-200"
+              >
+                Clear All
+              </button>
+            </div>
           </div>
         </div>
         {/* Main Content */}
@@ -334,7 +452,9 @@ const ShowStudentData = () => {
             <div className="p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Registration Number</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Registration Number<span className="text-red-500 ml-1">*</span>
+                  </label>
                   <input
                     type="text"
                     value={currentStudent?.RegistrationNumber || ""}
@@ -343,7 +463,9 @@ const ShowStudentData = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Admission Date</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Admission Date<span className="text-red-500 ml-1">*</span>
+                  </label>
                   <input
                     type="date"
                     value={currentStudent?.AdmissionDate ? formatDateForInput(currentStudent.AdmissionDate) : ""}
@@ -354,7 +476,9 @@ const ShowStudentData = () => {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Student Name</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Student Name<span className="text-red-500 ml-1">*</span>
+                  </label>
                   <input
                     type="text"
                     value={currentStudent?.StudentName || ""}
@@ -363,7 +487,9 @@ const ShowStudentData = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Father's Name</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Father's Name<span className="text-red-500 ml-1">*</span>
+                  </label>
                   <input
                     type="text"
                     value={currentStudent?.FatherName || ""}
@@ -373,7 +499,9 @@ const ShowStudentData = () => {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Address</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Address<span className="text-red-500 ml-1">*</span>
+                </label>
                 <textarea
                   value={currentStudent?.Address || ""}
                   onChange={(e) => setCurrentStudent((prev) => ({ ...prev, Address: e.target.value }))}
@@ -382,7 +510,9 @@ const ShowStudentData = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Contact Number</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Contact Number<span className="text-red-500 ml-1">*</span>
+                </label>
                 <input
                   type="tel"
                   value={currentStudent?.ContactNumber || ""}
@@ -392,25 +522,41 @@ const ShowStudentData = () => {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Time Slots</label>
-                  <select
-                    multiple
-                    value={currentStudent?.TimeSlots || []}
-                    onChange={(e) => {
-                      const selected = Array.from(e.target.selectedOptions, option => option.value);
-                      handleTimeChange({ target: { value: selected } });
-                    }}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                    size={4}
-                  >
-                    {timeOptions.map((option) => (
-                      <option key={option.value} value={option.value}>{option.label}</option>
-                    ))}
-                  </select>
-                  {errors.TimeSlots && <p className="text-red-500 text-sm mt-1">{errors.TimeSlots}</p>}
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Time Slots<span className="text-red-500 ml-1">*</span>
+                  </label>
+                  <div className="space-y-2 max-h-32 overflow-y-auto border border-gray-300 rounded-xl p-3">
+                    {timeOptions.map((option) => {
+                      const isSelected = currentStudent?.TimeSlots?.includes(option.value) || false;
+                      return (
+                        <label key={option.value} className="flex items-center space-x-3 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => handleTimeChange(option.value)}
+                            className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                          />
+                          <span className={`text-sm transition-all duration-200 ${
+                            isSelected ? 'text-blue-600 font-semibold' : 'text-gray-700'
+                          }`}>
+                            {option.label}
+                          </span>
+                          {isSelected && <span className="text-green-500 text-xs">✓</span>}
+                        </label>
+                      );
+                    })}
+                  </div>
+                  {errors.TimeSlots && (
+                    <div className="flex items-start gap-2 mt-2 p-2 bg-red-50 rounded-lg">
+                      <span className="text-red-500 text-sm">⚠️</span>
+                      <p className="text-red-600 text-sm">{errors.TimeSlots}</p>
+                    </div>
+                  )}
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Shift</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Shift<span className="text-red-500 ml-1">*</span>
+                  </label>
                   <input
                     type="text"
                     value={currentStudent?.Shift || ""}
@@ -428,6 +574,9 @@ const ShowStudentData = () => {
                     onChange={(e) => setCurrentStudent((prev) => ({ ...prev, SeatNumber: e.target.value }))}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   />
+                  <p className="text-blue-600 text-xs mt-1 font-medium">
+                    💺 Range: 0-136 (0 for temporary student)
+                  </p>
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Locker Number</label>
@@ -437,11 +586,16 @@ const ShowStudentData = () => {
                     onChange={(e) => setCurrentStudent((prev) => ({ ...prev, LockerNumber: e.target.value }))}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   />
+                  <p className="text-blue-600 text-xs mt-1 font-medium">
+                    🔒 Range: 0-100 (0 for no locker)
+                  </p>
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Amount Paid (₹)</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Amount Paid (₹)<span className="text-red-500 ml-1">*</span>
+                  </label>
                   <input
                     type="number"
                     value={currentStudent?.AmountPaid || ""}
@@ -459,7 +613,9 @@ const ShowStudentData = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Admission Amount (₹)</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Admission Amount (₹)<span className="text-red-500 ml-1">*</span>
+                  </label>
                   <input
                     type="number"
                     value={currentStudent?.AdmissionAmount || ""}
@@ -470,7 +626,9 @@ const ShowStudentData = () => {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Fees Paid Till Date</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Fees Paid Till Date<span className="text-red-500 ml-1">*</span>
+                  </label>
                   <input
                     type="date"
                     value={currentStudent?.FeesPaidTillDate ? formatDateForInput(currentStudent.FeesPaidTillDate) : ""}
@@ -479,7 +637,9 @@ const ShowStudentData = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Payment Mode</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Payment Mode<span className="text-red-500 ml-1">*</span>
+                  </label>
                   <select
                     value={currentStudent?.PaymentMode || ""}
                     onChange={handlePaymentModeChange}
@@ -493,9 +653,35 @@ const ShowStudentData = () => {
                   {errors.PaymentMode && <p className="text-red-500 text-sm mt-1">{errors.PaymentMode}</p>}
                 </div>
               </div>
-              {errors.api && <div className="bg-red-50 border border-red-200 rounded-xl p-4 mt-4">
-                <p className="text-red-600 text-sm">{errors.api}</p>
-              </div>}
+              {/* Success Message */}
+              {successMessage && (
+                <div className="bg-green-50 border border-green-200 rounded-xl p-4 mt-4">
+                  <div className="flex items-start gap-2">
+                    <span className="text-green-500 text-lg">✅</span>
+                    <p className="text-green-600 text-sm font-semibold">{successMessage}</p>
+                  </div>
+                </div>
+              )}
+              
+              {/* Error Display */}
+              {Object.keys(errors).length > 0 && (
+                <div className="bg-red-50 border border-red-200 rounded-xl p-4 mt-4">
+                  {errors.api && (
+                    <div className="flex items-start gap-2 mb-3">
+                      <span className="text-red-500 text-lg">⚠️</span>
+                      <p className="text-red-600 text-sm font-semibold">{errors.api}</p>
+                    </div>
+                  )}
+                  {Object.entries(errors).filter(([key]) => key !== 'api' && key !== 'TimeSlots').map(([field, message]) => (
+                    <div key={field} className="flex items-start gap-2 mb-1">
+                      <span className="text-red-400 text-sm">•</span>
+                      <p className="text-red-600 text-sm">
+                        <span className="font-medium capitalize">{field.replace(/([A-Z])/g, ' $1').trim()}:</span> {message}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
             <div className="bg-gray-50 px-6 py-4 rounded-b-3xl flex justify-end gap-3">
               <button
