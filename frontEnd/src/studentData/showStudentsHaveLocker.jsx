@@ -35,11 +35,10 @@ const ShowLockers = () => {
         const data = response.data || [];
         setStudents(data);
 
+        // Only consider lockers with LockerNumber as a valid integer > 0
         const lockerNumbers = data
-          .map((student) => student.LockerNumber)
-          .filter((locker) => locker !== null && locker !== undefined && locker !== "0")
-          .map((locker) => locker.toString());
-
+          .map((student) => Number(student.LockerNumber))
+          .filter((locker) => Number.isInteger(locker) && locker > 0);
         setOccupiedLockers(lockerNumbers);
       } else {
         setStudents([]);
@@ -60,8 +59,9 @@ const ShowLockers = () => {
 
   // Handle locker click to show modal
   const handleLockerClick = (lockerNumber) => {
+    // Find student with this locker number (as integer)
     const student = students.find(
-      (s) => s.LockerNumber === lockerNumber.toString()
+      (s) => Number(s.LockerNumber) === lockerNumber
     );
     if (student) {
       setSelectedStudent(student);
@@ -128,17 +128,16 @@ const ShowLockers = () => {
         <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 p-6">
           <div className="grid grid-cols-10 md:grid-cols-20 gap-2">
             {lockers.map((lockerNumber) => {
-              const isOccupied = occupiedLockers.includes(lockerNumber.toString());
+              const isOccupied = occupiedLockers.includes(lockerNumber);
               return (
                 <div
                   key={lockerNumber}
                   onClick={() => isOccupied && handleLockerClick(lockerNumber)}
                   className={`
                     relative w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center text-xs md:text-sm font-bold transition-all duration-200 transform hover:scale-110 shadow-lg
-                    ${
-                      isOccupied
-                        ? 'bg-gradient-to-br from-green-400 to-green-600 text-white cursor-pointer hover:from-green-500 hover:to-green-700 hover:shadow-xl'
-                        : 'bg-gradient-to-br from-gray-500 to-gray-700 text-gray-300 cursor-default'
+                    ${isOccupied
+                      ? 'bg-gradient-to-br from-green-400 to-green-600 text-white cursor-pointer hover:from-green-500 hover:to-green-700 hover:shadow-xl'
+                      : 'bg-gradient-to-br from-gray-500 to-gray-700 text-gray-300 cursor-default'
                     }
                   `}
                   title={isOccupied ? 'Click to view student details' : 'Available locker'}
@@ -188,7 +187,7 @@ const ShowLockers = () => {
                       <div><span className="font-medium text-gray-700">Address:</span> <span className="text-gray-900">{selectedStudent.Address}</span></div>
                     </div>
                   </div>
-                  
+
                   <div className="bg-green-50 p-4 rounded-xl">
                     <h4 className="font-semibold text-green-800 mb-3 flex items-center gap-2">
                       <LockerIcon />
@@ -202,7 +201,7 @@ const ShowLockers = () => {
                       <div><span className="font-medium text-gray-700">Admission Date:</span> <span className="text-gray-900">{formatDate(selectedStudent.AdmissionDate)}</span></div>
                     </div>
                   </div>
-                  
+
                   <div className="bg-yellow-50 p-4 rounded-xl md:col-span-2">
                     <h4 className="font-semibold text-yellow-800 mb-3">💰 Payment Information</h4>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">

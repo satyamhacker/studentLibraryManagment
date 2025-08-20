@@ -56,13 +56,13 @@ const AddStudentData = () => {
       }
     } else if (name === "SeatNumber") {
       if (value === "") {
-        setStudentData({ ...studentData, [name]: value });
+        setStudentData({ ...studentData, [name]: "" });
         setAlertShown({ ...alertShown, SeatNumber: false });
         return;
       }
       const seatNumber = parseInt(value, 10);
-      if (seatNumber >= 0 && seatNumber <= 136) {
-        setStudentData({ ...studentData, [name]: value });
+      if (!isNaN(seatNumber) && seatNumber >= 0 && seatNumber <= 136) {
+        setStudentData({ ...studentData, [name]: seatNumber });
         setErrors({ ...errors, [name]: "" });
       } else if (!alertShown.SeatNumber) {
         alert("SeatNumber is from 0 to 136 only. 0 is for temporary student.");
@@ -70,17 +70,31 @@ const AddStudentData = () => {
       }
     } else if (name === "LockerNumber") {
       if (value === "") {
-        setStudentData({ ...studentData, [name]: value });
+        setStudentData({ ...studentData, [name]: "" });
         setAlertShown({ ...alertShown, LockerNumber: false });
         return;
       }
       const lockerNumber = parseInt(value, 10);
-      if (lockerNumber >= 0 && lockerNumber <= 100) {
-        setStudentData({ ...studentData, [name]: value });
+      if (!isNaN(lockerNumber) && lockerNumber >= 0 && lockerNumber <= 100) {
+        setStudentData({ ...studentData, [name]: lockerNumber });
         setErrors({ ...errors, [name]: "" });
       } else if (!alertShown.LockerNumber) {
         alert("Locker range is from 0 to 100. 0 is for no locker.");
         setAlertShown({ ...alertShown, LockerNumber: true });
+      }
+    } else if (name === "AmountDue") {
+      // Allow empty, or parse as int
+      if (value === "") {
+        setStudentData({ ...studentData, [name]: "" });
+        setErrors({ ...errors, [name]: "" });
+      } else {
+        const amountDue = parseInt(value, 10);
+        if (!isNaN(amountDue)) {
+          setStudentData({ ...studentData, [name]: amountDue });
+          setErrors({ ...errors, [name]: "" });
+        } else {
+          setErrors({ ...errors, [name]: "Amount Due must be a number" });
+        }
       }
     } else {
       setStudentData({ ...studentData, [name]: value });
@@ -128,12 +142,15 @@ const AddStudentData = () => {
     e.preventDefault();
     if (!validateForm()) return;
     try {
+      // Prepare data: if SeatNumber, LockerNumber, AmountDue are empty string, omit them so backend default applies
       const formattedData = {
         ...studentData,
         AmountPaid: studentData.AmountPaid.replace("₹", "").trim(),
-        AmountDue: studentData.AmountDue.replace("₹", "").trim(),
         AdmissionAmount: studentData.AdmissionAmount.replace("₹", "").trim(),
       };
+      if (formattedData.SeatNumber === "" || formattedData.SeatNumber === undefined) delete formattedData.SeatNumber;
+      if (formattedData.LockerNumber === "" || formattedData.LockerNumber === undefined) delete formattedData.LockerNumber;
+      if (formattedData.AmountDue === "" || formattedData.AmountDue === undefined) delete formattedData.AmountDue;
       const response = await createApi(addStudentDataUrl, formattedData);
       console.log('API Response:', response);
       if (response.success) {
@@ -161,8 +178,8 @@ const AddStudentData = () => {
       }
     } catch (error) {
       console.log('Caught Error:', error);
-      const errorMessage = error.field 
-        ? `${error.field}: ${error.error || error.details || error.message}` 
+      const errorMessage = error.field
+        ? `${error.field}: ${error.error || error.details || error.message}`
         : (error.details || error.error || error.message || "Error adding student data");
       alert(errorMessage);
     }

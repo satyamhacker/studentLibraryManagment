@@ -23,10 +23,10 @@ const ShowVacantSeats = () => {
       if (response && response.success) {
         const data = response.data || [];
         setStudents(data);
+        // Only consider seats with SeatNumber as a valid integer > 0
         const seatNumbers = data
-          .map((student) => student.SeatNumber)
-          .filter((seat) => seat !== null && seat !== undefined)
-          .map((seat) => seat.toString());
+          .map((student) => Number(student.SeatNumber))
+          .filter((seat) => Number.isInteger(seat) && seat > 0);
         setOccupiedSeats(seatNumbers);
       } else {
         setStudents([]);
@@ -47,8 +47,9 @@ const ShowVacantSeats = () => {
   const seats = Array.from({ length: totalSeats }, (_, index) => index + 1);
 
   const handleSeatClick = (seatNumber) => {
+    // Find students with this seat number (as integer)
     const selected = students.filter(
-      (s) => s.SeatNumber === seatNumber.toString()
+      (s) => Number(s.SeatNumber) === seatNumber
     );
     if (selected.length > 0) {
       setSelectedStudents(selected);
@@ -78,7 +79,7 @@ const ShowVacantSeats = () => {
         <div className="p-6">
           <div className="grid grid-cols-4 sm:grid-cols-8 md:grid-cols-12 gap-3 justify-center">
             {seats.map((seatNumber) => {
-              const isOccupied = occupiedSeats.includes(seatNumber.toString());
+              const isOccupied = occupiedSeats.includes(seatNumber);
               return (
                 <button
                   key={seatNumber}

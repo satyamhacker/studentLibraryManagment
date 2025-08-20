@@ -53,18 +53,23 @@ export const addStudentData = async (req, res) => {
       }
     }
 
-    // Check for seat and time slot conflict only if SeatNumber is not "0"
+    // Sanitize SeatNumber and LockerNumber for integer logic
+    let seatNum = SeatNumber;
+    if (seatNum === "" || seatNum === undefined || seatNum === null) seatNum = 0;
+    let lockerNum = LockerNumber;
+    if (lockerNum === "" || lockerNum === undefined || lockerNum === null) lockerNum = 0;
+
+    // Check for seat and time slot conflict only if seatNum is not 0
     let conflictingStudent = null;
-    if (SeatNumber !== "0") {
+    if (seatNum !== 0) {
       conflictingStudent = await Student.findOne({
         where: {
-          SeatNumber, // Match the exact seat number
+          SeatNumber: seatNum, // Match the exact seat number
           [Op.and]: [
-            literal(`JSON_OVERLAPS(TimeSlots, '${JSON.stringify(TimeSlots)}')`) // Check for overlapping time slots
+            literal(`JSON_OVERLAPS(TimeSlots, '${JSON.stringify(TimeSlots)}')`)
           ],
         },
       });
-
 
       if (conflictingStudent) {
         return res.status(StatusCodes.CONFLICT).json({
@@ -76,11 +81,11 @@ export const addStudentData = async (req, res) => {
       }
     }
 
-    // Check if LockerNumber is already assigned to another student
-    if (LockerNumber) {
+    // Check if lockerNum is already assigned to another student (but skip if 0)
+    if (lockerNum !== 0) {
       const existingLocker = await Student.findOne({
         where: {
-          LockerNumber,
+          LockerNumber: lockerNum,
         },
       });
 

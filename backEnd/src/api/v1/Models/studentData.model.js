@@ -74,8 +74,9 @@ const Student = sequelize.define('Student', {
     },
   },
   SeatNumber: {
-    type: DataTypes.STRING(20),
+    type: DataTypes.INTEGER,
     allowNull: true, // Optional field
+    defaultValue: 0,
   },
   FeesPaidTillDate: {
     type: DataTypes.DATEONLY,
@@ -96,10 +97,13 @@ const Student = sequelize.define('Student', {
   AmountDue: {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: true, // Optional field
+    defaultValue: '0.00',
+
   },
   LockerNumber: {
-    type: DataTypes.STRING(20),
+    type: DataTypes.INTEGER,
     allowNull: true, // Optional field
+    defaultValue: 0,
   },
   PaymentExpectedDate: {
     type: DataTypes.DATEONLY,
