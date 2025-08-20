@@ -1,8 +1,26 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate } from "react-router-dom";
+import { getApi } from "../api/api.js";
+import { fetchAllStudentDataUrl } from "../url/index.url.js";
 
-import "../styles/neonUnallocated.css"; // Custom CSS file for neon effects
-import { getRequest } from "../utils/api"; // Import the utility functions
+// Icons as components
+const SearchIcon = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+  </svg>
+);
+
+const SeatIcon = () => (
+  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
+  </svg>
+);
+
+const UserIcon = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+  </svg>
+);
 
 const UnallocatedStudentsSeat = () => {
   const [students, setStudents] = useState([]);
@@ -17,24 +35,27 @@ const UnallocatedStudentsSeat = () => {
 
   const fetchStudentData = async () => {
     try {
-      const data = await getRequest(
-        `${import.meta.env.VITE_BACKEND_BASE_URL}/getStudents`,
-        navigate
-      );
-      console.log("Response data:", data);
-      const unallocatedStudents = data.filter(
-        (student) => student.SeatNumber === "0" // Filter for SeatNumber "0"
-      );
+      const response = await getApi(fetchAllStudentDataUrl);
+      if (response && response.success) {
+        const data = response.data || [];
+        const unallocatedStudents = data.filter(
+          (student) => student.SeatNumber === "0" || student.SeatNumber === 0
+        );
 
-      if (unallocatedStudents.length === 0) {
-        alert("All students have been allocated seats");
+        setStudents(unallocatedStudents);
+        setLoading(false);
+      } else {
+        setStudents([]);
+        setLoading(false);
+        if (response && response.error) {
+          alert(response.error);
+        }
       }
-
-      setStudents(unallocatedStudents);
-      setLoading(false);
     } catch (error) {
-      console.error("Error fetching students:", error);
+      setStudents([]);
       setLoading(false);
+      console.error("Error fetching students:", error);
+      alert("Failed to fetch student data.");
     }
   };
 
@@ -57,81 +78,120 @@ const UnallocatedStudentsSeat = () => {
     const date = new Date(dateString);
     return isNaN(date.getTime())
       ? "Invalid Date"
-      : date.toLocaleDateString("en-US");
+      : date.toLocaleDateString();
   };
 
   return (
-    <Container className="mt-5">
-      <Row className="mb-3">
-        <Col>
-          <h1 className="neon-header text-center">
-            Students Without Seat Allocation
-          </h1>
-        </Col>
-      </Row>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-red-900 to-orange-900 p-4">
+      <div className="max-w-7xl mx-auto">
+        {/* Header Section */}
+        <div className="bg-white/10 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 mb-6 overflow-hidden">
+          <div className="bg-gradient-to-r from-red-600 via-orange-600 to-yellow-600 px-8 py-12 text-center">
+            <h1 className="text-4xl md:text-5xl font-bold text-white mb-3 tracking-tight">
+              💺 Unallocated Students
+            </h1>
+            <p className="text-orange-100 text-lg opacity-90">Students waiting for seat allocation</p>
+            <div className="mt-4 flex justify-center items-center gap-2 text-orange-200">
+              <span className="text-sm">Pending Allocations:</span>
+              <span className="bg-white/20 px-3 py-1 rounded-full font-semibold">{students.length}</span>
+            </div>
+          </div>
+        </div>
 
-      {/* Search Box */}
-      <Row className="mb-4">
-        <Col>
-          <Form>
-            <Form.Control
+        {/* Search Section */}
+        <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 p-6 mb-6">
+          <div className="relative max-w-md mx-auto">
+            <input
               type="text"
-              placeholder="Search by any field..."
+              placeholder="Search students..."
               value={searchTerm}
               onChange={handleSearch}
-              className="neon-input w-100"
+              className="w-full pl-12 pr-4 py-3 bg-white/90 border border-white/30 rounded-xl focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all duration-200 text-gray-800 placeholder-gray-500"
             />
-          </Form>
-        </Col>
-      </Row>
-
-      {loading ? (
-        <p className="neon-loading text-center">Loading...</p>
-      ) : filteredStudents.length === 0 ? (
-        <p className="text-center">
-          No students are currently unallocated (Seat Number: 0).
-        </p>
-      ) : (
-        <div className="neon-table-container">
-          <Table striped bordered hover responsive className="neon-table">
-            <thead>
-              <tr>
-                <th>Registration Number</th>
-                <th>Admission Date</th>
-                <th>Fees Paid Till</th>
-                <th>Student Name</th>
-                <th>Father's Name</th>
-                <th>Address</th>
-                <th>Contact Number</th>
-                <th>Time Slots</th>
-                <th>Shift</th>
-                <th>Seat Number</th>
-                <th>Payment Mode</th>
-                <th>Admission Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredStudents.map((student) => (
-                <tr key={student.id}>
-                  <td>{student.RegistrationNumber}</td>
-                  <td>{formatDate(student.AdmissionDate)}</td>
-                  <td>{formatDate(student.FeesPaidTillDate)}</td>
-                  <td>{student.StudentName}</td>
-                  <td>{student.FatherName}</td>
-                  <td>{student.Address}</td>
-                  <td>{student.ContactNumber}</td>
-                  <td>{student.TimeSlots.join(", ")}</td>
-                  <td>{student.Shift}</td>
-                  <td>{student.SeatNumber}</td>
-                  <td>{student.PaymentMode}</td>
-                  <td>{student.AdmissionAmount}</td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
+            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+              <SearchIcon />
+            </div>
+          </div>
         </div>
-      )}
-    </Container>
+
+        {/* Main Content */}
+        {loading ? (
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 p-12 text-center">
+            <div className="animate-spin w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+            <p className="text-white text-lg">Loading students...</p>
+          </div>
+        ) : filteredStudents.length === 0 ? (
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 p-12 text-center">
+            <div className="text-6xl mb-4">🎉</div>
+            <h3 className="text-2xl font-semibold text-white mb-2">All Students Allocated!</h3>
+            <p className="text-orange-200 mb-6">Great news! All students have been assigned seats.</p>
+          </div>
+        ) : (
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-gradient-to-r from-red-600 via-orange-600 to-yellow-600 text-white">
+                    <th className="px-6 py-4 text-left font-semibold">Student Info</th>
+                    <th className="px-6 py-4 text-left font-semibold">Contact</th>
+                    <th className="px-6 py-4 text-left font-semibold">Schedule</th>
+                    <th className="px-6 py-4 text-left font-semibold">Status</th>
+                    <th className="px-6 py-4 text-left font-semibold">Payment</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/10">
+                  {filteredStudents.map((student, index) => (
+                    <tr key={student.id} className={`hover:bg-white/5 transition-all duration-200 ${
+                      index % 2 === 0 ? 'bg-white/5' : 'bg-transparent'
+                    }`}>
+                      <td className="px-6 py-4">
+                        <div className="flex items-start gap-3">
+                          <div className="bg-orange-500/20 p-2 rounded-lg">
+                            <UserIcon />
+                          </div>
+                          <div>
+                            <div className="text-white font-semibold">{student.StudentName}</div>
+                            <div className="text-orange-200 text-sm">Reg: {student.RegistrationNumber}</div>
+                            <div className="text-orange-300 text-sm">Father: {student.FatherName}</div>
+                            <div className="text-orange-300 text-sm">Admitted: {formatDate(student.AdmissionDate)}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-white">{student.ContactNumber}</div>
+                        <div className="text-orange-200 text-sm">{student.Address}</div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-white">{student.TimeSlots.join(", ")}</div>
+                        <div className="text-orange-200 text-sm">Shift: {student.Shift}</div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <div className="bg-red-500/20 p-2 rounded-lg">
+                            <SeatIcon />
+                          </div>
+                          <div>
+                            <div className="text-red-400 font-semibold">No Seat Assigned</div>
+                            <div className="text-red-300 text-sm">Seat: {student.SeatNumber}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-green-400 font-semibold">₹{student.AmountPaid}</div>
+                        <div className="text-red-400 text-sm">Due: ₹{student.AmountDue || '0'}</div>
+                        <div className="text-orange-200 text-sm">{student.PaymentMode}</div>
+                        <div className="text-orange-300 text-sm">Admission: ₹{student.AdmissionAmount}</div>
+                        <div className="text-orange-300 text-sm">Fees Till: {formatDate(student.FeesPaidTillDate)}</div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 
