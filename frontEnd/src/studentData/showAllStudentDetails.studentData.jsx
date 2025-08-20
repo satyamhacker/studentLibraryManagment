@@ -94,9 +94,15 @@ const ShowStudentData = () => {
         return;
       }
 
-      // Remove id and other non-updatable fields from the payload
-      const { id, createdAt, updatedAt, signupId, ...updatePayload } = currentStudent;
 
+      // Remove id and other non-updatable fields from the payload
+      const { id, createdAt, updatedAt, signupId, ...updatePayloadRaw } = currentStudent;
+
+      // If SeatNumber, LockerNumber, AmountDue are empty string or undefined, remove them so backend default applies
+      const updatePayload = { ...updatePayloadRaw };
+      if (updatePayload.SeatNumber === "" || updatePayload.SeatNumber === undefined) delete updatePayload.SeatNumber;
+      if (updatePayload.LockerNumber === "" || updatePayload.LockerNumber === undefined) delete updatePayload.LockerNumber;
+      if (updatePayload.AmountDue === "" || updatePayload.AmountDue === undefined) delete updatePayload.AmountDue;
 
       const response = await updateApiById(updateStudentUrl, currentStudent.id, updatePayload);
 
