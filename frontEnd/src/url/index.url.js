@@ -9,7 +9,8 @@ import {
     fetchAllStudentDataUrl,
     deleteStudentUrl,
     updateStudentUrl,
-    exportStudentDataUrl
+    exportStudentDataUrl,
+    filterStudentsDataUrl
 } from "./urlConfig.js";
 
 export {
@@ -23,5 +24,6 @@ export {
     fetchAllStudentDataUrl,
     deleteStudentUrl,
     updateStudentUrl,
-    exportStudentDataUrl
+    exportStudentDataUrl,
+    filterStudentsDataUrl
 }
