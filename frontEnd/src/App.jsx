@@ -85,12 +85,12 @@ function App() {
             element={<PrivateRoute element={<StudentWithDues />} />}
           />
 
-          {/* Private Routes */}
-          {/*
-          <Route
+          {/* <Route
             path="/filterStudentData"
             element={<PrivateRoute element={<FilterStudentData />} />}
           /> */}
+
+
 
         </Routes>
       </div>
