@@ -10,9 +10,9 @@ const resetPasswordUrl = '/auth/reset-password'
 
 const addStudentDataUrl = '/student-data/add-student-data'
 const fetchAllStudentDataUrl = '/student-data/fetch-all-student-data'
-
-
-
+const deleteStudentUrl = '/student-data/delete-student-data'
+const updateStudentUrl = '/student-data/update-student-data'
+const exportStudentDataUrl = '/student-data/export-student-data-excel'
 
 export {
     localStorageToken,
@@ -22,5 +22,8 @@ export {
     verifyOtpUrl,
     resetPasswordUrl,
     addStudentDataUrl,
-    fetchAllStudentDataUrl
+    fetchAllStudentDataUrl,
+    deleteStudentUrl,
+    updateStudentUrl,
+    exportStudentDataUrl
 }

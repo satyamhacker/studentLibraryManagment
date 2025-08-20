@@ -3,11 +3,13 @@ import PrivateRoute from "./PrivateRoute.jsx"
 import HomePage from "./homePage.studentData.jsx";
 import AddStudentData from "./addStudentData.studentData.jsx";
 import ShowVacantSeats from "./showVacantSeats.studentData.jsx";
+import ShowStudentData from "./showAllStudentDetails.studentData.jsx"
 
 export {
     PublicRoute,
     PrivateRoute,
     HomePage,
     AddStudentData,
-    ShowVacantSeats
+    ShowVacantSeats,
+    ShowStudentData
 }

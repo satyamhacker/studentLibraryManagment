@@ -5,7 +5,11 @@ import {
     sendOtpUrl,
     verifyOtpUrl,
     resetPasswordUrl,
-    addStudentDataUrl
+    addStudentDataUrl,
+    fetchAllStudentDataUrl,
+    deleteStudentUrl,
+    updateStudentUrl,
+    exportStudentDataUrl
 } from "./urlConfig.js";
 
 export {
@@ -15,5 +19,9 @@ export {
     sendOtpUrl,
     verifyOtpUrl,
     resetPasswordUrl,
-    addStudentDataUrl
+    addStudentDataUrl,
+    fetchAllStudentDataUrl,
+    deleteStudentUrl,
+    updateStudentUrl,
+    exportStudentDataUrl
 }
