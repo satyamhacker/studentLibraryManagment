@@ -4,6 +4,31 @@ import "../styles/neonTable.css";
 import { getApi, deleteApiById, updateApiById } from "../api/api.js";
 import { fetchAllStudentDataUrl, deleteStudentUrl, updateStudentUrl, exportStudentDataUrl } from "../url/index.url.js";
 
+// Icons as components for better performance
+const EditIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+  </svg>
+);
+
+const DeleteIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+  </svg>
+);
+
+const SearchIcon = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+  </svg>
+);
+
+const ExportIcon = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+  </svg>
+);
+
 const paymentModeOptions = [
   { label: "Online", value: "online" },
   { label: "Cash", value: "cash" },
@@ -82,10 +107,22 @@ const ShowStudentData = () => {
       await deleteApiById(deleteStudentUrl, id);
       fetchStudentData();
       setShowDeleteModal(false);
+      setStudentToDelete(null);
     } catch (error) {
       console.error("Error deleting student:", error);
       alert("Error deleting student");
     }
+  };
+
+  const showEditModalForStudent = (student) => {
+    setCurrentStudent(student);
+    setShowEditModal(true);
+    setErrors({});
+  };
+
+  const confirmDeleteStudent = (student) => {
+    setStudentToDelete(student);
+    setShowDeleteModal(true);
   };
 
   const handleSearch = (e) => {
@@ -155,286 +192,323 @@ const ShowStudentData = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-blue-700 flex flex-col items-center py-8 px-2">
-      <div className="w-full max-w-7xl bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-blue-300 p-0 sm:p-0 overflow-hidden">
-        <div className="w-full px-0 py-8 bg-gradient-to-r from-indigo-700 via-blue-700 to-blue-500 flex flex-col items-center gap-3">
-          <h1 className="text-center text-3xl sm:text-4xl font-extrabold text-white drop-shadow neon-header tracking-wider">All Students Data</h1>
-          <div className="mb-0 text-blue-100 text-sm">Search, edit, delete, or export student records.</div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 p-4">
+      <div className="max-w-7xl mx-auto">
+        {/* Header Section */}
+        <div className="bg-white/10 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 mb-6 overflow-hidden">
+          <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 px-8 py-12 text-center">
+            <h1 className="text-4xl md:text-5xl font-bold text-white mb-3 tracking-tight">
+              📚 Student Management
+            </h1>
+            <p className="text-blue-100 text-lg opacity-90">Manage your library's student records efficiently</p>
+            <div className="mt-4 flex justify-center items-center gap-2 text-blue-200">
+              <span className="text-sm">Total Students:</span>
+              <span className="bg-white/20 px-3 py-1 rounded-full font-semibold">{students.length}</span>
+            </div>
+          </div>
         </div>
-        <div className="p-6">
-          <div className="flex flex-col sm:flex-row gap-4 mb-6 justify-between items-center">
-            <input
-              type="text"
-              placeholder="Search by any field..."
-              value={searchTerm}
-              onChange={handleSearch}
-              className="neon-input px-4 py-2 rounded-lg border border-blue-300 focus:ring-2 focus:ring-blue-400 w-full sm:w-96 shadow"
-            />
+
+        {/* Controls Section */}
+        <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 p-6 mb-6">
+          <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
+            <div className="relative flex-1 max-w-md">
+              <SearchIcon />
+              <input
+                type="text"
+                placeholder="Search students..."
+                value={searchTerm}
+                onChange={handleSearch}
+                className="w-full pl-12 pr-4 py-3 bg-white/90 border border-white/30 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-gray-800 placeholder-gray-500"
+              />
+              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                <SearchIcon />
+              </div>
+            </div>
             <button
-              className="neon-button bg-pink-500 text-white px-6 py-2 rounded-lg font-bold shadow hover:bg-pink-600 transition-all"
               onClick={exportStudentDataToExcel}
+              className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
             >
-              Export Student Data to Excel
+              <ExportIcon />
+              Export to Excel
             </button>
           </div>
-          {students.length === 0 ? (
-            <p className="text-center text-blue-200 mt-8 text-lg">No student data available.</p>
-          ) : (
-            <div className="overflow-x-auto neon-table-container rounded-xl shadow-lg">
-              <table className="min-w-full divide-y divide-blue-200 neon-table">
-                <thead className="bg-gradient-to-r from-blue-700 via-blue-600 to-blue-500 text-white">
-                  <tr>
-                    <th className="px-4 py-3">Registration Number</th>
-                    <th className="px-4 py-3">Admission Date</th>
-                    <th className="px-4 py-3">Student Name</th>
-                    <th className="px-4 py-3">Father's Name</th>
-                    <th className="px-4 py-3">Address</th>
-                    <th className="px-4 py-3">Contact Number</th>
-                    <th className="px-4 py-3">Time Slots</th>
-                    <th className="px-4 py-3">Shift</th>
-                    <th className="px-4 py-3">Seat Number</th>
-                    <th className="px-4 py-3">Amount Paid</th>
-                    <th className="px-4 py-3">Amount Due</th>
-                    <th className="px-4 py-3">Locker Number</th>
-                    <th className="px-4 py-3">Fees Paid Till Date</th>
-                    <th className="px-4 py-3">Payment Mode</th>
-                    <th className="px-4 py-3">Admission Amount</th>
-                    <th className="px-4 py-3">Actions</th>
+        </div>
+        {/* Main Content */}
+        {students.length === 0 ? (
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 p-12 text-center">
+            <div className="text-6xl mb-4">📚</div>
+            <h3 className="text-2xl font-semibold text-white mb-2">No Students Found</h3>
+            <p className="text-blue-200 mb-6">Start by adding your first student to the library system.</p>
+            <button
+              onClick={() => navigate('/addStudent')}
+              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+            >
+              Add First Student
+            </button>
+          </div>
+        ) : (
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white">
+                    <th className="px-6 py-4 text-left font-semibold">Student Info</th>
+                    <th className="px-6 py-4 text-left font-semibold">Contact</th>
+                    <th className="px-6 py-4 text-left font-semibold">Schedule</th>
+                    <th className="px-6 py-4 text-left font-semibold">Seat & Locker</th>
+                    <th className="px-6 py-4 text-left font-semibold">Payment</th>
+                    <th className="px-6 py-4 text-center font-semibold">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="bg-white/80 divide-y divide-blue-100">
-                  {filteredStudents.map((student) => (
-                    <tr key={student.id} className="hover:bg-blue-50 transition-all">
-                      <td className="px-4 py-2">{student.RegistrationNumber}</td>
-                      <td className="px-4 py-2">{formatDate(student.AdmissionDate)}</td>
-                      <td className="px-4 py-2">{student.StudentName}</td>
-                      <td className="px-4 py-2">{student.FatherName}</td>
-                      <td className="px-4 py-2">{student.Address}</td>
-                      <td className="px-4 py-2">{student.ContactNumber}</td>
-                      <td className="px-4 py-2">{student.TimeSlots.join(", ")}</td>
-                      <td className="px-4 py-2">{student.Shift}</td>
-                      <td className="px-4 py-2">{student.SeatNumber}</td>
-                      <td className="px-4 py-2">{"₹" + student.AmountPaid}</td>
-                      <td className="px-4 py-2">{"₹" + (student.AmountDue || "0")}</td>
-                      <td className="px-4 py-2">{student.LockerNumber}</td>
-                      <td className="px-4 py-2">{formatDate(student.FeesPaidTillDate)}</td>
-                      <td className="px-4 py-2">{student.PaymentMode}</td>
-                      <td className="px-4 py-2">{"₹" + student.AdmissionAmount}</td>
-                      <td className="px-4 py-2 flex gap-2">
-                        <button
-                          onClick={() => showEditModalForStudent(student)}
-                          className="neon-icon-button text-blue-600 hover:text-blue-900 p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-400"
-                          title="Edit"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487a2.1 2.1 0 1 1 2.97 2.97L7.5 19.788l-4 1 1-4 12.362-12.3z" /></svg>
-                        </button>
-                        <button
-                          onClick={() => confirmDeleteStudent(student)}
-                          className="neon-icon-button text-red-600 hover:text-red-900 p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400"
-                          title="Delete"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-                        </button>
+                <tbody className="divide-y divide-white/10">
+                  {filteredStudents.map((student, index) => (
+                    <tr key={student.id} className={`hover:bg-white/5 transition-all duration-200 ${
+                      index % 2 === 0 ? 'bg-white/5' : 'bg-transparent'
+                    }`}>
+                      <td className="px-6 py-4">
+                        <div className="text-white font-semibold">{student.StudentName}</div>
+                        <div className="text-blue-200 text-sm">Reg: {student.RegistrationNumber}</div>
+                        <div className="text-blue-300 text-sm">Father: {student.FatherName}</div>
+                        <div className="text-blue-300 text-sm">Admitted: {formatDate(student.AdmissionDate)}</div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-white">{student.ContactNumber}</div>
+                        <div className="text-blue-200 text-sm">{student.Address}</div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-white">{student.TimeSlots.join(", ")}</div>
+                        <div className="text-blue-200 text-sm">Shift: {student.Shift}</div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-white">Seat: {student.SeatNumber}</div>
+                        <div className="text-blue-200 text-sm">Locker: {student.LockerNumber}</div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-green-400 font-semibold">₹{student.AmountPaid}</div>
+                        <div className="text-red-400 text-sm">Due: ₹{student.AmountDue || '0'}</div>
+                        <div className="text-blue-200 text-sm">{student.PaymentMode}</div>
+                        <div className="text-blue-300 text-sm">Admission: ₹{student.AdmissionAmount}</div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex justify-center gap-2">
+                          <button
+                            onClick={() => showEditModalForStudent(student)}
+                            className="bg-blue-500/20 hover:bg-blue-500/40 text-blue-300 hover:text-white p-2 rounded-lg transition-all duration-200 border border-blue-500/30"
+                            title="Edit Student"
+                          >
+                            <EditIcon />
+                          </button>
+                          <button
+                            onClick={() => confirmDeleteStudent(student)}
+                            className="bg-red-500/20 hover:bg-red-500/40 text-red-300 hover:text-white p-2 rounded-lg transition-all duration-200 border border-red-500/30"
+                            title="Delete Student"
+                          >
+                            <DeleteIcon />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Edit Student Modal */}
       {showEditModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm">
-          <div className="bg-white/90 rounded-2xl shadow-2xl border-2 border-blue-400 max-w-lg w-full p-6 relative animate-fadeIn">
-            <button
-              className="absolute top-3 right-3 text-blue-700 hover:text-red-500 text-2xl font-bold focus:outline-none"
-              onClick={() => setShowEditModal(false)}
-              aria-label="Close"
-            >
-              ×
-            </button>
-            <h3 className="text-2xl font-bold text-blue-700 mb-4 neon-header">Edit Student Data</h3>
-            <form className="space-y-4">
-              {/* Registration Number */}
-              <div>
-                <label className="block font-semibold mb-1">Registration Number</label>
-                <input
-                  type="text"
-                  value={currentStudent?.RegistrationNumber || ""}
-                  onChange={(e) => setCurrentStudent((prev) => ({ ...prev, RegistrationNumber: e.target.value }))}
-                  className="neon-input px-3 py-2 rounded-lg border border-blue-300 w-full"
-                />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 rounded-t-3xl">
+              <div className="flex justify-between items-center">
+                <h3 className="text-2xl font-bold text-white">✏️ Edit Student</h3>
+                <button
+                  onClick={() => setShowEditModal(false)}
+                  className="text-white hover:text-red-300 text-2xl font-bold transition-colors"
+                >
+                  ×
+                </button>
               </div>
-              {/* Admission Date */}
-              <div>
-                <label className="block font-semibold mb-1">Admission Date</label>
-                <input
-                  type="date"
-                  value={currentStudent?.AdmissionDate ? formatDateForInput(currentStudent.AdmissionDate) : ""}
-                  onChange={(e) => setCurrentStudent((prev) => ({ ...prev, AdmissionDate: e.target.value }))}
-                  className="neon-input px-3 py-2 rounded-lg border border-blue-300 w-full"
-                />
+            </div>
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Registration Number</label>
+                  <input
+                    type="text"
+                    value={currentStudent?.RegistrationNumber || ""}
+                    onChange={(e) => setCurrentStudent((prev) => ({ ...prev, RegistrationNumber: e.target.value }))}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Admission Date</label>
+                  <input
+                    type="date"
+                    value={currentStudent?.AdmissionDate ? formatDateForInput(currentStudent.AdmissionDate) : ""}
+                    onChange={(e) => setCurrentStudent((prev) => ({ ...prev, AdmissionDate: e.target.value }))}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  />
+                </div>
               </div>
-              {/* Student Name */}
-              <div>
-                <label className="block font-semibold mb-1">Student Name</label>
-                <input
-                  type="text"
-                  value={currentStudent?.StudentName || ""}
-                  onChange={(e) => setCurrentStudent((prev) => ({ ...prev, StudentName: e.target.value }))}
-                  className="neon-input px-3 py-2 rounded-lg border border-blue-300 w-full"
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Student Name</label>
+                  <input
+                    type="text"
+                    value={currentStudent?.StudentName || ""}
+                    onChange={(e) => setCurrentStudent((prev) => ({ ...prev, StudentName: e.target.value }))}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Father's Name</label>
+                  <input
+                    type="text"
+                    value={currentStudent?.FatherName || ""}
+                    onChange={(e) => setCurrentStudent((prev) => ({ ...prev, FatherName: e.target.value }))}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  />
+                </div>
               </div>
-              {/* Father's Name */}
               <div>
-                <label className="block font-semibold mb-1">Father's Name</label>
-                <input
-                  type="text"
-                  value={currentStudent?.FatherName || ""}
-                  onChange={(e) => setCurrentStudent((prev) => ({ ...prev, FatherName: e.target.value }))}
-                  className="neon-input px-3 py-2 rounded-lg border border-blue-300 w-full"
-                />
-              </div>
-              {/* Address */}
-              <div>
-                <label className="block font-semibold mb-1">Address</label>
-                <input
-                  type="text"
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Address</label>
+                <textarea
                   value={currentStudent?.Address || ""}
                   onChange={(e) => setCurrentStudent((prev) => ({ ...prev, Address: e.target.value }))}
-                  className="neon-input px-3 py-2 rounded-lg border border-blue-300 w-full"
+                  rows={2}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
                 />
               </div>
-              {/* Contact Number */}
               <div>
-                <label className="block font-semibold mb-1">Contact Number</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Contact Number</label>
                 <input
-                  type="text"
+                  type="tel"
                   value={currentStudent?.ContactNumber || ""}
                   onChange={(e) => setCurrentStudent((prev) => ({ ...prev, ContactNumber: e.target.value }))}
-                  className="neon-input px-3 py-2 rounded-lg border border-blue-300 w-full"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
               </div>
-              {/* Time Slots */}
-              <div>
-                <label className="block font-semibold mb-1">Time Slots</label>
-                <select
-                  multiple
-                  value={currentStudent?.TimeSlots || []}
-                  onChange={(e) => {
-                    const selected = Array.from(e.target.selectedOptions, option => option.value);
-                    handleTimeChange({ target: { value: selected } });
-                  }}
-                  className="neon-input px-3 py-2 rounded-lg border border-blue-300 w-full"
-                >
-                  {timeOptions.map((option) => (
-                    <option key={option.value} value={option.value}>{option.label}</option>
-                  ))}
-                </select>
-                {errors.TimeSlots && <p className="text-red-600 text-sm mt-1">{errors.TimeSlots}</p>}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Time Slots</label>
+                  <select
+                    multiple
+                    value={currentStudent?.TimeSlots || []}
+                    onChange={(e) => {
+                      const selected = Array.from(e.target.selectedOptions, option => option.value);
+                      handleTimeChange({ target: { value: selected } });
+                    }}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    size={4}
+                  >
+                    {timeOptions.map((option) => (
+                      <option key={option.value} value={option.value}>{option.label}</option>
+                    ))}
+                  </select>
+                  {errors.TimeSlots && <p className="text-red-500 text-sm mt-1">{errors.TimeSlots}</p>}
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Shift</label>
+                  <input
+                    type="text"
+                    value={currentStudent?.Shift || ""}
+                    onChange={(e) => setCurrentStudent((prev) => ({ ...prev, Shift: e.target.value }))}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  />
+                </div>
               </div>
-              {/* Shift */}
-              <div>
-                <label className="block font-semibold mb-1">Shift</label>
-                <input
-                  type="text"
-                  value={currentStudent?.Shift || ""}
-                  onChange={(e) => setCurrentStudent((prev) => ({ ...prev, Shift: e.target.value }))}
-                  className="neon-input px-3 py-2 rounded-lg border border-blue-300 w-full"
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Seat Number</label>
+                  <input
+                    type="text"
+                    value={currentStudent?.SeatNumber || ""}
+                    onChange={(e) => setCurrentStudent((prev) => ({ ...prev, SeatNumber: e.target.value }))}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Locker Number</label>
+                  <input
+                    type="text"
+                    value={currentStudent?.LockerNumber || ""}
+                    onChange={(e) => setCurrentStudent((prev) => ({ ...prev, LockerNumber: e.target.value }))}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  />
+                </div>
               </div>
-              {/* Seat Number */}
-              <div>
-                <label className="block font-semibold mb-1">Seat Number</label>
-                <input
-                  type="text"
-                  value={currentStudent?.SeatNumber || ""}
-                  onChange={(e) => setCurrentStudent((prev) => ({ ...prev, SeatNumber: e.target.value }))}
-                  className="neon-input px-3 py-2 rounded-lg border border-blue-300 w-full"
-                />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Amount Paid (₹)</label>
+                  <input
+                    type="number"
+                    value={currentStudent?.AmountPaid || ""}
+                    onChange={(e) => setCurrentStudent((prev) => ({ ...prev, AmountPaid: e.target.value }))}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Amount Due (₹)</label>
+                  <input
+                    type="number"
+                    value={currentStudent?.AmountDue || ""}
+                    onChange={(e) => setCurrentStudent((prev) => ({ ...prev, AmountDue: e.target.value }))}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Admission Amount (₹)</label>
+                  <input
+                    type="number"
+                    value={currentStudent?.AdmissionAmount || ""}
+                    onChange={(e) => setCurrentStudent((prev) => ({ ...prev, AdmissionAmount: e.target.value }))}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  />
+                </div>
               </div>
-              {/* Amount Paid */}
-              <div>
-                <label className="block font-semibold mb-1">Amount Paid</label>
-                <input
-                  type="number"
-                  value={currentStudent?.AmountPaid || ""}
-                  onChange={(e) => setCurrentStudent((prev) => ({ ...prev, AmountPaid: e.target.value }))}
-                  className="neon-input px-3 py-2 rounded-lg border border-blue-300 w-full"
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Fees Paid Till Date</label>
+                  <input
+                    type="date"
+                    value={currentStudent?.FeesPaidTillDate ? formatDateForInput(currentStudent.FeesPaidTillDate) : ""}
+                    onChange={(e) => setCurrentStudent((prev) => ({ ...prev, FeesPaidTillDate: e.target.value }))}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Payment Mode</label>
+                  <select
+                    value={currentStudent?.PaymentMode || ""}
+                    onChange={handlePaymentModeChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  >
+                    <option value="">Select Payment Mode</option>
+                    {paymentModeOptions.map((option) => (
+                      <option key={option.value} value={option.value}>{option.label}</option>
+                    ))}
+                  </select>
+                  {errors.PaymentMode && <p className="text-red-500 text-sm mt-1">{errors.PaymentMode}</p>}
+                </div>
               </div>
-              {/* Amount Due */}
-              <div>
-                <label className="block font-semibold mb-1">Amount Due</label>
-                <input
-                  type="number"
-                  value={currentStudent?.AmountDue || ""}
-                  onChange={(e) => setCurrentStudent((prev) => ({ ...prev, AmountDue: e.target.value }))}
-                  className="neon-input px-3 py-2 rounded-lg border border-blue-300 w-full"
-                />
-              </div>
-              {/* Locker Number */}
-              <div>
-                <label className="block font-semibold mb-1">Locker Number</label>
-                <input
-                  type="text"
-                  value={currentStudent?.LockerNumber || ""}
-                  onChange={(e) => setCurrentStudent((prev) => ({ ...prev, LockerNumber: e.target.value }))}
-                  className="neon-input px-3 py-2 rounded-lg border border-blue-300 w-full"
-                />
-              </div>
-              {/* Fees Paid Till Date */}
-              <div>
-                <label className="block font-semibold mb-1">Fees Paid Till Date</label>
-                <input
-                  type="date"
-                  value={currentStudent?.FeesPaidTillDate ? formatDateForInput(currentStudent.FeesPaidTillDate) : ""}
-                  onChange={(e) => setCurrentStudent((prev) => ({ ...prev, FeesPaidTillDate: e.target.value }))}
-                  className="neon-input px-3 py-2 rounded-lg border border-blue-300 w-full"
-                />
-              </div>
-              {/* Payment Mode */}
-              <div>
-                <label className="block font-semibold mb-1">Payment Mode</label>
-                <select
-                  value={currentStudent?.PaymentMode || ""}
-                  onChange={handlePaymentModeChange}
-                  className="neon-input px-3 py-2 rounded-lg border border-blue-300 w-full"
-                >
-                  <option value="">Select Payment Mode</option>
-                  {paymentModeOptions.map((option) => (
-                    <option key={option.value} value={option.value}>{option.label}</option>
-                  ))}
-                </select>
-                {errors.PaymentMode && <p className="text-red-600 text-sm mt-1">{errors.PaymentMode}</p>}
-              </div>
-              {/* Admission Amount */}
-              <div>
-                <label className="block font-semibold mb-1">Admission Amount</label>
-                <input
-                  type="number"
-                  value={currentStudent?.AdmissionAmount || ""}
-                  onChange={(e) => setCurrentStudent((prev) => ({ ...prev, AdmissionAmount: e.target.value }))}
-                  className="neon-input px-3 py-2 rounded-lg border border-blue-300 w-full"
-                />
-              </div>
-              {errors.api && <p className="text-red-600 text-sm mt-2">{errors.api}</p>}
-            </form>
-            <div className="flex justify-end mt-4 gap-2">
+              {errors.api && <div className="bg-red-50 border border-red-200 rounded-xl p-4 mt-4">
+                <p className="text-red-600 text-sm">{errors.api}</p>
+              </div>}
+            </div>
+            <div className="bg-gray-50 px-6 py-4 rounded-b-3xl flex justify-end gap-3">
               <button
-                className="neon-button bg-black text-white px-6 py-2 rounded-lg font-bold shadow hover:bg-gray-800"
                 onClick={() => setShowEditModal(false)}
+                className="px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white rounded-xl font-semibold transition-all duration-200"
               >
-                Close
+                Cancel
               </button>
               <button
-                className="neon-button bg-blue-800 text-white px-6 py-2 rounded-lg font-bold shadow hover:bg-blue-900"
                 onClick={handleUpdateStudent}
+                className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
               >
-                Save Changes
+                💾 Save Changes
               </button>
             </div>
           </div>
@@ -443,29 +517,39 @@ const ShowStudentData = () => {
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm">
-          <div className="bg-white/90 rounded-2xl shadow-2xl border-2 border-red-400 max-w-md w-full p-6 relative animate-fadeIn">
-            <button
-              className="absolute top-3 right-3 text-red-700 hover:text-black text-2xl font-bold focus:outline-none"
-              onClick={() => setShowDeleteModal(false)}
-              aria-label="Close"
-            >
-              ×
-            </button>
-            <h3 className="text-2xl font-bold text-red-700 mb-4 neon-header">Confirm Deletion</h3>
-            <div className="mb-4 text-lg">Are you sure you want to delete the student <span className="font-bold">{studentToDelete?.StudentName}</span>?</div>
-            <div className="flex justify-end gap-2">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden">
+            <div className="bg-gradient-to-r from-red-500 to-pink-600 p-6">
+              <div className="flex justify-between items-center">
+                <h3 className="text-2xl font-bold text-white">🗑️ Delete Student</h3>
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  className="text-white hover:text-red-200 text-2xl font-bold transition-colors"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+            <div className="p-6">
+              <div className="text-center mb-6">
+                <div className="text-6xl mb-4">⚠️</div>
+                <p className="text-lg text-gray-700 mb-2">Are you sure you want to delete</p>
+                <p className="text-xl font-bold text-gray-900">{studentToDelete?.StudentName}?</p>
+                <p className="text-sm text-gray-500 mt-2">This action cannot be undone.</p>
+              </div>
+            </div>
+            <div className="bg-gray-50 px-6 py-4 rounded-b-3xl flex justify-end gap-3">
               <button
-                className="neon-button bg-black text-white px-6 py-2 rounded-lg font-bold shadow hover:bg-gray-800"
                 onClick={() => setShowDeleteModal(false)}
+                className="px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white rounded-xl font-semibold transition-all duration-200"
               >
                 Cancel
               </button>
               <button
-                className="neon-button bg-red-700 text-white px-6 py-2 rounded-lg font-bold shadow hover:bg-red-900"
                 onClick={() => deleteStudent(studentToDelete?.id)}
+                className="px-6 py-3 bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
               >
-                Delete
+                🗑️ Delete Student
               </button>
             </div>
           </div>
@@ -473,8 +557,6 @@ const ShowStudentData = () => {
       )}
     </div>
   );
-
-  // ...all modals and containers from the old implementation are removed; only the new return block and modals remain...
 };
 
 export default ShowStudentData;
