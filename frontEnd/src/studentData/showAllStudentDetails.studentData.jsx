@@ -42,7 +42,7 @@ const ShowStudentData = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [studentToDelete, setStudentToDelete] = useState(null);
   const [errors, setErrors] = useState({});
-  const [successMessage, setSuccessMessage] = useState("");
+
   const [filters, setFilters] = useState({
     shift: "",
     paymentMode: "",
@@ -93,60 +93,65 @@ const ShowStudentData = () => {
         setErrors({ TimeSlots: "At least one time slot is required" });
         return;
       }
-      
+
       // Remove id and other non-updatable fields from the payload
       const { id, createdAt, updatedAt, signupId, ...updatePayload } = currentStudent;
-      
+
+
       const response = await updateApiById(updateStudentUrl, currentStudent.id, updatePayload);
-      
-      if (response && response.success) {
+
+
+      // Check if response indicates success
+      if (response && (response.success === true || response.success === "true")) {
+        console.log('Success detected, closing modal'); // Debug log
         setShowEditModal(false);
         setCurrentStudent(null);
         setErrors({});
-        setSuccessMessage("Student data updated successfully!");
-        setTimeout(() => setSuccessMessage(""), 3000);
+        alert(response.message || "Student data updated successfully!");
         fetchStudentData();
-      } else {
-        // Handle different error response structures
-        const apiErrors = {};
-        
-        // Check for validation errors in response.err.details
-        if (response?.err?.details && Array.isArray(response.err.details)) {
-          response.err.details.forEach(detail => {
-            const fieldName = detail.path?.[0] || 'unknown';
-            apiErrors[fieldName] = detail.message || 'Invalid value';
-          });
-        }
-        
-        // Set main error message
-        if (response?.message) {
-          apiErrors.api = response.message;
-        } else if (response?.error) {
-          apiErrors.api = response.error;
-        } else if (response?.err?.message) {
-          apiErrors.api = response.err.message;
-        } else {
-          apiErrors.api = "Failed to update student";
-        }
-        
-        console.log('API Error Response:', response); // Debug log
-        setErrors(apiErrors);
+        return;
       }
+
+      // If we reach here, it's an error
+      console.log('Error detected, showing errors'); // Debug log
+      const apiErrors = {};
+
+      // Check for validation errors in response.err.details
+      if (response?.err?.details && Array.isArray(response.err.details)) {
+        response.err.details.forEach(detail => {
+          const fieldName = detail.path?.[0] || 'unknown';
+          apiErrors[fieldName] = detail.message || 'Invalid value';
+        });
+      }
+
+      // Set main error message
+      if (response?.message) {
+        apiErrors.api = response.message;
+      } else if (response?.error) {
+        apiErrors.api = response.error;
+      } else if (response?.err?.message) {
+        apiErrors.api = response.err.message;
+      } else {
+        apiErrors.api = "Failed to update student";
+      }
+
+      setErrors(apiErrors);
+
     } catch (error) {
-      console.error("Error updating student:", error);
-      
+      console.error("Caught error updating student:", error);
+
       // Handle network or parsing errors
       if (error.response?.data) {
         const errorData = error.response.data;
         const apiErrors = {};
-        
+
         if (errorData.err?.details) {
           errorData.err.details.forEach(detail => {
             const fieldName = detail.path?.[0] || 'unknown';
             apiErrors[fieldName] = detail.message || 'Invalid value';
           });
         }
-        
+
         apiErrors.api = errorData.message || errorData.error || "Update failed";
         setErrors(apiErrors);
       } else {
@@ -171,7 +176,7 @@ const ShowStudentData = () => {
     setCurrentStudent(student);
     setShowEditModal(true);
     setErrors({});
-    setSuccessMessage("");
+
   };
 
   const confirmDeleteStudent = (student) => {
@@ -200,12 +205,12 @@ const ShowStudentData = () => {
     const matchesSearch = searchTerm === "" || Object.values(student).some((value) =>
       value ? value.toString().toLowerCase().includes(searchTerm.toLowerCase()) : false
     );
-    
+
     // Additional filters
     const matchesShift = filters.shift === "" || student.Shift?.toLowerCase().includes(filters.shift.toLowerCase());
     const matchesPaymentMode = filters.paymentMode === "" || student.PaymentMode === filters.paymentMode;
     const matchesTimeSlot = filters.timeSlot === "" || student.TimeSlots?.includes(filters.timeSlot);
-    
+
     return matchesSearch && matchesShift && matchesPaymentMode && matchesTimeSlot;
   });
 
@@ -231,13 +236,13 @@ const ShowStudentData = () => {
   const handleTimeChange = (timeValue) => {
     const currentTimeSlots = currentStudent?.TimeSlots || [];
     let updatedTimeSlots;
-    
+
     if (currentTimeSlots.includes(timeValue)) {
       updatedTimeSlots = currentTimeSlots.filter(slot => slot !== timeValue);
     } else {
       updatedTimeSlots = [...currentTimeSlots, timeValue];
     }
-    
+
     setCurrentStudent((prev) => ({
       ...prev,
       TimeSlots: updatedTimeSlots,
@@ -309,7 +314,7 @@ const ShowStudentData = () => {
                 Export to Excel
               </button>
             </div>
-            
+
             {/* Filters Row */}
             <div className="flex flex-col md:flex-row gap-4 items-center">
               <span className="text-white font-semibold text-sm">🔍 Filters:</span>
@@ -380,9 +385,8 @@ const ShowStudentData = () => {
                 </thead>
                 <tbody className="divide-y divide-white/10">
                   {filteredStudents.map((student, index) => (
-                    <tr key={student.id} className={`hover:bg-white/5 transition-all duration-200 ${
-                      index % 2 === 0 ? 'bg-white/5' : 'bg-transparent'
-                    }`}>
+                    <tr key={student.id} className={`hover:bg-white/5 transition-all duration-200 ${index % 2 === 0 ? 'bg-white/5' : 'bg-transparent'
+                      }`}>
                       <td className="px-6 py-4">
                         <div className="text-white font-semibold">{student.StudentName}</div>
                         <div className="text-blue-200 text-sm">Reg: {student.RegistrationNumber}</div>
@@ -536,9 +540,8 @@ const ShowStudentData = () => {
                             onChange={() => handleTimeChange(option.value)}
                             className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                           />
-                          <span className={`text-sm transition-all duration-200 ${
-                            isSelected ? 'text-blue-600 font-semibold' : 'text-gray-700'
-                          }`}>
+                          <span className={`text-sm transition-all duration-200 ${isSelected ? 'text-blue-600 font-semibold' : 'text-gray-700'
+                            }`}>
                             {option.label}
                           </span>
                           {isSelected && <span className="text-green-500 text-xs">✓</span>}
@@ -653,16 +656,7 @@ const ShowStudentData = () => {
                   {errors.PaymentMode && <p className="text-red-500 text-sm mt-1">{errors.PaymentMode}</p>}
                 </div>
               </div>
-              {/* Success Message */}
-              {successMessage && (
-                <div className="bg-green-50 border border-green-200 rounded-xl p-4 mt-4">
-                  <div className="flex items-start gap-2">
-                    <span className="text-green-500 text-lg">✅</span>
-                    <p className="text-green-600 text-sm font-semibold">{successMessage}</p>
-                  </div>
-                </div>
-              )}
-              
+
               {/* Error Display */}
               {Object.keys(errors).length > 0 && (
                 <div className="bg-red-50 border border-red-200 rounded-xl p-4 mt-4">

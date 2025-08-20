@@ -13,7 +13,7 @@ export const updateStudentData = async (req, res) => {
     const existingStudent = await Student.findByPk(id);
 
     if (!existingStudent) {
-      return res.status(StatusCodes.NOT_FOUND).json({ message: MESSAGE.none });
+      return res.status(StatusCodes.NOT_FOUND).json({ success: false, message: MESSAGE.none });
     }
 
     // Destructure and exclude specific fields from the update payload
@@ -47,6 +47,7 @@ export const updateStudentData = async (req, res) => {
         const availableTimeSlots = allTimeSlots.filter(slot => !occupiedTimeSlots.includes(slot));
 
         return res.status(StatusCodes.CONFLICT).json({
+          success: false,
           error: MESSAGE.put.fail,
           details: 'This time slot is occupied by another user.',
           occupiedBy: conflictingStudent.StudentName,
@@ -69,13 +70,13 @@ export const updateStudentData = async (req, res) => {
     // Fetch the updated student (optional, Sequelize updates in place)
     const updatedStudent = await Student.findByPk(id);
 
-    res.status(StatusCodes.OK).json({ message: MESSAGE.put.succ, data: updatedStudent }); // Send the updated student back
+    res.status(StatusCodes.OK).json({ success: true, message: MESSAGE.put.succ, data: updatedStudent }); // Send the updated student back
   } catch (error) {
     console.error('Error updating student:', error);
     if (error.name === 'SequelizeValidationError') {
       const validationErrors = error.errors.map(err => err.message);
-      return res.status(StatusCodes.BAD_REQUEST).json({ error: MESSAGE.put.fail, details: validationErrors });
+      return res.status(StatusCodes.BAD_REQUEST).json({ success: false, error: MESSAGE.put.fail, details: validationErrors });
     }
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: MESSAGE.error });
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGE.error });
   }
 };
