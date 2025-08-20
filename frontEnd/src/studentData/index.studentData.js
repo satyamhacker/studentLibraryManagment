@@ -4,6 +4,7 @@ import HomePage from "./homePage.studentData.jsx";
 import AddStudentData from "./addStudentData.studentData.jsx";
 import ShowVacantSeats from "./showVacantSeats.studentData.jsx";
 import ShowStudentData from "./showAllStudentDetails.studentData.jsx"
+import ShowLockers from "./showStudentsHaveLocker.jsx";
 
 export {
     PublicRoute,
@@ -11,5 +12,6 @@ export {
     HomePage,
     AddStudentData,
     ShowVacantSeats,
-    ShowStudentData
+    ShowStudentData,
+    ShowLockers
 }
