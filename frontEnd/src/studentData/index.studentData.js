@@ -5,6 +5,7 @@ import AddStudentData from "./addStudentData.studentData.jsx";
 import ShowVacantSeats from "./showVacantSeats.studentData.jsx";
 import ShowStudentData from "./showAllStudentDetails.studentData.jsx"
 import ShowLockers from "./showStudentsHaveLocker.jsx";
+import UnallocatedStudentsSeat from "./unallocatedStudentsSeat.jsx";
 
 export {
     PublicRoute,
@@ -13,5 +14,6 @@ export {
     AddStudentData,
     ShowVacantSeats,
     ShowStudentData,
-    ShowLockers
+    ShowLockers,
+    UnallocatedStudentsSeat
 }
