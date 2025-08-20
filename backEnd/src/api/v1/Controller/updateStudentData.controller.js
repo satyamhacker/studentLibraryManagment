@@ -16,9 +16,9 @@ export const updateStudentData = async (req, res) => {
       return res.status(StatusCodes.NOT_FOUND).json({ success: false, message: MESSAGE.none });
     }
 
-    // Destructure and exclude specific fields from the update payload
-    const { RegistrationNumber, SeatNumber, TimeSlots, ...filteredUpdatePayload } = updatePayload;
 
+    // Destructure and exclude specific fields from the update payload
+    const { RegistrationNumber, SeatNumber, TimeSlots, LockerNumber, ...filteredUpdatePayload } = updatePayload;
 
     // Check if SeatNumber and TimeSlots are provided
     if (SeatNumber && TimeSlots && SeatNumber !== "0") {
@@ -58,6 +58,29 @@ export const updateStudentData = async (req, res) => {
       // Add SeatNumber and TimeSlots to the filtered update payload
       filteredUpdatePayload.SeatNumber = SeatNumber;
       filteredUpdatePayload.TimeSlots = TimeSlots;
+    }
+
+    // Check if LockerNumber is provided and not 0
+    if (LockerNumber && LockerNumber !== "0") {
+      // Find conflicting student for the same LockerNumber
+      const conflictingLockerStudent = await Student.findOne({
+        where: {
+          LockerNumber,
+          id: { [Op.ne]: id }
+        },
+      });
+
+      if (conflictingLockerStudent) {
+        return res.status(StatusCodes.CONFLICT).json({
+          success: false,
+          error: MESSAGE.put.fail,
+          details: 'This locker is already occupied by another user.',
+          occupiedBy: conflictingLockerStudent.StudentName,
+          lockerNumber: LockerNumber
+        });
+      }
+      // Add LockerNumber to the filtered update payload
+      filteredUpdatePayload.LockerNumber = LockerNumber;
     }
 
     // Update the student with the filtered update payload

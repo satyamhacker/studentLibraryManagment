@@ -92,7 +92,8 @@ const updateApi = async (routeEndpoint, data = {}) => {
         });
         return response.data;
     } catch (error) {
-        throw error.response?.data || { message: "Update API failed" };
+        // Throw the full error object for better error handling in UI
+        throw error.response?.data ? { ...error.response.data } : { message: "Update API failed" };
     }
 };
 
@@ -109,7 +110,8 @@ const updateApiById = async (routeEndpoint, id, data) => {
         });
         return response.data;
     } catch (error) {
-        throw error.response?.data || { message: "Update API by ID failed" };
+        // Throw the full error object for better error handling in UI
+        throw error.response?.data ? { ...error.response.data } : { message: "Update API by ID failed" };
     }
 };
 

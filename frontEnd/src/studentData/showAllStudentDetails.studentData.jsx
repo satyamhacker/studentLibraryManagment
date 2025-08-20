@@ -112,9 +112,27 @@ const ShowStudentData = () => {
         return;
       }
 
+
       // If we reach here, it's an error
       console.log('Error detected, showing errors'); // Debug log
       const apiErrors = {};
+
+      // Handle backend conflict/logic errors (locker/seat conflict, etc)
+      if (response?.details) {
+        // Show the main details message
+        apiErrors.api = response.details;
+        // Optionally, show who occupies the locker/seat if provided
+        if (response.occupiedBy) {
+          apiErrors.api += ` (Occupied by: ${response.occupiedBy}`;
+          if (response.lockerNumber) {
+            apiErrors.api += `, Locker: ${response.lockerNumber}`;
+          }
+          if (response.seatNumber) {
+            apiErrors.api += `, Seat: ${response.seatNumber}`;
+          }
+          apiErrors.api += ")";
+        }
+      }
 
       // Check for validation errors in response.err.details
       if (response?.err?.details && Array.isArray(response.err.details)) {
@@ -124,15 +142,34 @@ const ShowStudentData = () => {
         });
       }
 
-      // Set main error message
-      if (response?.message) {
-        apiErrors.api = response.message;
-      } else if (response?.error) {
-        apiErrors.api = response.error;
-      } else if (response?.err?.message) {
-        apiErrors.api = response.err.message;
-      } else {
-        apiErrors.api = "Failed to update student";
+      // Set main error message if not already set
+      if (!apiErrors.api) {
+        if (response?.message) {
+          apiErrors.api = response.message;
+        } else if (response?.error) {
+          apiErrors.api = response.error;
+        } else if (response?.err?.message) {
+          apiErrors.api = response.err.message;
+        } else {
+          apiErrors.api = "Failed to update student";
+        }
+      }
+
+
+      // Show alert for backend logic/conflict errors (locker/seat conflict, etc)
+      if (response?.details) {
+        let alertMsg = response.details;
+        if (response.occupiedBy) {
+          alertMsg += ` (Occupied by: ${response.occupiedBy}`;
+          if (response.lockerNumber) {
+            alertMsg += `, Locker: ${response.lockerNumber}`;
+          }
+          if (response.seatNumber) {
+            alertMsg += `, Seat: ${response.seatNumber}`;
+          }
+          alertMsg += ")";
+        }
+        alert(alertMsg);
       }
 
       setErrors(apiErrors);
@@ -140,7 +177,30 @@ const ShowStudentData = () => {
     } catch (error) {
       console.error("Caught error updating student:", error);
 
-      // Handle network or parsing errors
+      // Try to extract a user-friendly error message
+      let alertMsg = "";
+      if (error?.details) {
+        alertMsg = error.details;
+        if (error.occupiedBy) {
+          alertMsg += ` (Occupied by: ${error.occupiedBy}`;
+          if (error.lockerNumber) {
+            alertMsg += `, Locker: ${error.lockerNumber}`;
+          }
+          if (error.seatNumber) {
+            alertMsg += `, Seat: ${error.seatNumber}`;
+          }
+          alertMsg += ")";
+        }
+      } else if (error?.message) {
+        alertMsg = error.message;
+      } else if (typeof error === "string") {
+        alertMsg = error;
+      } else {
+        alertMsg = "Network error: Unable to update student";
+      }
+      if (alertMsg) alert(alertMsg);
+
+      // Handle network or parsing errors for error display in modal
       if (error.response?.data) {
         const errorData = error.response.data;
         const apiErrors = {};
@@ -155,7 +215,7 @@ const ShowStudentData = () => {
         apiErrors.api = errorData.message || errorData.error || "Update failed";
         setErrors(apiErrors);
       } else {
-        setErrors({ api: "Network error: " + (error.message || "Unable to update student") });
+        setErrors({ api: alertMsg });
       }
     }
   };
