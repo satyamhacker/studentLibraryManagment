@@ -50,18 +50,21 @@ const FilterStudentData = () => {
   const handleApplyFilter = async () => {
     setLoading(true);
     const filterData = {
-      year: selectedYear,
-      month: selectedMonth,
-      startDate,
-      endDate,
-      paymentMode
+      year: selectedYear ? parseInt(selectedYear) : undefined,
+      month: selectedMonth || undefined,
+      dateRange: startDate && endDate ? `${new Date(startDate).toLocaleDateString()} - ${new Date(endDate).toLocaleDateString()}` : undefined,
+      paymentMode: paymentMode || undefined
     };
+    
+    // Remove undefined values
+    Object.keys(filterData).forEach(key => filterData[key] === undefined && delete filterData[key]);
 
     try {
       const response = await createApi(filterStudentsDataUrl, filterData);
-      if (response && response.success) {
+      if (response && response.data) {
         setFilteredData(response.data || []);
         setShowModal(false);
+        alert(response.message || "Filter applied successfully");
       } else {
         alert(response?.message || "Failed to filter data");
       }
@@ -149,6 +152,38 @@ const FilterStudentData = () => {
             )}
           </div>
         </div>
+
+        {/* Applied Filters Section */}
+        {filteredData.length > 0 && (
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 p-6 mb-6">
+            <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+              <FilterIcon className="w-5 h-5" />
+              Applied Filters
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {selectedYear && (
+                <span className="bg-indigo-500/20 text-indigo-300 px-3 py-1 rounded-full text-sm border border-indigo-400/30">
+                  Year: {selectedYear}
+                </span>
+              )}
+              {selectedMonth && (
+                <span className="bg-purple-500/20 text-purple-300 px-3 py-1 rounded-full text-sm border border-purple-400/30">
+                  Month: {selectedMonth}
+                </span>
+              )}
+              {startDate && endDate && (
+                <span className="bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full text-sm border border-blue-400/30">
+                  Date: {new Date(startDate).toLocaleDateString()} - {new Date(endDate).toLocaleDateString()}
+                </span>
+              )}
+              {paymentMode && (
+                <span className="bg-green-500/20 text-green-300 px-3 py-1 rounded-full text-sm border border-green-400/30">
+                  Payment: {paymentMode}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Search Section */}
         {filteredData.length > 0 && (
