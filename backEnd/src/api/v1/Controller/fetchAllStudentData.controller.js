@@ -1,6 +1,6 @@
 import { Student } from '../Models/index.model.js';
 import { StatusCodes } from 'http-status-codes';
-import MESSAGE from '../Constants/message.js';
+import MESSAGE from '../Constants/index.constants.js';
 
 // Controller to fetch student data
 export const fetchAllStudentData = async (req, res) => {

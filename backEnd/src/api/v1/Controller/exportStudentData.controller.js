@@ -1,6 +1,6 @@
 
 import { StatusCodes } from 'http-status-codes';
-import MESSAGE from '../Constants/message.js';
+import MESSAGE from '../Constants/index.constants.js';
 import Student from '../Models/studentData.model.js';
 import path from 'path';
 import { fileURLToPath } from 'url';

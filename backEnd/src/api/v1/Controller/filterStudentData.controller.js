@@ -2,7 +2,7 @@
 import { Student } from '../Models/index.model.js'; // Adjust path to your Student model
 import { Op } from 'sequelize';
 import { StatusCodes } from 'http-status-codes';
-import MESSAGE from '../Constants/message.js';
+import MESSAGE from '../Constants/index.constants.js';
 
 const convertStringToDate = (dateString) => {
   const [day, month, year] = dateString.split('/').map(Number);

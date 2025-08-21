@@ -6,7 +6,7 @@ import bcrypt from 'bcrypt';
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 import { StatusCodes } from 'http-status-codes';
-import MESSAGE from '../Constants/message.js';
+import MESSAGE from '../Constants/index.constants.js';
 
 dotenv.config();
 
