@@ -43,6 +43,33 @@ const ShowVacantSeats = () => {
     }
   };
 
+  const timeSlotToIndex = (timeSlot) => {
+    const slotMap = {
+      "06:00-10:00": 0,
+      "10:00-14:00": 1,
+      "14:00-18:00": 2,
+      "18:00-22:00": 3,
+      "22:00-06:00": 4
+    };
+    return slotMap[timeSlot];
+  };
+
+  const getSeatOccupancy = (seatNumber) => {
+    const seatStudents = students.filter(s => Number(s.SeatNumber) === seatNumber);
+    const occupiedSlots = new Set();
+    seatStudents.forEach(student => {
+      if (student.TimeSlots && Array.isArray(student.TimeSlots)) {
+        student.TimeSlots.forEach(slot => {
+          const index = timeSlotToIndex(slot);
+          if (index !== undefined) {
+            occupiedSlots.add(index);
+          }
+        });
+      }
+    });
+    return Array.from(occupiedSlots).sort();
+  };
+
   const totalSeats = 136;
   const seats = Array.from({ length: totalSeats }, (_, index) => index + 1);
 
@@ -80,21 +107,45 @@ const ShowVacantSeats = () => {
           <div className="grid grid-cols-4 sm:grid-cols-8 md:grid-cols-12 gap-3 justify-center">
             {seats.map((seatNumber) => {
               const isOccupied = occupiedSeats.includes(seatNumber);
+              const occupiedSlots = getSeatOccupancy(seatNumber);
               return (
-                <button
-                  key={seatNumber}
-                  onClick={() => isOccupied && handleSeatClick(seatNumber)}
-                  className={`neon-seat-ui font-bold text-lg rounded-lg shadow-md transition-all duration-200 border-2 focus:outline-none focus:ring-2 focus:ring-green-400 ${isOccupied
-                    ? "bg-gradient-to-br from-green-400 via-green-600 to-emerald-700 text-white border-green-400 neon-glow cursor-pointer hover:scale-110 hover:shadow-green-400/60 hover:ring-4"
-                    : "bg-gradient-to-br from-gray-200 to-gray-400 text-gray-500 border-gray-300 cursor-not-allowed opacity-60"
-                    }`}
-                  style={{ minWidth: 48, minHeight: 48 }}
-                  title={isOccupied ? "Occupied" : "Vacant"}
-                  tabIndex={isOccupied ? 0 : -1}
-                  aria-label={`Seat ${seatNumber} ${isOccupied ? "Occupied" : "Vacant"}`}
-                >
-                  {seatNumber}
-                </button>
+                <div key={seatNumber} className="relative flex flex-col items-center group">
+                  <div className="relative">
+                    <button
+                      onClick={() => isOccupied && handleSeatClick(seatNumber)}
+                      className={`relative w-14 h-10 rounded-xl font-bold text-sm transition-all duration-300 transform border-2 shadow-lg ${
+                        isOccupied
+                          ? "bg-gradient-to-br from-slate-700 to-slate-800 border-emerald-400 text-white cursor-pointer hover:scale-110 hover:shadow-emerald-400/50 hover:shadow-xl group-hover:border-emerald-300"
+                          : "bg-gradient-to-br from-gray-300 to-gray-400 text-gray-600 border-gray-400 cursor-not-allowed opacity-70"
+                      }`}
+                      title={isOccupied ? `Occupied (${occupiedSlots.length}/5 time slots)` : "Vacant"}
+                      tabIndex={isOccupied ? 0 : -1}
+                      aria-label={`Seat ${seatNumber} ${isOccupied ? "Occupied" : "Vacant"}`}
+                    >
+                      {seatNumber}
+                      {isOccupied && occupiedSlots.length < 5 && (
+                        <div className="absolute -top-2 -right-2 w-5 h-5 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full border-2 border-white shadow-lg flex items-center justify-center">
+                          <span className="text-xs font-bold text-white">{occupiedSlots.length}</span>
+                        </div>
+                      )}
+                    </button>
+                  </div>
+                  {isOccupied && (
+                    <div className="flex gap-1 mt-2 p-1 bg-black/20 rounded-full backdrop-blur-sm">
+                      {[0,1,2,3,4].map(slot => (
+                        <div
+                          key={slot}
+                          className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                            occupiedSlots.includes(slot)
+                              ? "bg-gradient-to-br from-emerald-400 to-green-500 shadow-lg shadow-emerald-400/50 scale-110"
+                              : "bg-gray-500/60"
+                          }`}
+                          title={`Time slot ${slot + 1}: ${occupiedSlots.includes(slot) ? 'Occupied' : 'Vacant'}`}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
               );
             })}
           </div>
