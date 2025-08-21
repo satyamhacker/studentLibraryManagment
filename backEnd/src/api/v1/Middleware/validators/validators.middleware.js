@@ -1,6 +1,6 @@
 import { StatusCodes } from "http-status-codes";
 import constants from "../../Constants/index.constants.js";
-const MESSAGE = constants.MESSAGE;
+const { MESSAGE } = constants;
 
 export const validator = (schema, property = null) => {
     return (req, res, next) => {
