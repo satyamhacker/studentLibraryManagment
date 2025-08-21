@@ -24,19 +24,24 @@ app.use(cors());
 // Parse JSON requests
 app.use(express.json());
 
-// ✅ Serve static frontend from correct dist path
+// Serve static frontend from correct dist path
 const frontendDistPath = path.join(__dirname, '../frontEnd/dist');
 app.use(express.static(frontendDistPath));
 
-// ✅ API routes
+// API routes
 app.use("/api/v1", mainRoutes);
 
-// ✅ Catch-all route for SPA (React/Vue)
-app.get("*", (req, res) => {
+// Health check endpoint (optional but useful)
+app.get("/health", (req, res) => {
+    res.status(200).send("OK");
+});
+
+// Catch-all route for SPA (non-API routes only)
+app.get(/^\/(?!api\/).*/, (req, res) => {
     res.sendFile(path.join(frontendDistPath, 'index.html'));
 });
 
-// ✅ Sync DB models
+// Sync DB models
 sequelize.sync()
     .then(() => {
         console.log("✅ All models synchronized successfully.");
@@ -45,7 +50,9 @@ sequelize.sync()
         console.error("❌ Error synchronizing models:", error);
     });
 
-// ✅ Start server
-app.listen(port, () => {
+// Start server — bind to 0.0.0.0 for NGINX compatibility
+app.listen(port, '0.0.0.0', () => {
     console.log(`🚀 Server is listening on port ${port}`);
+    console.log(`🌐 Environment: ${process.env.NODE_ENV}`);
+    console.log(`📦 Serving frontend from: ${frontendDistPath}`);
 });
