@@ -2,7 +2,7 @@ import { EncodeUserJwt } from "../Middleware/index.middleware.js";
 import SignupData from "../Models/signup.model.js";
 import bcrypt from "bcrypt"; // Import bcrypt for password hashing
 import { StatusCodes } from "http-status-codes";
-import MESSAGE from "../Constants/index.constants.js";
+import constants from "../Constants/index.constants.js";
 const MESSAGE = constants.MESSAGE;
 
 export const signupCreate = async (req, res) => {

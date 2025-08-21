@@ -1,7 +1,7 @@
 
 import { Student } from '../Models/index.model.js'; // Adjust path to your Student model
 import { StatusCodes } from 'http-status-codes';
-import MESSAGE from '../Constants/index.constants.js';
+import constants from '../Constants/index.constants.js';
 const MESSAGE = constants.MESSAGE;
 
 export const deleteStudentData = async (req, res) => {
