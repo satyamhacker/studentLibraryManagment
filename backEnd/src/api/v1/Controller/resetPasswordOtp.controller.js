@@ -7,6 +7,7 @@ import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 import { StatusCodes } from 'http-status-codes';
 import MESSAGE from '../Constants/index.constants.js';
+const MESSAGE = constants.MESSAGE;
 
 dotenv.config();
 
