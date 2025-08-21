@@ -1,15 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { PublicRoute, PrivateRoute } from "./studentData/index.studentData.js"
-import "./styles/darkMode.css"; // Import dark mode styles
 
 import { Login, Signup, ForgotPassword } from "./auth/index.auth.js"
 import { HomePage, AddStudentData, ShowVacantSeats, ShowStudentData, ShowLockers, UnallocatedStudentsSeat, ShowStudentsWithEndedMonth, StudentWithDues, FilterStudentData } from "./studentData/index.studentData.js"
 
 
 function App() {
-  const [isDarkMode, setIsDarkMode] = useState(false);
-
   useEffect(() => {
     const handleBeforeUnload = (event) => {
       const confirmationMessage =
@@ -26,17 +23,9 @@ function App() {
     };
   }, []);
 
-  const toggleDarkMode = () => {
-    setIsDarkMode((prevMode) => !prevMode);
-    document.body.classList.toggle("dark-mode", !isDarkMode);
-  };
-
   return (
     <BrowserRouter>
-      <div className={isDarkMode ? "dark-mode" : ""}>
-        <button onClick={toggleDarkMode} className="toggle-dark-mode">
-          {isDarkMode ? "Light Mode" : "Dark Mode"}
-        </button>
+      <div>
         <Routes>
           <Route path="/login" element={<PublicRoute element={<Login />} />} />
           <Route path="/" element={<PublicRoute element={<Signup />} />} />
