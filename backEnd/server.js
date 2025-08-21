@@ -18,30 +18,44 @@ dotenv.config({ path: path.join(__dirname, '../.env') });
 const app = express();
 const port = process.env.SERVER_PORT || 3100;
 
-// Enable CORS
-app.use(cors());
+// ✅ Enhanced CORS config
+const allowedOrigins = [
+    "http://localhost:5173", // Dev frontend
+    "https://lakshyalibrary.maalaxmi.store" // Prod frontend
+];
+
+
+app.use(cors({
+    origin: allowedOrigins,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true
+}));
+
+// ✅ Handle preflight OPTIONS requests
+app.options("*", cors());
 
 // Parse JSON requests
 app.use(express.json());
 
-// Serve static frontend from correct dist path
+// ✅ Serve static frontend
 const frontendDistPath = path.join(__dirname, '../frontEnd/dist');
 app.use(express.static(frontendDistPath));
 
-// API routes
+// ✅ API routes
 app.use("/api/v1", mainRoutes);
 
-// Health check endpoint (optional but useful)
+// ✅ Health check endpoint
 app.get("/health", (req, res) => {
     res.status(200).send("OK");
 });
 
-// Catch-all route for SPA (non-API routes only)
+// ✅ SPA fallback route (non-API)
 app.get(/^\/(?!api\/).*/, (req, res) => {
     res.sendFile(path.join(frontendDistPath, 'index.html'));
 });
 
-// Sync DB models
+// ✅ Sync DB models
 sequelize.sync()
     .then(() => {
         console.log("✅ All models synchronized successfully.");
@@ -50,7 +64,7 @@ sequelize.sync()
         console.error("❌ Error synchronizing models:", error);
     });
 
-// Start server — bind to 0.0.0.0 for NGINX compatibility
+// ✅ Start server
 app.listen(port, '0.0.0.0', () => {
     console.log(`🚀 Server is listening on port ${port}`);
     console.log(`🌐 Environment: ${process.env.NODE_ENV}`);
