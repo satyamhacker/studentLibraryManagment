@@ -1,6 +1,6 @@
-import Login from "./Login";
-import Signup from "./Signup"
-import ForgotPassword from "./ForgotPassword";
+import Login from "./login.auth.jsx";
+import Signup from "./signup.auth.jsx"
+import ForgotPassword from "./forgotPassword.auth.jsx";
 
 export {
     Login,
