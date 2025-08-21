@@ -55,7 +55,7 @@ const FilterStudentData = () => {
       dateRange: startDate && endDate ? `${new Date(startDate).toLocaleDateString()} - ${new Date(endDate).toLocaleDateString()}` : undefined,
       paymentMode: paymentMode || undefined
     };
-    
+
     // Remove undefined values
     Object.keys(filterData).forEach(key => filterData[key] === undefined && delete filterData[key]);
 
@@ -373,6 +373,7 @@ const FilterStudentData = () => {
                   <input
                     type="date"
                     value={endDate}
+                    min={startDate}
                     onChange={(e) => setEndDate(e.target.value)}
                     className="w-full bg-white/90 border border-white/30 rounded-lg px-3 py-2 text-gray-800 focus:ring-2 focus:ring-purple-400 focus:border-transparent"
                   />
