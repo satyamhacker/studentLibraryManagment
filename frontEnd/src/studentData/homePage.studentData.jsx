@@ -60,7 +60,7 @@ const HomePage = () => {
   // Handle logout
   const handleLogout = () => {
     localStorage.clear(); // Clear all local storage data
-    navigate("/login"); // Redirect to login page
+    window.location.reload()
   };
 
   return (
@@ -80,7 +80,7 @@ const HomePage = () => {
           <button
             onClick={handleLogout}
             className="mt-4 sm:mt-0 py-2.5 px-7 rounded-lg text-blue-700 border border-blue-500 font-semibold tracking-wide bg-white shadow-lg hover:bg-blue-50 hover:text-white hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all"
-            style={{letterSpacing:1}}
+            style={{ letterSpacing: 1 }}
           >
             Logout
           </button>
