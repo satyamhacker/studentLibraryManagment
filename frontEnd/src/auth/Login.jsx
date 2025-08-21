@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-
 import { createApi } from "../api/api.js";
 import { loginUrl } from "../url/index.url.js";
 
@@ -30,27 +29,21 @@ const Login = () => {
     try {
       const response = await createApi(loginUrl, formData);
 
-      if (response.success === true) {
-        alert(response.message || "Login successful!");
+      if (response && response.success === true) {
         localStorage.setItem("jwtToken", response.token);
         localStorage.setItem("isLoggedIn", "true");
-        navigate("/homePage");
-      } else if (response.message) {
-        setError(response.message);
-      } else if (response.error) {
-        setError(response.error);
+        alert(response.message || "Login successful!");
+        // Force page reload to update authentication state
+        window.location.href = "/homePage";
       } else {
-        setError("Login failed. Please check your credentials.");
+        // Handle failed login
+        const errorMessage = response?.message || response?.error || "Login failed. Please check your credentials.";
+        setError(errorMessage);
       }
     } catch (error) {
       console.error("Login failed:", error);
-      if (error?.message) {
-        setError(error.message);
-      } else if (error?.error) {
-        setError(error.error);
-      } else {
-        setError("An error occurred. Please try again.");
-      }
+      const errorMessage = error?.response?.data?.message || error?.message || "An error occurred. Please try again.";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -106,7 +99,7 @@ const Login = () => {
             disabled={loading}
             className="w-full py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
           >
-            {loading ? <BeatLoader color="#ffffff" size={8} /> : "Login"}
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
         <div className="flex justify-between mt-4 text-sm">

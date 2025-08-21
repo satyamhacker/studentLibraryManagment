@@ -5,7 +5,7 @@ import { localStorageToken } from "../url/index.url.js";
 const PublicRoute = ({ element }) => {
   const isLoggedIn = localStorageToken; // Check login status
 
-  return isLoggedIn ? <Navigate to="/home" /> : element;
+  return isLoggedIn ? <Navigate to="/homePage" /> : element;
 };
 
 export default PublicRoute;

@@ -15,7 +15,7 @@ const Signup = () => {
     // Redirect to home if the user is already logged in
     const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
     if (isLoggedIn) {
-      navigate("/home");
+      navigate("/homePage");
     }
   }, [navigate]);
 
