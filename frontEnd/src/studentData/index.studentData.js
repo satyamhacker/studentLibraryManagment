@@ -1,5 +1,5 @@
-import PublicRoute from "./PublicRoute.jsx";
-import PrivateRoute from "./PrivateRoute.jsx"
+import PublicRoute from "./publicRoute.studentData.jsx";
+import PrivateRoute from "./privateRoute.studentData.jsx"
 import HomePage from "./homePage.studentData.jsx";
 import AddStudentData from "./addStudentData.studentData.jsx";
 import ShowVacantSeats from "./showVacantSeats.studentData.jsx";

@@ -11,7 +11,7 @@ import {
     updateStudentUrl,
     exportStudentDataUrl,
     filterStudentsDataUrl
-} from "./urlConfig.js";
+} from "./urlConfig.url.js";
 
 export {
     localStorageToken,
