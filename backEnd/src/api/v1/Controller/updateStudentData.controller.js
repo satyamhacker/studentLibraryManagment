@@ -2,7 +2,7 @@
 import { Student } from '../Models/index.model.js'; // Adjust path to your Student model
 import { Op, literal } from 'sequelize'; // Ensure Op and literal are imported
 import { StatusCodes } from 'http-status-codes';
-import MESSAGE from '../Constants/message.js';
+import MESSAGE from '../Constants/index.constants.js';
 
 export const updateStudentData = async (req, res) => {
   const { id } = req.params; // Extract student ID from request parameters
