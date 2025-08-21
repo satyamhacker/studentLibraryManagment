@@ -4,7 +4,7 @@ import cors from "cors"; // Import CORS middleware
 import dotenv from 'dotenv';
 
 import mainRoutes from "./src/api/v1/Routes/index.routes.js"; // Import main routes
-import './src/api/v1/Models/associateModels.js'; // Ensure model associations are set up
+import './src/api/v1/Models/associateModels.models.js'; // Ensure model associations are set up
 import { sequelize } from "./src/api/v1/Models/index.model.js"; // adjust path if needed
 
 
