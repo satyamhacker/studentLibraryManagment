@@ -1,5 +1,5 @@
 import axios from "axios";
-import { localStorageToken } from "../url/urlConfig";
+import { localStorageToken } from "../url/index.url.js";
 const BASE_URL = import.meta.env.VITE_BASE_URL; // Ensure this is the correct environment variable
 
 // Function to get current token from localStorage

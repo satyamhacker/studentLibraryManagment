@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/neonSeats.css";
 import { getApi } from "../api/api.js";
-import { fetchAllStudentDataUrl } from "../url/urlConfig.js";
+import { fetchAllStudentDataUrl } from "../url/index.url.js";
 
 const ShowVacantSeats = () => {
   const [occupiedSeats, setOccupiedSeats] = useState([]);
