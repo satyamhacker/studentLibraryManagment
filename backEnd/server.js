@@ -1,39 +1,50 @@
-import express from "express"; // Import Express
-import cors from "cors"; // Import CORS middleware
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
 
-import dotenv from 'dotenv';
+import mainRoutes from "./src/api/v1/Routes/index.routes.js";
+import "./src/api/v1/Models/associateModels.models.js";
+import { sequelize } from "./src/api/v1/Models/index.model.js";
 
-import mainRoutes from "./src/api/v1/Routes/index.routes.js"; // Import main routes
-import './src/api/v1/Models/associateModels.models.js'; // Ensure model associations are set up
-import { sequelize } from "./src/api/v1/Models/index.model.js"; // adjust path if needed
+// Setup __dirname in ES module
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
+// Load environment variables
+dotenv.config({ path: path.join(__dirname, '../.env') });
 
-// Load environment variables from .env file
-dotenv.config({ path: '../.env' });
+const app = express();
+const port = process.env.SERVER_PORT || 3100;
 
-const app = express(); // Create an Express app
-const port = process.env.SERVER_PORT; // Port number on which your server will run
+// Enable CORS
+app.use(cors());
 
-app.use(cors()); // Enable CORS for all routes
-
-// Middleware to parse JSON requests (no need for bodyParser, it's part of Express)
+// Parse JSON requests
 app.use(express.json());
 
+// Serve static frontend from dist
+app.use(express.static(path.join(__dirname, 'dist')));
+
+// API routes
 app.use("/api/v1", mainRoutes);
 
-// Sync all models with the database
-sequelize.sync().then(() => {
-    console.log("All models were synchronized successfully.");
-}).catch((error) => {
-    console.error("Error synchronizing models:", error);
+// Catch-all route for SPA (React/Vue)
+app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
-// sequelize.sync({ alter: true }).then(() => {
-//     console.log("All models were synchronized successfully.");
-// });
-// sequelize.sync({ force: true }).then(() => {
-//     console.log("All models were synchronized successfully.");
-// });
 
+// Sync DB models
+sequelize.sync()
+    .then(() => {
+        console.log("✅ All models synchronized successfully.");
+    })
+    .catch((error) => {
+        console.error("❌ Error synchronizing models:", error);
+    });
+
+// Start server
 app.listen(port, () => {
-    console.log(`Server is listening on port ${port}`);
+    console.log(`🚀 Server is listening on port ${port}`);
 });
