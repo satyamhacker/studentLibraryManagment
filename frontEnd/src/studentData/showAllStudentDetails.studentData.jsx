@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/neonTable.css";
-import { getApi, deleteApiById, updateApiById } from "../api/api.js";
+import { getApi, deleteApiById, updateApiById, getBlobApi } from "../api/api.js";
 import { fetchAllStudentDataUrl, deleteStudentUrl, updateStudentUrl, exportStudentDataUrl } from "../url/index.url.js";
 
 // Icons as components for better performance
@@ -322,20 +322,21 @@ const ShowStudentData = () => {
 
   const exportStudentDataToExcel = async () => {
     try {
-      const response = await getApi(exportStudentDataUrl, { responseType: "blob" });
-      if (response && response.data) {
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", "students_data.xlsx");
-        document.body.appendChild(link);
-        link.click();
-      } else {
-        alert("Error exporting student data");
-      }
+      const response = await getBlobApi(exportStudentDataUrl);
+      const blob = new Blob([response.data], { 
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+      });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "students_data.xlsx";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Error exporting student data:", error);
-      alert("Error exporting student data");
+      alert(error.message || "Error exporting student data");
     }
   };
 

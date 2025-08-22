@@ -171,6 +171,30 @@ const deleteApiByCondition = async (routeEndpoint, id, data) => {
     }
 };
 
+// 📥 Get Blob API for file downloads
+const getBlobApi = async (routeEndpoint) => {
+    try {
+        const token = getToken();
+        if (!token) {
+            throw { message: "Please sign in to download files" };
+        }
+        const API_ENDPOINT = constructApiUrl(BASE_URL, routeEndpoint);
+        const response = await axios.get(`${API_ENDPOINT}`, {
+            headers: { Authorization: `Bearer ${token}` },
+            responseType: 'blob'
+        });
+        return response;
+    } catch (error) {
+        if (error.response?.status === 401) {
+            throw { message: "Your session has expired. Please sign in again." };
+        }
+        if (error.response?.status === 403) {
+            throw { message: "You don't have permission to download this file." };
+        }
+        throw error.response?.data || { message: "Unable to download file. Please try again." };
+    }
+};
+
 // 🚪 Logout function to clear token
 const logout = () => {
     localStorage.removeItem("token");
@@ -185,5 +209,6 @@ export {
     deleteApi,
     deleteApiById,
     deleteApiByCondition,
+    getBlobApi,
     logout,
 };
