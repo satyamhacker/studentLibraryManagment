@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getApi, updateApiById } from "../api/api.js";
-import { fetchAllStudentDataUrl, updateStudentUrl } from "../url/index.url.js";
+import { fetchAllStudentDataUrl, updateStudentUrl, updateStudentStatusUrl } from "../url/index.url.js";
 
 // Icons as components
 const SearchIcon = () => (
@@ -39,6 +39,8 @@ const ShowStudentsWithEndedMonth = () => {
   );
   const [expectedDateChangeCount, setExpectedDateChangeCount] = useState(0);
   const [showUpdateButton, setShowUpdateButton] = useState(false); // State to control button visibility
+  const [studentStatus, setStudentStatus] = useState(true); // true for Active, false for Inactive
+  const [showStatusUpdateButton, setShowStatusUpdateButton] = useState(false);
   const navigate = useNavigate(); // Define navigate
 
   // Fetch student data from backend
@@ -83,8 +85,10 @@ const ShowStudentsWithEndedMonth = () => {
       student.PaymentExpectedDate || new Date().toISOString().split("T")[0]
     );
     setExpectedDateChangeCount(student.PaymentExpectedDateChanged || 0);
+    setStudentStatus(student.Status !== undefined ? student.Status : true);
     setShowModal(true);
     setShowUpdateButton(false); // Hide the update button when modal is opened
+    setShowStatusUpdateButton(false);
   };
 
   // Close the modal
@@ -133,6 +137,32 @@ const ShowStudentsWithEndedMonth = () => {
     if (newDate !== paymentExpectedDate) {
       setPaymentExpectedDate(newDate);
       setShowUpdateButton(true); // Show the update button when a new date is selected
+    }
+  };
+
+  // Handle status change
+  const handleStatusChange = (e) => {
+    const newStatus = e.target.value === 'true';
+    if (newStatus !== studentStatus) {
+      setStudentStatus(newStatus);
+      setShowStatusUpdateButton(true);
+    }
+  };
+
+  // Handle status update
+  const handleStatusUpdate = async () => {
+    try {
+      const response = await updateApiById(updateStudentStatusUrl, selectedStudent.id, { Status: studentStatus });
+      if (response && response.success) {
+        alert(response.message || "Student status updated successfully!");
+        setShowModal(false);
+        fetchStudents();
+      } else {
+        alert(response?.message || "Failed to update student status");
+      }
+    } catch (error) {
+      console.error("Error updating student status:", error);
+      alert("Error updating student status");
     }
   };
 
@@ -310,6 +340,52 @@ const ShowStudentsWithEndedMonth = () => {
                           className="w-full px-4 py-3 bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
                         >
                           Update Expected Date
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="bg-green-50 p-4 rounded-xl">
+                    <h4 className="font-semibold text-green-800 mb-3">Student Status</h4>
+                    <div className="space-y-3">
+                      <div className="flex gap-4">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="radio"
+                            name="studentStatus"
+                            value="true"
+                            checked={studentStatus === true}
+                            onChange={handleStatusChange}
+                            className="text-green-600 focus:ring-green-500"
+                          />
+                          <span className="text-green-700 font-medium">Active</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="radio"
+                            name="studentStatus"
+                            value="false"
+                            checked={studentStatus === false}
+                            onChange={handleStatusChange}
+                            className="text-red-600 focus:ring-red-500"
+                          />
+                          <span className="text-red-700 font-medium">Inactive</span>
+                        </label>
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        <span className="font-medium">Current Status:</span> 
+                        <span className={`ml-1 px-2 py-1 rounded-full text-xs font-semibold ${
+                          selectedStudent?.Status ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }`}>
+                          {selectedStudent?.Status ? 'Active' : 'Inactive'}
+                        </span>
+                      </div>
+                      {showStatusUpdateButton && (
+                        <button
+                          onClick={handleStatusUpdate}
+                          className="w-full px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+                        >
+                          Update Status
                         </button>
                       )}
                     </div>
