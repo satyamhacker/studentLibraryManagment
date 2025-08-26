@@ -6,6 +6,7 @@ import { fetchAllStudentData } from "./fetchAllStudentData.controller.js";
 import { updatePaymentExpectedDate } from "./updatePaymentExpectedDate.controller.js";
 import { filterStudentData } from "./filterStudentData.controller.js";
 import { exportStudentDataToExcel } from "./exportStudentData.controller.js";
+import { updateStudentStatus } from "./updateStudentStatus.controller.js";
 export {
   signupCreate,
   login,
@@ -17,5 +18,6 @@ export {
   sendOtp,
   verifyOtp,
   resetPassword,
-  exportStudentDataToExcel
+  exportStudentDataToExcel,
+  updateStudentStatus
 };

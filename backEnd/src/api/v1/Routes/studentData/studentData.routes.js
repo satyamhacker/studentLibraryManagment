@@ -1,7 +1,7 @@
 
 import express from "express";
 
-import { addStudentData, deleteStudentData, fetchAllStudentData, updatePaymentExpectedDate, filterStudentData, exportStudentDataToExcel } from "../../Controller/index.controller.js";
+import { addStudentData, deleteStudentData, fetchAllStudentData, updatePaymentExpectedDate, filterStudentData, exportStudentDataToExcel, updateStudentStatus } from "../../Controller/index.controller.js";
 
 import validator from "../../Middleware/validators/validators.middleware.js";
 import { validators } from "../../Validators/index.validators.js";
@@ -16,6 +16,7 @@ router.delete("/delete-student-data/:id", VerifyUserJwt, deleteStudentData); // 
 router.get("/fetch-all-student-data", VerifyUserJwt, fetchAllStudentData);
 router.patch("/update-student-data/:id", VerifyUserJwt, validator(validators.studentData.updateStudentData), updateStudentData);
 router.patch("/update-payment-expected-date/:id", VerifyUserJwt, updatePaymentExpectedDate);
+router.patch("/update-student-status/:id", VerifyUserJwt, updateStudentStatus);
 
 // Route to export student data to Excel
 router.get("/export-student-data-excel", VerifyUserJwt, exportStudentDataToExcel);
