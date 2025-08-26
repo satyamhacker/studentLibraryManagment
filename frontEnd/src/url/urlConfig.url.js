@@ -14,6 +14,7 @@ const deleteStudentUrl = '/student-data/delete-student-data'
 const updateStudentUrl = '/student-data/update-student-data'
 const exportStudentDataUrl = '/student-data/export-student-data-excel'
 const filterStudentsDataUrl = '/student-data/filter-student-data'
+const updateStudentStatusUrl = '/student-data/update-student-status'
 
 export {
     localStorageToken,
@@ -27,5 +28,6 @@ export {
     deleteStudentUrl,
     updateStudentUrl,
     exportStudentDataUrl,
-    filterStudentsDataUrl
+    filterStudentsDataUrl,
+    updateStudentStatusUrl
 }
