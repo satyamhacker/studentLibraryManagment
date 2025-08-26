@@ -148,7 +148,7 @@ const Student = sequelize.define('Student', {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE'
   },
-  Status: {
+  StudentActiveStatus: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
     defaultValue: true,
