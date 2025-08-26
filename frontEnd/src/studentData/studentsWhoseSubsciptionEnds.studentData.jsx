@@ -85,7 +85,7 @@ const ShowStudentsWithEndedMonth = () => {
       student.PaymentExpectedDate || new Date().toISOString().split("T")[0]
     );
     setExpectedDateChangeCount(student.PaymentExpectedDateChanged || 0);
-    setStudentStatus(student.Status !== undefined ? student.Status : true);
+    setStudentStatus(student.StudentActiveStatus !== undefined ? student.StudentActiveStatus : true);
     setShowModal(true);
     setShowUpdateButton(false); // Hide the update button when modal is opened
     setShowStatusUpdateButton(false);
@@ -152,7 +152,7 @@ const ShowStudentsWithEndedMonth = () => {
   // Handle status update
   const handleStatusUpdate = async () => {
     try {
-      const response = await updateApiById(updateStudentStatusUrl, selectedStudent.id, { Status: studentStatus });
+      const response = await updateApiById(updateStudentStatusUrl, selectedStudent.id, { StudentActiveStatus: studentStatus });
       if (response && response.success) {
         alert(response.message || "Student status updated successfully!");
         setShowModal(false);
@@ -375,9 +375,9 @@ const ShowStudentsWithEndedMonth = () => {
                       <div className="text-sm text-gray-600">
                         <span className="font-medium">Current Status:</span> 
                         <span className={`ml-1 px-2 py-1 rounded-full text-xs font-semibold ${
-                          selectedStudent?.Status ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                          selectedStudent?.StudentActiveStatus ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                         }`}>
-                          {selectedStudent?.Status ? 'Active' : 'Inactive'}
+                          {selectedStudent?.StudentActiveStatus ? 'Active' : 'Inactive'}
                         </span>
                       </div>
                       {showStatusUpdateButton && (

@@ -253,7 +253,7 @@ const ShowStudentData = () => {
 
   const handleStatusChange = async (studentId, newStatus) => {
     try {
-      const response = await updateApiById(updateStudentStatusUrl, studentId, { Status: newStatus });
+      const response = await updateApiById(updateStudentStatusUrl, studentId, { StudentActiveStatus: newStatus });
       if (response && response.success) {
         fetchStudentData();
         alert(response.message || "Student status updated successfully!");
@@ -501,7 +501,7 @@ const ShowStudentData = () => {
                             <input
                               type="radio"
                               name={`status-${student.id}`}
-                              checked={student.Status === true}
+                              checked={student.StudentActiveStatus === true}
                               onChange={() => handleStatusChange(student.id, true)}
                               className="text-green-600 focus:ring-green-500"
                             />
@@ -511,7 +511,7 @@ const ShowStudentData = () => {
                             <input
                               type="radio"
                               name={`status-${student.id}`}
-                              checked={student.Status === false}
+                              checked={student.StudentActiveStatus === false}
                               onChange={() => handleStatusChange(student.id, false)}
                               className="text-red-600 focus:ring-red-500"
                             />
