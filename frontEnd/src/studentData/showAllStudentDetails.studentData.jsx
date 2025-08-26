@@ -439,9 +439,9 @@ const ShowStudentData = () => {
                 onChange={(e) => handleFilterChange('studentStatus', e.target.value)}
                 className="px-3 py-2 bg-white/90 border border-white/30 rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-400"
               >
+                <option value="active">Active Students</option>
+                <option value="inactive">Inactive Students</option>
                 <option value="">All Status</option>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
               </select>
               <button
                 onClick={clearFilters}
