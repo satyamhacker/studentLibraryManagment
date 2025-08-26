@@ -147,6 +147,11 @@ const Student = sequelize.define('Student', {
     },
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE'
+  },
+  StudentActiveStatus: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: true,
   }
 }, {
   tableName: 'studentsdata', // Explicit table name

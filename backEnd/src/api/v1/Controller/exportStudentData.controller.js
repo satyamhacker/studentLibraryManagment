@@ -26,6 +26,7 @@ export const exportStudentDataToExcel = async (req, res) => {
     const worksheet = workbook.addWorksheet('Students');
 
     worksheet.columns = [
+      { header: 'ID', key: 'id', width: 40 },
       { header: 'Registration Number', key: 'RegistrationNumber', width: 20 },
       { header: 'Admission Date', key: 'AdmissionDate', width: 15 },
       { header: 'Student Name', key: 'StudentName', width: 20 },
@@ -35,37 +36,45 @@ export const exportStudentDataToExcel = async (req, res) => {
       { header: 'Time Slots', key: 'TimeSlots', width: 30 },
       { header: 'Shift', key: 'Shift', width: 10 },
       { header: 'Seat Number', key: 'SeatNumber', width: 10 },
+      { header: 'Fees Paid Till Date', key: 'FeesPaidTillDate', width: 20 },
       { header: 'Amount Paid', key: 'AmountPaid', width: 15 },
       { header: 'Amount Due', key: 'AmountDue', width: 15 },
       { header: 'Locker Number', key: 'LockerNumber', width: 15 },
-      { header: 'Fees Paid Till Date', key: 'FeesPaidTillDate', width: 20 },
+      { header: 'Payment Expected Date', key: 'PaymentExpectedDate', width: 20 },
+      { header: 'Payment Expected Date Changed', key: 'PaymentExpectedDateChanged', width: 25 },
       { header: 'Payment Mode', key: 'PaymentMode', width: 15 },
       { header: 'Admission Amount', key: 'AdmissionAmount', width: 15 },
-      { header: 'Payment Expected Date', key: 'PaymentExpectedDate', width: 20 }
+      { header: 'Signup ID', key: 'signupId', width: 40 },
+      { header: 'Student Active Status', key: 'StudentActiveStatus', width: 20 },
+      { header: 'Created At', key: 'createdAt', width: 20 },
+      { header: 'Updated At', key: 'updatedAt', width: 20 }
     ];
 
     students.forEach(student => {
       const rowData = {
+        id: student.id,
         RegistrationNumber: student.RegistrationNumber,
         AdmissionDate: student.AdmissionDate,
         StudentName: student.StudentName,
         FatherName: student.FatherName,
         Address: student.Address,
         ContactNumber: student.ContactNumber,
-        TimeSlots: student.TimeSlots.join(', '),
+        TimeSlots: Array.isArray(student.TimeSlots) ? student.TimeSlots.join(', ') : student.TimeSlots,
         Shift: student.Shift,
         SeatNumber: student.SeatNumber,
+        FeesPaidTillDate: student.FeesPaidTillDate,
         AmountPaid: student.AmountPaid,
         AmountDue: student.AmountDue,
         LockerNumber: student.LockerNumber,
-        FeesPaidTillDate: student.FeesPaidTillDate,
+        PaymentExpectedDate: student.PaymentExpectedDate,
+        PaymentExpectedDateChanged: student.PaymentExpectedDateChanged,
         PaymentMode: student.PaymentMode,
         AdmissionAmount: student.AdmissionAmount,
+        signupId: student.signupId,
+        StudentActiveStatus: student.StudentActiveStatus ? 'Active' : 'Inactive',
+        createdAt: student.createdAt,
+        updatedAt: student.updatedAt
       };
-
-      if (student.PaymentExpectedDateChanged > 0 && student.PaymentExpectedDate) {
-        rowData.PaymentExpectedDate = student.PaymentExpectedDate;
-      }
 
       worksheet.addRow(rowData);
     });

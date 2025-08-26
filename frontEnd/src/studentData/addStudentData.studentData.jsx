@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 // import axios from "axios";
 import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
@@ -8,8 +8,8 @@ import PersonIcon from '@mui/icons-material/Person';
 import ContactPhoneIcon from '@mui/icons-material/ContactPhone';
 import '../styles/neonForm.css'; // neon CSS for accents if wanted
 
-import { addStudentDataUrl } from "../url/index.url.js";
-import { createApi } from "../api/api.js";
+import { addStudentDataUrl, getNextRegistrationNumberUrl } from "../url/index.url.js";
+import { createApi, getApi } from "../api/api.js";
 
 const AddStudentData = () => {
   const [studentData, setStudentData] = useState({
@@ -31,6 +31,24 @@ const AddStudentData = () => {
   });
   const [errors, setErrors] = useState({});
   const [alertShown, setAlertShown] = useState({ SeatNumber: false, LockerNumber: false });
+
+  // Fetch next registration number on component mount
+  useEffect(() => {
+    const fetchNextRegistrationNumber = async () => {
+      try {
+        const response = await getApi(getNextRegistrationNumberUrl);
+        if (response && response.success) {
+          setStudentData(prev => ({
+            ...prev,
+            RegistrationNumber: response.data.nextRegistrationNumber.toString()
+          }));
+        }
+      } catch (error) {
+        console.error("Error fetching next registration number:", error);
+      }
+    };
+    fetchNextRegistrationNumber();
+  }, []);
   const timeOptions = [
     { label: "06:00 - 10:00", value: "06:00-10:00" },
     { label: "10:00 - 14:00", value: "10:00-14:00" },
@@ -46,6 +64,10 @@ const AddStudentData = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    // Prevent changes to RegistrationNumber
+    if (name === "RegistrationNumber") {
+      return;
+    }
     if (name === "ContactNumber") {
       const regex = /^\d{0,10}$/;
       if (regex.test(value) || value === "") {
@@ -155,6 +177,7 @@ const AddStudentData = () => {
       console.log('API Response:', response);
       if (response.success) {
         alert(response.message || "Student data added successfully");
+        // Reset form and fetch new registration number
         setStudentData({
           RegistrationNumber: "",
           AdmissionDate: "",
@@ -173,6 +196,18 @@ const AddStudentData = () => {
           AdmissionAmount: "",
         });
         setErrors({});
+        // Fetch next registration number for new form
+        try {
+          const nextRegResponse = await getApi(getNextRegistrationNumberUrl);
+          if (nextRegResponse && nextRegResponse.success) {
+            setStudentData(prev => ({
+              ...prev,
+              RegistrationNumber: nextRegResponse.data.nextRegistrationNumber.toString()
+            }));
+          }
+        } catch (error) {
+          console.error("Error fetching next registration number after submission:", error);
+        }
       } else {
         alert(response.details || response.error || "Failed to add student data");
       }
@@ -208,8 +243,11 @@ const AddStudentData = () => {
                 value={studentData.RegistrationNumber}
                 onChange={handleChange}
                 error={!!errors.RegistrationNumber}
-                helperText={errors.RegistrationNumber}
-                InputProps={{ className: "rounded-md bg-white focus:ring-2 focus:ring-indigo-300" }}
+                helperText={errors.RegistrationNumber || "Auto-generated registration number"}
+                InputProps={{ 
+                  className: "rounded-md bg-gray-100 focus:ring-2 focus:ring-indigo-300",
+                  readOnly: true
+                }}
                 fullWidth
               />
               <TextField

@@ -10,7 +10,9 @@ import {
     deleteStudentUrl,
     updateStudentUrl,
     exportStudentDataUrl,
-    filterStudentsDataUrl
+    filterStudentsDataUrl,
+    updateStudentStatusUrl,
+    getNextRegistrationNumberUrl
 } from "./urlConfig.url.js";
 
 export {
@@ -25,5 +27,7 @@ export {
     deleteStudentUrl,
     updateStudentUrl,
     exportStudentDataUrl,
-    filterStudentsDataUrl
+    filterStudentsDataUrl,
+    updateStudentStatusUrl,
+    getNextRegistrationNumberUrl
 }

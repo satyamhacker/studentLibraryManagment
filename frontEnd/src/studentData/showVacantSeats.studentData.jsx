@@ -5,11 +5,19 @@ import "../styles/neonSeats.css";
 import { getApi } from "../api/api.js";
 import { fetchAllStudentDataUrl } from "../url/index.url.js";
 
+// Search Icon component
+const SearchIcon = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+  </svg>
+);
+
 const ShowVacantSeats = () => {
   const [occupiedSeats, setOccupiedSeats] = useState([]);
   const [students, setStudents] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedStudents, setSelectedStudents] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -73,6 +81,40 @@ const ShowVacantSeats = () => {
   const totalSeats = 136;
   const seats = Array.from({ length: totalSeats }, (_, index) => index + 1);
 
+  // Filter seats based on search term
+  const getFilteredSeats = () => {
+    if (!searchTerm.trim()) {
+      return seats;
+    }
+
+    const matchingStudents = students.filter(student => {
+      const searchLower = searchTerm.toLowerCase();
+      return (
+        student.StudentName?.toLowerCase().includes(searchLower) ||
+        student.FatherName?.toLowerCase().includes(searchLower) ||
+        student.RegistrationNumber?.toString().includes(searchLower) ||
+        student.ContactNumber?.toString().includes(searchLower) ||
+        student.Address?.toLowerCase().includes(searchLower) ||
+        student.SeatNumber?.toString().includes(searchLower) ||
+        student.LockerNumber?.toString().includes(searchLower) ||
+        student.TimeSlots?.some(slot => slot.toLowerCase().includes(searchLower)) ||
+        student.Shift?.toString().includes(searchLower) ||
+        student.PaymentMode?.toLowerCase().includes(searchLower)
+      );
+    });
+
+    const matchingSeatNumbers = matchingStudents
+      .map(student => Number(student.SeatNumber))
+      .filter(seat => Number.isInteger(seat) && seat > 0);
+
+    return seats.filter(seat => 
+      matchingSeatNumbers.includes(seat) || 
+      seat.toString().includes(searchTerm)
+    );
+  };
+
+  const displayedSeats = getFilteredSeats();
+
   const handleSeatClick = (seatNumber) => {
     // Find students with this seat number (as integer)
     const selected = students.filter(
@@ -89,6 +131,16 @@ const ShowVacantSeats = () => {
     setSelectedStudents([]);
   };
 
+  // Handle search input change
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  // Clear search
+  const clearSearch = () => {
+    setSearchTerm("");
+  };
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return isNaN(date.getTime())
@@ -103,53 +155,108 @@ const ShowVacantSeats = () => {
           <h2 className="text-center text-3xl sm:text-4xl font-extrabold text-white drop-shadow neon-header tracking-wider">Seat Allocation List</h2>
           <div className="mb-0 text-blue-100 text-sm">Click on an occupied seat to view student details.</div>
         </div>
-        <div className="p-6">
-          <div className="grid grid-cols-4 sm:grid-cols-8 md:grid-cols-12 gap-3 justify-center">
-            {seats.map((seatNumber) => {
-              const isOccupied = occupiedSeats.includes(seatNumber);
-              const occupiedSlots = getSeatOccupancy(seatNumber);
-              return (
-                <div key={seatNumber} className="relative flex flex-col items-center group">
-                  <div className="relative">
-                    <button
-                      onClick={() => isOccupied && handleSeatClick(seatNumber)}
-                      className={`relative w-14 h-10 rounded-xl font-bold text-sm transition-all duration-300 transform border-2 shadow-lg ${
-                        isOccupied
-                          ? "bg-gradient-to-br from-slate-700 to-slate-800 border-emerald-400 text-white cursor-pointer hover:scale-110 hover:shadow-emerald-400/50 hover:shadow-xl group-hover:border-emerald-300"
-                          : "bg-gradient-to-br from-gray-300 to-gray-400 text-gray-600 border-gray-400 cursor-not-allowed opacity-70"
-                      }`}
-                      title={isOccupied ? `Occupied (${occupiedSlots.length}/5 time slots)` : "Vacant"}
-                      tabIndex={isOccupied ? 0 : -1}
-                      aria-label={`Seat ${seatNumber} ${isOccupied ? "Occupied" : "Vacant"}`}
-                    >
-                      {seatNumber}
-                      {isOccupied && occupiedSlots.length < 5 && (
-                        <div className="absolute -top-2 -right-2 w-5 h-5 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full border-2 border-white shadow-lg flex items-center justify-center">
-                          <span className="text-xs font-bold text-white">{occupiedSlots.length}</span>
-                        </div>
-                      )}
-                    </button>
-                  </div>
-                  {isOccupied && (
-                    <div className="flex gap-1 mt-2 p-1 bg-black/20 rounded-full backdrop-blur-sm">
-                      {[0,1,2,3,4].map(slot => (
-                        <div
-                          key={slot}
-                          className={`w-2 h-2 rounded-full transition-all duration-200 ${
-                            occupiedSlots.includes(slot)
-                              ? "bg-gradient-to-br from-emerald-400 to-green-500 shadow-lg shadow-emerald-400/50 scale-110"
-                              : "bg-gray-500/60"
-                          }`}
-                          title={`Time slot ${slot + 1}: ${occupiedSlots.includes(slot) ? 'Occupied' : 'Vacant'}`}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+        
+        {/* Search Section */}
+        <div className="p-6 pb-4">
+          <div className="max-w-2xl mx-auto mb-6">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search by name, registration, contact, address, seat number..."
+                value={searchTerm}
+                onChange={handleSearchChange}
+                className="w-full pl-12 pr-12 py-4 bg-white/95 border-2 border-blue-300/50 rounded-2xl focus:ring-4 focus:ring-blue-400/50 focus:border-blue-400 transition-all duration-300 text-gray-800 placeholder-gray-500 text-lg shadow-lg backdrop-blur-sm"
+              />
+              <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                <SearchIcon />
+              </div>
+              {searchTerm && (
+                <button
+                  onClick={clearSearch}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
+            {searchTerm && (
+              <div className="mt-3 text-center">
+                <span className="text-blue-200 text-sm">
+                  Showing {displayedSeats.filter(seat => occupiedSeats.includes(seat)).length} matching occupied seats
+                </span>
+              </div>
+            )}
           </div>
-          {occupiedSeats.length === 0 && (
+        </div>
+        
+        <div className="px-6 pb-6">
+          {displayedSeats.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">🔍</div>
+              <h3 className="text-2xl font-semibold text-white mb-2">No Results Found</h3>
+              <p className="text-blue-200 mb-4">No seats match your search criteria.</p>
+              <button
+                onClick={clearSearch}
+                className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+              >
+                Clear Search
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-4 sm:grid-cols-8 md:grid-cols-12 gap-3 justify-center">
+              {displayedSeats.map((seatNumber) => {
+                const isOccupied = occupiedSeats.includes(seatNumber);
+                const occupiedSlots = getSeatOccupancy(seatNumber);
+                const isSearchResult = searchTerm && displayedSeats.includes(seatNumber);
+                return (
+                  <div key={seatNumber} className="relative flex flex-col items-center group">
+                    <div className="relative">
+                      <button
+                        onClick={() => isOccupied && handleSeatClick(seatNumber)}
+                        className={`relative w-14 h-10 rounded-xl font-bold text-sm transition-all duration-300 transform border-2 shadow-lg ${
+                          isOccupied
+                            ? isSearchResult
+                              ? "bg-gradient-to-br from-yellow-600 to-orange-600 border-yellow-400 text-white cursor-pointer hover:scale-110 hover:shadow-yellow-400/50 hover:shadow-xl group-hover:border-yellow-300 animate-pulse"
+                              : "bg-gradient-to-br from-slate-700 to-slate-800 border-emerald-400 text-white cursor-pointer hover:scale-110 hover:shadow-emerald-400/50 hover:shadow-xl group-hover:border-emerald-300"
+                            : "bg-gradient-to-br from-gray-300 to-gray-400 text-gray-600 border-gray-400 cursor-not-allowed opacity-70"
+                        }`}
+                        title={isOccupied ? `Occupied (${occupiedSlots.length}/5 time slots)` : "Vacant"}
+                        tabIndex={isOccupied ? 0 : -1}
+                        aria-label={`Seat ${seatNumber} ${isOccupied ? "Occupied" : "Vacant"}`}
+                      >
+                        {seatNumber}
+                        {isOccupied && occupiedSlots.length < 5 && (
+                          <div className={`absolute -top-2 -right-2 w-5 h-5 rounded-full border-2 border-white shadow-lg flex items-center justify-center ${
+                            isSearchResult ? 'bg-gradient-to-br from-red-400 to-red-500' : 'bg-gradient-to-br from-yellow-400 to-orange-500'
+                          }`}>
+                            <span className="text-xs font-bold text-white">{occupiedSlots.length}</span>
+                          </div>
+                        )}
+                      </button>
+                    </div>
+                    {isOccupied && (
+                      <div className="flex gap-1 mt-2 p-1 bg-black/20 rounded-full backdrop-blur-sm">
+                        {[0,1,2,3,4].map(slot => (
+                          <div
+                            key={slot}
+                            className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                              occupiedSlots.includes(slot)
+                                ? "bg-gradient-to-br from-emerald-400 to-green-500 shadow-lg shadow-emerald-400/50 scale-110"
+                                : "bg-gray-500/60"
+                            }`}
+                            title={`Time slot ${slot + 1}: ${occupiedSlots.includes(slot) ? 'Occupied' : 'Vacant'}`}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          {!searchTerm && occupiedSeats.length === 0 && (
             <div className="text-center text-blue-200 mt-8 text-lg">No seats are currently occupied.</div>
           )}
         </div>

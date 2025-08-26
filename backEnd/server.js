@@ -63,6 +63,13 @@ sequelize.sync()
     .catch((error) => {
         console.error("❌ Error synchronizing models:", error);
     });
+// sequelize.sync({ alter: true })
+//     .then(() => {
+//         console.log("✅ All models synchronized successfully by alter command.");
+//     })
+//     .catch((error) => {
+//         console.error("❌ Error synchronizing models:", error);
+//     });
 
 // ✅ Start server
 app.listen(port, '0.0.0.0', () => {

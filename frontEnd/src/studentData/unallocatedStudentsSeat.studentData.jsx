@@ -26,6 +26,7 @@ const UnallocatedStudentsSeat = () => {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState(""); // State for search term
+  const [statusFilter, setStatusFilter] = useState("active");
   const navigate = useNavigate(); // Define navigate
 
   // Fetch student data from backend
@@ -64,14 +65,18 @@ const UnallocatedStudentsSeat = () => {
     setSearchTerm(e.target.value);
   };
 
-  // Filter students based on search term
-  const filteredStudents = students.filter((student) =>
-    Object.values(student).some((value) =>
+  // Filter students based on search term and status
+  const filteredStudents = students.filter((student) => {
+    const matchesSearch = Object.values(student).some((value) =>
       value
         ? value.toString().toLowerCase().includes(searchTerm.toLowerCase())
         : false
-    )
-  );
+    );
+    const matchesStatus = statusFilter === "all" || 
+      (statusFilter === "active" && student.StudentActiveStatus === true) ||
+      (statusFilter === "inactive" && student.StudentActiveStatus === false);
+    return matchesSearch && matchesStatus;
+  });
 
   // Format date for display
   const formatDate = (dateString) => {
@@ -98,18 +103,31 @@ const UnallocatedStudentsSeat = () => {
           </div>
         </div>
 
-        {/* Search Section */}
+        {/* Search and Filter Section */}
         <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 p-6 mb-6">
-          <div className="relative max-w-md mx-auto">
-            <input
-              type="text"
-              placeholder="Search students..."
-              value={searchTerm}
-              onChange={handleSearch}
-              className="w-full pl-12 pr-4 py-3 bg-white/90 border border-white/30 rounded-xl focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all duration-200 text-gray-800 placeholder-gray-500"
-            />
-            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-              <SearchIcon />
+          <div className="flex flex-col md:flex-row gap-4 max-w-4xl mx-auto">
+            <div className="relative flex-1">
+              <input
+                type="text"
+                placeholder="Search students..."
+                value={searchTerm}
+                onChange={handleSearch}
+                className="w-full pl-12 pr-4 py-3 bg-white/90 border border-white/30 rounded-xl focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all duration-200 text-gray-800 placeholder-gray-500"
+              />
+              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                <SearchIcon />
+              </div>
+            </div>
+            <div className="md:w-48">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="w-full px-4 py-3 bg-white/90 border border-white/30 rounded-xl focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all duration-200 text-gray-800"
+              >
+                <option value="active">Active Students</option>
+                <option value="inactive">Inactive Students</option>
+                <option value="all">All Status</option>
+              </select>
             </div>
           </div>
         </div>

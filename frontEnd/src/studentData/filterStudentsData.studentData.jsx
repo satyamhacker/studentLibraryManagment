@@ -41,6 +41,7 @@ const FilterStudentData = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [paymentMode, setPaymentMode] = useState("");
+  const [studentStatus, setStudentStatus] = useState("all");
   const [filteredData, setFilteredData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
@@ -62,7 +63,15 @@ const FilterStudentData = () => {
     try {
       const response = await createApi(filterStudentsDataUrl, filterData);
       if (response && response.data) {
-        setFilteredData(response.data || []);
+        // Apply client-side status filtering since backend doesn't support it
+        let responseData = response.data || [];
+        if (studentStatus === "active") {
+          responseData = responseData.filter(student => student.StudentActiveStatus === true);
+        } else if (studentStatus === "inactive") {
+          responseData = responseData.filter(student => student.StudentActiveStatus === false);
+        }
+        
+        setFilteredData(responseData);
         setShowModal(false);
         alert(response.message || "Filter applied successfully");
       } else {
@@ -82,6 +91,7 @@ const FilterStudentData = () => {
     setStartDate("");
     setEndDate("");
     setPaymentMode("");
+    setStudentStatus("all");
     setFilteredData([]);
     setSearchTerm("");
   };
@@ -179,6 +189,11 @@ const FilterStudentData = () => {
               {paymentMode && (
                 <span className="bg-green-500/20 text-green-300 px-3 py-1 rounded-full text-sm border border-green-400/30">
                   Payment: {paymentMode}
+                </span>
+              )}
+              {studentStatus && studentStatus !== "all" && (
+                <span className="bg-yellow-500/20 text-yellow-300 px-3 py-1 rounded-full text-sm border border-yellow-400/30">
+                  Status: {studentStatus === "active" ? "Active Students" : "Inactive Students"}
                 </span>
               )}
             </div>
@@ -390,6 +405,19 @@ const FilterStudentData = () => {
                   <option value="">All Payment Modes</option>
                   <option value="online">Online</option>
                   <option value="cash">Cash</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-white text-sm font-medium mb-2">Student Status</label>
+                <select
+                  value={studentStatus}
+                  onChange={(e) => setStudentStatus(e.target.value)}
+                  className="w-full bg-white/90 border border-white/30 rounded-lg px-3 py-2 text-gray-800 focus:ring-2 focus:ring-purple-400 focus:border-transparent"
+                >
+                  <option value="all">All Status</option>
+                  <option value="active">Active Students</option>
+                  <option value="inactive">Inactive Students</option>
                 </select>
               </div>
             </div>

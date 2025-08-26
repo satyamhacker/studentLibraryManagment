@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getApi, updateApiById } from "../api/api.js";
-import { fetchAllStudentDataUrl, updateStudentUrl } from "../url/index.url.js";
+import { fetchAllStudentDataUrl, updateStudentUrl, updateStudentStatusUrl } from "../url/index.url.js";
 
 // Icons as components
 const SearchIcon = () => (
@@ -34,11 +34,14 @@ const ShowStudentsWithEndedMonth = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("active");
   const [paymentExpectedDate, setPaymentExpectedDate] = useState(
     new Date().toISOString().split("T")[0]
   );
   const [expectedDateChangeCount, setExpectedDateChangeCount] = useState(0);
   const [showUpdateButton, setShowUpdateButton] = useState(false); // State to control button visibility
+  const [studentStatus, setStudentStatus] = useState(true); // true for Active, false for Inactive
+  const [showStatusUpdateButton, setShowStatusUpdateButton] = useState(false);
   const navigate = useNavigate(); // Define navigate
 
   // Fetch student data from backend
@@ -83,8 +86,10 @@ const ShowStudentsWithEndedMonth = () => {
       student.PaymentExpectedDate || new Date().toISOString().split("T")[0]
     );
     setExpectedDateChangeCount(student.PaymentExpectedDateChanged || 0);
+    setStudentStatus(student.StudentActiveStatus !== undefined ? student.StudentActiveStatus : true);
     setShowModal(true);
     setShowUpdateButton(false); // Hide the update button when modal is opened
+    setShowStatusUpdateButton(false);
   };
 
   // Close the modal
@@ -136,10 +141,40 @@ const ShowStudentsWithEndedMonth = () => {
     }
   };
 
-  // Filter expired students based on search term
-  const filteredExpiredStudents = expiredStudents.filter((student) =>
-    student.StudentName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Handle status change
+  const handleStatusChange = (e) => {
+    const newStatus = e.target.value === 'true';
+    if (newStatus !== studentStatus) {
+      setStudentStatus(newStatus);
+      setShowStatusUpdateButton(true);
+    }
+  };
+
+  // Handle status update
+  const handleStatusUpdate = async () => {
+    try {
+      const response = await updateApiById(updateStudentStatusUrl, selectedStudent.id, { StudentActiveStatus: studentStatus });
+      if (response && response.success) {
+        alert(response.message || "Student status updated successfully!");
+        setShowModal(false);
+        fetchStudents();
+      } else {
+        alert(response?.message || "Failed to update student status");
+      }
+    } catch (error) {
+      console.error("Error updating student status:", error);
+      alert("Error updating student status");
+    }
+  };
+
+  // Filter expired students based on search term and status
+  const filteredExpiredStudents = expiredStudents.filter((student) => {
+    const matchesSearch = student.StudentName.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === "all" || 
+      (statusFilter === "active" && student.StudentActiveStatus === true) ||
+      (statusFilter === "inactive" && student.StudentActiveStatus === false);
+    return matchesSearch && matchesStatus;
+  });
 
   // Format date for display
   const formatDate = (dateString) => {
@@ -174,18 +209,31 @@ const ShowStudentsWithEndedMonth = () => {
           </div>
         </div>
 
-        {/* Search Section */}
+        {/* Search and Filter Section */}
         <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 p-6 mb-6">
-          <div className="relative max-w-md mx-auto">
-            <input
-              type="text"
-              placeholder="Search by student name..."
-              value={searchTerm}
-              onChange={handleSearchChange}
-              className="w-full pl-12 pr-4 py-3 bg-white/90 border border-white/30 rounded-xl focus:ring-2 focus:ring-pink-400 focus:border-transparent transition-all duration-200 text-gray-800 placeholder-gray-500"
-            />
-            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-              <SearchIcon />
+          <div className="flex flex-col md:flex-row gap-4 max-w-4xl mx-auto">
+            <div className="relative flex-1">
+              <input
+                type="text"
+                placeholder="Search by student name..."
+                value={searchTerm}
+                onChange={handleSearchChange}
+                className="w-full pl-12 pr-4 py-3 bg-white/90 border border-white/30 rounded-xl focus:ring-2 focus:ring-pink-400 focus:border-transparent transition-all duration-200 text-gray-800 placeholder-gray-500"
+              />
+              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                <SearchIcon />
+              </div>
+            </div>
+            <div className="md:w-48">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="w-full px-4 py-3 bg-white/90 border border-white/30 rounded-xl focus:ring-2 focus:ring-pink-400 focus:border-transparent transition-all duration-200 text-gray-800"
+              >
+                <option value="active">Active Students</option>
+                <option value="inactive">Inactive Students</option>
+                <option value="all">All Status</option>
+              </select>
             </div>
           </div>
         </div>
@@ -310,6 +358,52 @@ const ShowStudentsWithEndedMonth = () => {
                           className="w-full px-4 py-3 bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
                         >
                           Update Expected Date
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="bg-green-50 p-4 rounded-xl">
+                    <h4 className="font-semibold text-green-800 mb-3">Student Status</h4>
+                    <div className="space-y-3">
+                      <div className="flex gap-4">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="radio"
+                            name="studentStatus"
+                            value="true"
+                            checked={studentStatus === true}
+                            onChange={handleStatusChange}
+                            className="text-green-600 focus:ring-green-500"
+                          />
+                          <span className="text-green-700 font-medium">Active</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="radio"
+                            name="studentStatus"
+                            value="false"
+                            checked={studentStatus === false}
+                            onChange={handleStatusChange}
+                            className="text-red-600 focus:ring-red-500"
+                          />
+                          <span className="text-red-700 font-medium">Inactive</span>
+                        </label>
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        <span className="font-medium">Current Status:</span> 
+                        <span className={`ml-1 px-2 py-1 rounded-full text-xs font-semibold ${
+                          selectedStudent?.StudentActiveStatus ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }`}>
+                          {selectedStudent?.StudentActiveStatus ? 'Active' : 'Inactive'}
+                        </span>
+                      </div>
+                      {showStatusUpdateButton && (
+                        <button
+                          onClick={handleStatusUpdate}
+                          className="w-full px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+                        >
+                          Update Status
                         </button>
                       )}
                     </div>
