@@ -46,7 +46,8 @@ const ShowStudentData = () => {
   const [filters, setFilters] = useState({
     shift: "",
     paymentMode: "",
-    timeSlot: ""
+    timeSlot: "",
+    studentStatus: "active"
   });
   const navigate = useNavigate();
 
@@ -292,8 +293,11 @@ const ShowStudentData = () => {
     const matchesShift = filters.shift === "" || student.Shift?.toLowerCase().includes(filters.shift.toLowerCase());
     const matchesPaymentMode = filters.paymentMode === "" || student.PaymentMode === filters.paymentMode;
     const matchesTimeSlot = filters.timeSlot === "" || student.TimeSlots?.includes(filters.timeSlot);
+    const matchesStatus = filters.studentStatus === "" || 
+      (filters.studentStatus === "active" && student.StudentActiveStatus === true) ||
+      (filters.studentStatus === "inactive" && student.StudentActiveStatus === false);
 
-    return matchesSearch && matchesShift && matchesPaymentMode && matchesTimeSlot;
+    return matchesSearch && matchesShift && matchesPaymentMode && matchesTimeSlot && matchesStatus;
   });
 
   const handleFilterChange = (filterType, value) => {
@@ -301,7 +305,7 @@ const ShowStudentData = () => {
   };
 
   const clearFilters = () => {
-    setFilters({ shift: "", paymentMode: "", timeSlot: "" });
+    setFilters({ shift: "", paymentMode: "", timeSlot: "", studentStatus: "active" });
     setSearchTerm("");
   };
 
@@ -429,6 +433,15 @@ const ShowStudentData = () => {
                 {timeOptions.map((option) => (
                   <option key={option.value} value={option.value}>{option.label}</option>
                 ))}
+              </select>
+              <select
+                value={filters.studentStatus}
+                onChange={(e) => handleFilterChange('studentStatus', e.target.value)}
+                className="px-3 py-2 bg-white/90 border border-white/30 rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-400"
+              >
+                <option value="">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
               </select>
               <button
                 onClick={clearFilters}
