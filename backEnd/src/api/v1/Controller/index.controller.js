@@ -7,6 +7,7 @@ import { updatePaymentExpectedDate } from "./updatePaymentExpectedDate.controlle
 import { filterStudentData } from "./filterStudentData.controller.js";
 import { exportStudentDataToExcel } from "./exportStudentData.controller.js";
 import { updateStudentStatus } from "./updateStudentStatus.controller.js";
+import { getNextRegistrationNumber } from "./getNextRegistrationNumber.controller.js";
 export {
   signupCreate,
   login,
@@ -19,5 +20,6 @@ export {
   verifyOtp,
   resetPassword,
   exportStudentDataToExcel,
-  updateStudentStatus
+  updateStudentStatus,
+  getNextRegistrationNumber
 };
