@@ -15,6 +15,7 @@ const updateStudentUrl = '/student-data/update-student-data'
 const exportStudentDataUrl = '/student-data/export-student-data-excel'
 const filterStudentsDataUrl = '/student-data/filter-student-data'
 const updateStudentStatusUrl = '/student-data/update-student-status'
+const getNextRegistrationNumberUrl = '/student-data/next-registration-number'
 
 export {
     localStorageToken,
@@ -29,5 +30,6 @@ export {
     updateStudentUrl,
     exportStudentDataUrl,
     filterStudentsDataUrl,
-    updateStudentStatusUrl
+    updateStudentStatusUrl,
+    getNextRegistrationNumberUrl
 }
