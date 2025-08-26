@@ -4,6 +4,12 @@ import { getApi } from "../api/api.js";
 import { fetchAllStudentDataUrl } from "../url/index.url.js";
 
 // Icons as components
+const SearchIcon = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+  </svg>
+);
+
 const LockerIcon = () => (
   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -21,6 +27,7 @@ const ShowLockers = () => {
   const [students, setStudents] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate(); // Define navigate
 
   // Fetch occupied locker data from backend
@@ -57,6 +64,40 @@ const ShowLockers = () => {
   const totalLockers = 100;
   const lockers = Array.from({ length: totalLockers }, (_, index) => index + 1);
 
+  // Filter lockers based on search term
+  const getFilteredLockers = () => {
+    if (!searchTerm.trim()) {
+      return lockers;
+    }
+
+    const matchingStudents = students.filter(student => {
+      const searchLower = searchTerm.toLowerCase();
+      return (
+        student.StudentName?.toLowerCase().includes(searchLower) ||
+        student.FatherName?.toLowerCase().includes(searchLower) ||
+        student.RegistrationNumber?.toString().includes(searchLower) ||
+        student.ContactNumber?.toString().includes(searchLower) ||
+        student.Address?.toLowerCase().includes(searchLower) ||
+        student.SeatNumber?.toString().includes(searchLower) ||
+        student.LockerNumber?.toString().includes(searchLower) ||
+        student.TimeSlots?.some(slot => slot.toLowerCase().includes(searchLower)) ||
+        student.Shift?.toString().includes(searchLower) ||
+        student.PaymentMode?.toLowerCase().includes(searchLower)
+      );
+    });
+
+    const matchingLockerNumbers = matchingStudents
+      .map(student => Number(student.LockerNumber))
+      .filter(locker => Number.isInteger(locker) && locker > 0);
+
+    return lockers.filter(locker => 
+      matchingLockerNumbers.includes(locker) || 
+      locker.toString().includes(searchTerm)
+    );
+  };
+
+  const displayedLockers = getFilteredLockers();
+
   // Handle locker click to show modal
   const handleLockerClick = (lockerNumber) => {
     // Find student with this locker number (as integer)
@@ -73,6 +114,16 @@ const ShowLockers = () => {
   const handleCloseModal = () => {
     setShowModal(false);
     setSelectedStudent(null);
+  };
+
+  // Handle search input change
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  // Clear search
+  const clearSearch = () => {
+    setSearchTerm("");
   };
 
   // Format date for display
@@ -110,6 +161,41 @@ const ShowLockers = () => {
           </div>
         </div>
 
+        {/* Search Section */}
+        <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 p-6 mb-6">
+          <div className="max-w-2xl mx-auto">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search by name, registration, contact, address, locker number..."
+                value={searchTerm}
+                onChange={handleSearchChange}
+                className="w-full pl-12 pr-12 py-4 bg-white/95 border-2 border-white/30 rounded-2xl focus:ring-4 focus:ring-blue-400/50 focus:border-blue-400 transition-all duration-300 text-gray-800 placeholder-gray-500 text-lg shadow-lg backdrop-blur-sm"
+              />
+              <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                <SearchIcon />
+              </div>
+              {searchTerm && (
+                <button
+                  onClick={clearSearch}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
+            {searchTerm && (
+              <div className="mt-3 text-center">
+                <span className="text-blue-200 text-sm">
+                  Showing {displayedLockers.filter(locker => occupiedLockers.includes(locker)).length} matching occupied lockers
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Legend */}
         <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 p-4 mb-6">
           <div className="flex flex-wrap justify-center gap-6 text-sm">
@@ -121,35 +207,60 @@ const ShowLockers = () => {
               <div className="w-6 h-6 bg-gray-600 rounded-lg shadow-lg"></div>
               <span className="text-white font-medium">Available</span>
             </div>
+            {searchTerm && (
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 bg-yellow-400 rounded-lg shadow-lg animate-pulse"></div>
+                <span className="text-white font-medium">Search Results</span>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Lockers Grid */}
         <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 p-6">
-          <div className="grid grid-cols-10 md:grid-cols-20 gap-2">
-            {lockers.map((lockerNumber) => {
-              const isOccupied = occupiedLockers.includes(lockerNumber);
-              return (
-                <div
-                  key={lockerNumber}
-                  onClick={() => isOccupied && handleLockerClick(lockerNumber)}
-                  className={`
-                    relative w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center text-xs md:text-sm font-bold transition-all duration-200 transform hover:scale-110 shadow-lg
-                    ${isOccupied
-                      ? 'bg-gradient-to-br from-green-400 to-green-600 text-white cursor-pointer hover:from-green-500 hover:to-green-700 hover:shadow-xl'
-                      : 'bg-gradient-to-br from-gray-500 to-gray-700 text-gray-300 cursor-default'
-                    }
-                  `}
-                  title={isOccupied ? 'Click to view student details' : 'Available locker'}
-                >
-                  {lockerNumber}
-                  {isOccupied && (
-                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-pulse"></div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+          {displayedLockers.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">🔍</div>
+              <h3 className="text-2xl font-semibold text-white mb-2">No Results Found</h3>
+              <p className="text-blue-200 mb-4">No lockers match your search criteria.</p>
+              <button
+                onClick={clearSearch}
+                className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+              >
+                Clear Search
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-10 md:grid-cols-20 gap-2">
+              {displayedLockers.map((lockerNumber) => {
+                const isOccupied = occupiedLockers.includes(lockerNumber);
+                const isSearchResult = searchTerm && displayedLockers.includes(lockerNumber);
+                return (
+                  <div
+                    key={lockerNumber}
+                    onClick={() => isOccupied && handleLockerClick(lockerNumber)}
+                    className={`
+                      relative w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center text-xs md:text-sm font-bold transition-all duration-200 transform hover:scale-110 shadow-lg
+                      ${isOccupied
+                        ? isSearchResult
+                          ? 'bg-gradient-to-br from-yellow-400 to-orange-500 text-white cursor-pointer hover:from-yellow-500 hover:to-orange-600 hover:shadow-xl animate-pulse'
+                          : 'bg-gradient-to-br from-green-400 to-green-600 text-white cursor-pointer hover:from-green-500 hover:to-green-700 hover:shadow-xl'
+                        : 'bg-gradient-to-br from-gray-500 to-gray-700 text-gray-300 cursor-default'
+                      }
+                    `}
+                    title={isOccupied ? 'Click to view student details' : 'Available locker'}
+                  >
+                    {lockerNumber}
+                    {isOccupied && (
+                      <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full animate-pulse ${
+                        isSearchResult ? 'bg-red-400' : 'bg-yellow-400'
+                      }`}></div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
 
