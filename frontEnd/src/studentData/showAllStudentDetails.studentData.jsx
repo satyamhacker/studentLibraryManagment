@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/neonTable.css";
 import { getApi, deleteApiById, updateApiById, getBlobApi } from "../api/api.js";
-import { fetchAllStudentDataUrl, deleteStudentUrl, updateStudentUrl, exportStudentDataUrl } from "../url/index.url.js";
+import { fetchAllStudentDataUrl, deleteStudentUrl, updateStudentUrl, exportStudentDataUrl, updateStudentStatusUrl } from "../url/index.url.js";
 
 // Icons as components for better performance
 const EditIcon = () => (
@@ -251,6 +251,21 @@ const ShowStudentData = () => {
     setShowDeleteModal(true);
   };
 
+  const handleStatusChange = async (studentId, newStatus) => {
+    try {
+      const response = await updateApiById(updateStudentStatusUrl, studentId, { Status: newStatus });
+      if (response && response.success) {
+        fetchStudentData();
+        alert(response.message || "Student status updated successfully!");
+      } else {
+        alert(response?.message || "Failed to update student status");
+      }
+    } catch (error) {
+      console.error("Error updating student status:", error);
+      alert("Error updating student status");
+    }
+  };
+
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };
@@ -448,6 +463,7 @@ const ShowStudentData = () => {
                     <th className="px-6 py-4 text-left font-semibold">Schedule</th>
                     <th className="px-6 py-4 text-left font-semibold">Seat & Locker</th>
                     <th className="px-6 py-4 text-left font-semibold">Payment</th>
+                    <th className="px-6 py-4 text-center font-semibold">Status</th>
                     <th className="px-6 py-4 text-center font-semibold">Actions</th>
                   </tr>
                 </thead>
@@ -478,6 +494,30 @@ const ShowStudentData = () => {
                         <div className="text-red-400 text-sm">Due: ₹{student.AmountDue || '0'}</div>
                         <div className="text-blue-200 text-sm">{student.PaymentMode}</div>
                         <div className="text-blue-300 text-sm">Admission: ₹{student.AdmissionAmount}</div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col gap-2">
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="radio"
+                              name={`status-${student.id}`}
+                              checked={student.Status === true}
+                              onChange={() => handleStatusChange(student.id, true)}
+                              className="text-green-600 focus:ring-green-500"
+                            />
+                            <span className="text-green-400 text-sm font-medium">Active</span>
+                          </label>
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="radio"
+                              name={`status-${student.id}`}
+                              checked={student.Status === false}
+                              onChange={() => handleStatusChange(student.id, false)}
+                              className="text-red-600 focus:ring-red-500"
+                            />
+                            <span className="text-red-400 text-sm font-medium">Inactive</span>
+                          </label>
+                        </div>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex justify-center gap-2">
