@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 // import axios from "axios";
 import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
@@ -31,6 +31,7 @@ const AddStudentData = () => {
   });
   const [errors, setErrors] = useState({});
   const [alertShown, setAlertShown] = useState({ SeatNumber: false, LockerNumber: false });
+  const fieldRefs = useRef({});
 
   // Fetch next registration number on component mount
   useEffect(() => {
@@ -157,6 +158,17 @@ const AddStudentData = () => {
       newErrors.AdmissionAmount = "Admission Amount is required";
     }
     setErrors(newErrors);
+    
+    // Scroll to first error field
+    if (Object.keys(newErrors).length > 0) {
+      const firstErrorField = Object.keys(newErrors)[0];
+      const fieldRef = fieldRefs.current[firstErrorField];
+      if (fieldRef) {
+        fieldRef.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        fieldRef.focus();
+      }
+    }
+    
     return Object.keys(newErrors).length === 0;
   };
 
@@ -248,6 +260,7 @@ const AddStudentData = () => {
                   className: "rounded-md bg-gray-100 focus:ring-2 focus:ring-indigo-300",
                   readOnly: true
                 }}
+                inputRef={(el) => fieldRefs.current.RegistrationNumber = el}
                 fullWidth
               />
               <TextField
@@ -261,6 +274,7 @@ const AddStudentData = () => {
                 error={!!errors.AdmissionDate}
                 helperText={errors.AdmissionDate}
                 InputProps={{ className: "rounded-md bg-white focus:ring-2 focus:ring-indigo-300" }}
+                inputRef={(el) => fieldRefs.current.AdmissionDate = el}
                 fullWidth
               />
               <TextField
@@ -279,6 +293,7 @@ const AddStudentData = () => {
                 }}
                 error={!!errors.StudentName}
                 helperText={errors.StudentName}
+                inputRef={(el) => fieldRefs.current.StudentName = el}
                 fullWidth
               />
               <TextField
@@ -290,6 +305,7 @@ const AddStudentData = () => {
                 InputProps={{ className: "rounded-md bg-white focus:ring-2 focus:ring-indigo-300" }}
                 error={!!errors.FatherName}
                 helperText={errors.FatherName}
+                inputRef={(el) => fieldRefs.current.FatherName = el}
                 fullWidth
               />
               <TextField
@@ -301,6 +317,7 @@ const AddStudentData = () => {
                 InputProps={{ className: "rounded-md bg-white focus:ring-2 focus:ring-indigo-300" }}
                 error={!!errors.Address}
                 helperText={errors.Address}
+                inputRef={(el) => fieldRefs.current.Address = el}
                 fullWidth
               />
               <TextField
@@ -319,6 +336,7 @@ const AddStudentData = () => {
                 }}
                 error={!!errors.ContactNumber}
                 helperText={errors.ContactNumber}
+                inputRef={(el) => fieldRefs.current.ContactNumber = el}
                 fullWidth
               />
             </div>
@@ -342,6 +360,7 @@ const AddStudentData = () => {
                 InputProps={{ className: "rounded-md bg-white focus:ring-2 focus:ring-indigo-300" }}
                 error={!!errors.TimeSlots}
                 helperText={errors.TimeSlots}
+                inputRef={(el) => fieldRefs.current.TimeSlots = el}
                 fullWidth
               >
                 {timeOptions.map((option) => (
@@ -359,6 +378,7 @@ const AddStudentData = () => {
                 InputProps={{ className: "rounded-md bg-white focus:ring-2 focus:ring-indigo-300" }}
                 error={!!errors.Shift}
                 helperText={errors.Shift}
+                inputRef={(el) => fieldRefs.current.Shift = el}
                 fullWidth
               />
               <TextField
@@ -374,6 +394,7 @@ const AddStudentData = () => {
                     💺 Range: 0-136 (0 for temporary student)
                   </span>
                 )}
+                inputRef={(el) => fieldRefs.current.SeatNumber = el}
                 fullWidth
               />
               <TextField
@@ -389,6 +410,7 @@ const AddStudentData = () => {
                     🔒 Range: 0-100 (0 for no locker)
                   </span>
                 )}
+                inputRef={(el) => fieldRefs.current.LockerNumber = el}
                 fullWidth
               />
               <TextField
@@ -402,6 +424,7 @@ const AddStudentData = () => {
                 InputProps={{ className: "rounded-md bg-white focus:ring-2 focus:ring-indigo-300" }}
                 error={!!errors.FeesPaidTillDate}
                 helperText={errors.FeesPaidTillDate}
+                inputRef={(el) => fieldRefs.current.FeesPaidTillDate = el}
                 fullWidth
               />
               <TextField
@@ -414,6 +437,7 @@ const AddStudentData = () => {
                 InputProps={{ className: "rounded-md bg-white focus:ring-2 focus:ring-indigo-300" }}
                 error={!!errors.PaymentMode}
                 helperText={errors.PaymentMode}
+                inputRef={(el) => fieldRefs.current.PaymentMode = el}
                 fullWidth
               >
                 {paymentModeOptions.map((option) => (
@@ -446,6 +470,7 @@ const AddStudentData = () => {
                 }}
                 error={!!errors.AmountPaid}
                 helperText={errors.AmountPaid}
+                inputRef={(el) => fieldRefs.current.AmountPaid = el}
                 fullWidth
               />
               <TextField
@@ -465,6 +490,7 @@ const AddStudentData = () => {
                 }}
                 error={!!errors.AmountDue}
                 helperText={errors.AmountDue}
+                inputRef={(el) => fieldRefs.current.AmountDue = el}
                 fullWidth
               />
               <TextField
@@ -484,6 +510,7 @@ const AddStudentData = () => {
                 }}
                 error={!!errors.AdmissionAmount}
                 helperText={errors.AdmissionAmount}
+                inputRef={(el) => fieldRefs.current.AdmissionAmount = el}
                 fullWidth
               />
             </div>
