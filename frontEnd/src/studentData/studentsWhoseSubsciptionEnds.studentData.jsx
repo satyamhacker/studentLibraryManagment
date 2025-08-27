@@ -155,9 +155,26 @@ const ShowStudentsWithEndedMonth = () => {
     try {
       const response = await updateApiById(updateStudentStatusUrl, selectedStudent.id, { StudentActiveStatus: studentStatus });
       if (response && response.success) {
+        // Update local state immediately
+        const updatedStudent = { ...selectedStudent, StudentActiveStatus: studentStatus };
+        setSelectedStudent(updatedStudent);
+        
+        // Update students array
+        setStudents(prev => prev.map(student => 
+          student.id === selectedStudent.id 
+            ? { ...student, StudentActiveStatus: studentStatus }
+            : student
+        ));
+        
+        // Update expired students array
+        setExpiredStudents(prev => prev.map(student => 
+          student.id === selectedStudent.id 
+            ? { ...student, StudentActiveStatus: studentStatus }
+            : student
+        ));
+        
+        setShowStatusUpdateButton(false);
         alert(response.message || "Student status updated successfully!");
-        setShowModal(false);
-        fetchStudents();
       } else {
         alert(response?.message || "Failed to update student status");
       }
