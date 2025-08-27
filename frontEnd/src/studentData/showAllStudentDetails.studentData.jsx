@@ -44,9 +44,9 @@ const ShowStudentData = () => {
   const [errors, setErrors] = useState({});
 
   const [filters, setFilters] = useState({
-    shift: "",
+    shifts: [],
     paymentMode: "",
-    timeSlot: "",
+    timeSlots: [],
     studentStatus: "active"
   });
   const navigate = useNavigate();
@@ -290,10 +290,14 @@ const ShowStudentData = () => {
     );
 
     // Additional filters
-    const matchesShift = filters.shift === "" || student.Shift?.toLowerCase().includes(filters.shift.toLowerCase());
+    const matchesShift = filters.shifts.length === 0 || filters.shifts.some(shift =>
+      student.Shift?.toLowerCase().includes(shift.toLowerCase())
+    );
     const matchesPaymentMode = filters.paymentMode === "" || student.PaymentMode === filters.paymentMode;
-    const matchesTimeSlot = filters.timeSlot === "" || student.TimeSlots?.includes(filters.timeSlot);
-    const matchesStatus = filters.studentStatus === "" || 
+    const matchesTimeSlot = filters.timeSlots.length === 0 || filters.timeSlots.some(timeSlot =>
+      student.TimeSlots?.includes(timeSlot)
+    );
+    const matchesStatus = filters.studentStatus === "" ||
       (filters.studentStatus === "active" && student.StudentActiveStatus === true) ||
       (filters.studentStatus === "inactive" && student.StudentActiveStatus === false);
 
@@ -304,8 +308,18 @@ const ShowStudentData = () => {
     setFilters(prev => ({ ...prev, [filterType]: value }));
   };
 
+  const handleMultiFilterChange = (filterType, value) => {
+    setFilters(prev => {
+      const currentValues = prev[filterType] || [];
+      const newValues = currentValues.includes(value)
+        ? currentValues.filter(v => v !== value)
+        : [...currentValues, value];
+      return { ...prev, [filterType]: newValues };
+    });
+  };
+
   const clearFilters = () => {
-    setFilters({ shift: "", paymentMode: "", timeSlot: "", studentStatus: "active" });
+    setFilters({ shifts: [], paymentMode: "", timeSlots: [], studentStatus: "active" });
     setSearchTerm("");
   };
 
@@ -342,8 +356,8 @@ const ShowStudentData = () => {
   const exportStudentDataToExcel = async () => {
     try {
       const response = await getBlobApi(exportStudentDataUrl);
-      const blob = new Blob([response.data], { 
-        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+      const blob = new Blob([response.data], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
       });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -403,52 +417,79 @@ const ShowStudentData = () => {
             </div>
 
             {/* Filters Row */}
-            <div className="flex flex-col md:flex-row gap-4 items-center">
+            <div className="flex flex-col gap-4">
               <span className="text-white font-semibold text-sm">🔍 Filters:</span>
-              <select
-                value={filters.shift}
-                onChange={(e) => handleFilterChange('shift', e.target.value)}
-                className="px-3 py-2 bg-white/90 border border-white/30 rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-400"
-              >
-                <option value="">All Shifts</option>
-                <option value="morning">Morning</option>
-                <option value="evening">Evening</option>
-                <option value="night">Night</option>
-              </select>
-              <select
-                value={filters.paymentMode}
-                onChange={(e) => handleFilterChange('paymentMode', e.target.value)}
-                className="px-3 py-2 bg-white/90 border border-white/30 rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-400"
-              >
-                <option value="">All Payment Modes</option>
-                <option value="online">Online</option>
-                <option value="cash">Cash</option>
-              </select>
-              <select
-                value={filters.timeSlot}
-                onChange={(e) => handleFilterChange('timeSlot', e.target.value)}
-                className="px-3 py-2 bg-white/90 border border-white/30 rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-400"
-              >
-                <option value="">All Time Slots</option>
-                {timeOptions.map((option) => (
-                  <option key={option.value} value={option.value}>{option.label}</option>
-                ))}
-              </select>
-              <select
-                value={filters.studentStatus}
-                onChange={(e) => handleFilterChange('studentStatus', e.target.value)}
-                className="px-3 py-2 bg-white/90 border border-white/30 rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-400"
-              >
-                <option value="active">Active Students</option>
-                <option value="inactive">Inactive Students</option>
-                <option value="">All Status</option>
-              </select>
-              <button
-                onClick={clearFilters}
-                className="px-4 py-2 bg-red-500/80 hover:bg-red-600 text-white rounded-lg text-sm font-medium transition-all duration-200"
-              >
-                Clear All
-              </button>
+              <div className="flex flex-wrap gap-4">
+                {/* Shifts Filter */}
+                <div className="bg-white/5 p-3 rounded-lg border border-white/20">
+                  <label className="text-white text-sm font-medium mb-2 block">Shifts:</label>
+                  <div className="flex flex-wrap gap-2">
+                    {["morning", "evening", "night"].map((shift) => (
+                      <label key={shift} className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={filters.shifts.includes(shift)}
+                          onChange={() => handleMultiFilterChange('shifts', shift)}
+                          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                        />
+                        <span className="text-white text-sm capitalize">{shift}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Time Slots Filter */}
+                <div className="bg-white/5 p-3 rounded-lg border border-white/20">
+                  <label className="text-white text-sm font-medium mb-2 block">Time Slots:</label>
+                  <div className="flex flex-wrap gap-2 max-w-md">
+                    {timeOptions.map((option) => (
+                      <label key={option.value} className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={filters.timeSlots.includes(option.value)}
+                          onChange={() => handleMultiFilterChange('timeSlots', option.value)}
+                          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                        />
+                        <span className="text-white text-xs">{option.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Single Select Filters */}
+                <div className="flex gap-4 items-end">
+                  <div>
+                    <label className="text-white text-sm font-medium mb-1 block">Payment Mode:</label>
+                    <select
+                      value={filters.paymentMode}
+                      onChange={(e) => handleFilterChange('paymentMode', e.target.value)}
+                      className="px-3 py-2 bg-white/90 border border-white/30 rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-400"
+                    >
+                      <option value="">All</option>
+                      <option value="online">Online</option>
+                      <option value="cash">Cash</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-white text-sm font-medium mb-1 block">Status:</label>
+                    <select
+                      value={filters.studentStatus}
+                      onChange={(e) => handleFilterChange('studentStatus', e.target.value)}
+                      className="px-3 py-2 bg-white/90 border border-white/30 rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-400"
+                    >
+                      <option value="active">Active Students</option>
+                      <option value="inactive">Inactive Students</option>
+                      <option value="">All Status</option>
+                    </select>
+                  </div>
+                  <button
+                    onClick={clearFilters}
+                    className="px-4 py-2 bg-red-500/80 hover:bg-red-600 text-white rounded-lg text-sm font-medium transition-all duration-200"
+                  >
+                    Clear All
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
