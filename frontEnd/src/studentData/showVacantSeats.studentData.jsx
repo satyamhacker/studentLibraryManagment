@@ -79,8 +79,12 @@ const ShowVacantSeats = () => {
   };
 
   const isSeatReserved = (seatNumber) => {
+    const seatStudents = students.filter(s => Number(s.SeatNumber) === seatNumber);
+    const hasReservedTimeSlot = seatStudents.some(student => 
+      student.TimeSlots && student.TimeSlots.includes("reserved")
+    );
     const occupiedSlots = getSeatOccupancy(seatNumber);
-    return occupiedSlots.length === 5;
+    return hasReservedTimeSlot || occupiedSlots.length === 5;
   };
 
   const totalSeats = 136;
@@ -232,11 +236,11 @@ const ShowVacantSeats = () => {
                                 : "bg-gradient-to-br from-slate-700 to-slate-800 border-emerald-400 text-white cursor-pointer hover:scale-110 hover:shadow-emerald-400/50 hover:shadow-xl group-hover:border-emerald-300"
                             : "bg-gradient-to-br from-gray-300 to-gray-400 text-gray-600 border-gray-400 cursor-not-allowed opacity-70"
                         }`}
-                        title={isOccupied ? (isReserved ? "Reserved (All 5 time slots)" : `Occupied (${occupiedSlots.length}/5 time slots)`) : "Vacant"}
+                        title={isOccupied ? (isReserved ? "Reserved (All time slots)" : `Occupied (${occupiedSlots.length}/5 time slots)`) : "Vacant"}
                         tabIndex={isOccupied ? 0 : -1}
                         aria-label={`Seat ${seatNumber} ${isOccupied ? (isReserved ? "Reserved" : "Occupied") : "Vacant"}`}
                       >
-                        {isReserved ? "5" : seatNumber}
+                        {seatNumber}
                         {isOccupied && !isReserved && (
                           <div className={`absolute -top-2 -right-2 w-5 h-5 rounded-full border-2 border-white shadow-lg flex items-center justify-center ${
                             isSearchResult ? 'bg-gradient-to-br from-red-400 to-red-500' : 'bg-gradient-to-br from-yellow-400 to-orange-500'
@@ -248,17 +252,23 @@ const ShowVacantSeats = () => {
                     </div>
                     {isOccupied && (
                       <div className="flex gap-1 mt-2 p-1 bg-black/20 rounded-full backdrop-blur-sm">
-                        {[0,1,2,3,4].map(slot => (
-                          <div
-                            key={slot}
-                            className={`w-2 h-2 rounded-full transition-all duration-200 ${
-                              isReserved || occupiedSlots.includes(slot)
-                                ? "bg-gradient-to-br from-emerald-400 to-green-500 shadow-lg shadow-emerald-400/50 scale-110"
-                                : "bg-gray-500/60"
-                            }`}
-                            title={`Time slot ${slot + 1}: ${isReserved || occupiedSlots.includes(slot) ? 'Occupied' : 'Vacant'}`}
-                          />
-                        ))}
+                        {[0,1,2,3,4].map(slot => {
+                          const seatStudents = students.filter(s => Number(s.SeatNumber) === seatNumber);
+                          const hasReservedTimeSlot = seatStudents.some(student => 
+                            student.TimeSlots && student.TimeSlots.includes("reserved")
+                          );
+                          return (
+                            <div
+                              key={slot}
+                              className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                                hasReservedTimeSlot || occupiedSlots.includes(slot)
+                                  ? "bg-gradient-to-br from-emerald-400 to-green-500 shadow-lg shadow-emerald-400/50 scale-110"
+                                  : "bg-gray-500/60"
+                              }`}
+                              title={`Time slot ${slot + 1}: ${hasReservedTimeSlot || occupiedSlots.includes(slot) ? 'Occupied' : 'Vacant'}`}
+                            />
+                          );
+                        })}
                       </div>
                     )}
                   </div>
