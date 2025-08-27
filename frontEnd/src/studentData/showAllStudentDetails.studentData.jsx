@@ -97,7 +97,7 @@ const ShowStudentData = () => {
 
 
       // Remove id and other non-updatable fields from the payload
-      const { id, createdAt, updatedAt, signupId, ...updatePayloadRaw } = currentStudent;
+      const { id, createdAt, updatedAt, signupId, StudentActiveStatus, ...updatePayloadRaw } = currentStudent;
 
       // If SeatNumber, LockerNumber, AmountDue are empty string or undefined, remove them so backend default applies
       const updatePayload = { ...updatePayloadRaw };
