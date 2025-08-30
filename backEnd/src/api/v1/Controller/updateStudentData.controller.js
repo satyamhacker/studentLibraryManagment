@@ -21,6 +21,39 @@ export const updateStudentData = async (req, res) => {
     // Destructure and exclude specific fields from the update payload
     const { RegistrationNumber, SeatNumber, TimeSlots, LockerNumber, ...filteredUpdatePayload } = updatePayload;
 
+    // Check if RegistrationNumber is provided and different from current
+    if (RegistrationNumber && RegistrationNumber !== existingStudent.RegistrationNumber) {
+      const conflictingRegStudent = await Student.findOne({
+        where: {
+          RegistrationNumber,
+          id: { [Op.ne]: id }
+        }
+      });
+
+      if (conflictingRegStudent) {
+        // Find next available registration number
+        const allStudents = await Student.findAll({ attributes: ['RegistrationNumber'] });
+        const usedNumbers = allStudents.map(s => parseInt(s.RegistrationNumber)).filter(n => !isNaN(n)).sort((a, b) => a - b);
+        let availableRegNumber = 1;
+        for (let num of usedNumbers) {
+          if (num === availableRegNumber) {
+            availableRegNumber++;
+          } else {
+            break;
+          }
+        }
+
+        return res.status(StatusCodes.CONFLICT).json({
+          success: false,
+          error: MESSAGE.put.fail,
+          details: 'This registration number is already taken.',
+          occupiedBy: conflictingRegStudent.StudentName,
+          availableRegistrationNumber: availableRegNumber.toString()
+        });
+      }
+      filteredUpdatePayload.RegistrationNumber = RegistrationNumber;
+    }
+
     // Check if SeatNumber and TimeSlots are provided
     if (SeatNumber && TimeSlots && SeatNumber !== "0") {
       // Find conflicting students for the same SeatNumber and overlapping TimeSlots

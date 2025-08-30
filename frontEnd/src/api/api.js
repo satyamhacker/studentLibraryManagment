@@ -110,7 +110,11 @@ const updateApiById = async (routeEndpoint, id, data) => {
         });
         return response.data;
     } catch (error) {
-        // Throw the full error object for better error handling in UI
+        // Return the error response data instead of throwing for conflict errors
+        if (error.response?.status === 409 && error.response?.data) {
+            return error.response.data;
+        }
+        // Throw the full error object for other errors
         throw error.response?.data ? { ...error.response.data } : { message: "Update API by ID failed" };
     }
 };
