@@ -151,6 +151,10 @@ const ShowStudentData = () => {
           }
           apiErrors.api += ")";
         }
+        // Show available registration number if provided
+        if (response.availableRegistrationNumber) {
+          apiErrors.api += ` Available Reg No: ${response.availableRegistrationNumber}`;
+        }
       }
 
       // Check for validation errors in response.err.details
@@ -177,6 +181,7 @@ const ShowStudentData = () => {
 
       // Show alert for backend logic/conflict errors (locker/seat conflict, etc)
       if (response?.details) {
+        console.log('Response for alert:', response); // Debug log
         let alertMsg = response.details;
         if (response.occupiedBy) {
           alertMsg += ` (Occupied by: ${response.occupiedBy}`;
@@ -186,7 +191,12 @@ const ShowStudentData = () => {
           if (response.seatNumber) {
             alertMsg += `, Seat: ${response.seatNumber}`;
           }
+          if (response.availableRegistrationNumber) {
+            alertMsg += `, Available Reg No: ${response.availableRegistrationNumber}`;
+          }
           alertMsg += ")";
+        } else if (response.availableRegistrationNumber) {
+          alertMsg += ` Available Reg No: ${response.availableRegistrationNumber}`;
         }
         alert(alertMsg);
       }
