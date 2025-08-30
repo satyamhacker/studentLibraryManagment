@@ -49,6 +49,10 @@ const ShowStudentData = () => {
     timeSlots: [],
     studentStatus: "active"
   });
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [selectedMonth, setSelectedMonth] = useState("");
+  const [selectedYear, setSelectedYear] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -301,7 +305,40 @@ const ShowStudentData = () => {
       (filters.studentStatus === "active" && student.StudentActiveStatus === true) ||
       (filters.studentStatus === "inactive" && student.StudentActiveStatus === false);
 
-    return matchesSearch && matchesShift && matchesPaymentMode && matchesTimeSlot && matchesStatus;
+    // Date filters
+    let matchesDate = true;
+    if (startDate) {
+      matchesDate = ["AdmissionDate", "FeesPaidTillDate", "PaymentExpectedDate", "createdAt", "updatedAt"].some((field) => {
+        const dateVal = new Date(student[field]);
+        return dateVal >= new Date(startDate);
+      });
+    }
+    if (endDate) {
+      matchesDate = matchesDate && ["AdmissionDate", "FeesPaidTillDate", "PaymentExpectedDate", "createdAt", "updatedAt"].some((field) => {
+        const dateVal = new Date(student[field]);
+        return dateVal <= new Date(endDate);
+      });
+    }
+
+    // Month filter
+    let matchesMonth = true;
+    if (selectedMonth) {
+      matchesMonth = ["AdmissionDate", "FeesPaidTillDate", "PaymentExpectedDate", "createdAt", "updatedAt"].some((field) => {
+        const dateVal = new Date(student[field]);
+        return dateVal.getMonth() + 1 === parseInt(selectedMonth);
+      });
+    }
+
+    // Year filter
+    let matchesYear = true;
+    if (selectedYear) {
+      matchesYear = ["AdmissionDate", "FeesPaidTillDate", "PaymentExpectedDate", "createdAt", "updatedAt"].some((field) => {
+        const dateVal = new Date(student[field]);
+        return dateVal.getFullYear() === parseInt(selectedYear);
+      });
+    }
+
+    return matchesSearch && matchesShift && matchesPaymentMode && matchesTimeSlot && matchesStatus && matchesDate && matchesMonth && matchesYear;
   });
 
   const handleFilterChange = (filterType, value) => {
@@ -321,6 +358,10 @@ const ShowStudentData = () => {
   const clearFilters = () => {
     setFilters({ shifts: [], paymentMode: "", timeSlots: [], studentStatus: "active" });
     setSearchTerm("");
+    setStartDate("");
+    setEndDate("");
+    setSelectedMonth("");
+    setSelectedYear("");
   };
 
   const formatDate = (dateString) => {
@@ -484,9 +525,78 @@ const ShowStudentData = () => {
                   </div>
                   <button
                     onClick={clearFilters}
-                    className="px-4 py-2 bg-red-500/80 hover:bg-red-600 text-white rounded-lg text-sm font-medium transition-all duration-200"
+                    className="px-4 py-2 bg-orange-500/80 hover:bg-orange-600 text-white rounded-lg text-sm font-medium transition-all duration-200 shadow"
                   >
-                    Clear All
+                    Clear Filters
+                  </button>
+                </div>
+              </div>
+              
+              {/* Date Filters Row */}
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 items-end">
+                <div>
+                  <label className="text-white text-sm font-medium mb-1 block">Start Date:</label>
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => {
+                      setStartDate(e.target.value);
+                      if (endDate && new Date(e.target.value) > new Date(endDate)) setEndDate("");
+                    }}
+                    className="w-full h-10 px-3 bg-white/90 border border-white/30 rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-400 shadow"
+                    max={endDate || undefined}
+                  />
+                </div>
+                <div>
+                  <label className="text-white text-sm font-medium mb-1 block">End Date:</label>
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="w-full h-10 px-3 bg-white/90 border border-white/30 rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-400 shadow"
+                    min={startDate || undefined}
+                  />
+                </div>
+                <div>
+                  <label className="text-white text-sm font-medium mb-1 block">Month:</label>
+                  <select
+                    value={selectedMonth}
+                    onChange={(e) => setSelectedMonth(e.target.value)}
+                    className="w-full h-10 px-3 bg-white/90 border border-white/30 rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-400 shadow"
+                  >
+                    <option value="">All Months</option>
+                    {[...Array(12)].map((_, i) => (
+                      <option key={i + 1} value={i + 1}>{new Date(2025, i).toLocaleString('default', { month: 'short' })}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-white text-sm font-medium mb-1 block">Year:</label>
+                  <select
+                    value={selectedYear}
+                    onChange={(e) => setSelectedYear(e.target.value)}
+                    className="w-full h-10 px-3 bg-white/90 border border-white/30 rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-400 shadow"
+                  >
+                    <option value="">All Years</option>
+                    {[...Array(6)].map((_, i) => {
+                      const year = 2022 + i;
+                      return <option key={year} value={year}>{year}</option>;
+                    })}
+                  </select>
+                </div>
+                <div className="col-span-2 md:col-span-4 lg:col-span-1">
+                  <button
+                    onClick={() => {
+                      setFilters({ shifts: [], paymentMode: "", timeSlots: [], studentStatus: "active" });
+                      setSearchTerm("");
+                      setStartDate("");
+                      setEndDate("");
+                      setSelectedMonth("");
+                      setSelectedYear("");
+                    }}
+                    className="w-full h-10 bg-red-500/80 hover:bg-red-600 text-white rounded-lg font-medium transition-all duration-200 shadow hover:shadow-lg"
+                  >
+                    Clear All Filters
                   </button>
                 </div>
               </div>
