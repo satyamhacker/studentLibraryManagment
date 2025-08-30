@@ -23,6 +23,12 @@ const SearchIcon = () => (
   </svg>
 );
 
+const FilterIcon = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z" />
+  </svg>
+);
+
 const ExportIcon = () => (
   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -49,6 +55,12 @@ const ShowStudentData = () => {
     timeSlots: [],
     studentStatus: "active"
   });
+  const [showFilters, setShowFilters] = useState(false);
+  const [dateFilterType, setDateFilterType] = useState("AdmissionDate");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [selectedMonth, setSelectedMonth] = useState("");
+  const [selectedYear, setSelectedYear] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -301,7 +313,17 @@ const ShowStudentData = () => {
       (filters.studentStatus === "active" && student.StudentActiveStatus === true) ||
       (filters.studentStatus === "inactive" && student.StudentActiveStatus === false);
 
-    return matchesSearch && matchesShift && matchesPaymentMode && matchesTimeSlot && matchesStatus;
+    // Date filters - filter by specific date field
+    let matchesDate = true;
+    if (startDate || endDate || selectedMonth || selectedYear) {
+      const dateVal = new Date(student[dateFilterType]);
+      if (startDate && dateVal < new Date(startDate)) matchesDate = false;
+      if (endDate && dateVal > new Date(endDate)) matchesDate = false;
+      if (selectedMonth && dateVal.getMonth() + 1 !== parseInt(selectedMonth)) matchesDate = false;
+      if (selectedYear && dateVal.getFullYear() !== parseInt(selectedYear)) matchesDate = false;
+    }
+
+    return matchesSearch && matchesShift && matchesPaymentMode && matchesTimeSlot && matchesStatus && matchesDate;
   });
 
   const handleFilterChange = (filterType, value) => {
@@ -321,11 +343,22 @@ const ShowStudentData = () => {
   const clearFilters = () => {
     setFilters({ shifts: [], paymentMode: "", timeSlots: [], studentStatus: "active" });
     setSearchTerm("");
+    setDateFilterType("AdmissionDate");
+    setStartDate("");
+    setEndDate("");
+    setSelectedMonth("");
+    setSelectedYear("");
   };
+
+  const hasActiveFilters = startDate || endDate || selectedMonth || selectedYear || filters.studentStatus !== "active" || searchTerm || filters.shifts.length > 0 || filters.paymentMode || filters.timeSlots.length > 0;
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return isNaN(date.getTime()) ? "Invalid Date" : date.toLocaleDateString();
+    if (isNaN(date.getTime())) return "Invalid Date";
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
   };
 
   const formatDateForInput = (dateString) => {
@@ -392,106 +425,243 @@ const ShowStudentData = () => {
 
         {/* Controls Section */}
         <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 p-6 mb-6">
-          <div className="flex flex-col gap-6">
-            {/* Search and Export Row */}
-            <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
-              <div className="relative flex-1 max-w-md">
-                <input
-                  type="text"
-                  placeholder="Search students..."
-                  value={searchTerm}
-                  onChange={handleSearch}
-                  className="w-full pl-12 pr-4 py-3 bg-white/90 border border-white/30 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-gray-800 placeholder-gray-500"
-                />
-                <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                  <SearchIcon />
-                </div>
+          {/* Search and Export Row */}
+          <div className="flex flex-col lg:flex-row gap-4 items-center justify-between mb-4">
+            <div className="relative flex-1 max-w-md">
+              <input
+                type="text"
+                placeholder="Search students..."
+                value={searchTerm}
+                onChange={handleSearch}
+                className="w-full h-12 pl-12 pr-12 bg-white/95 border border-blue-300/50 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-gray-800 placeholder-gray-500 shadow"
+              />
+              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                <SearchIcon />
               </div>
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm("")}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
+
+            {/* Controls */}
+            <div className="flex items-center gap-3">
+              {/* Filter Toggle Button */}
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`flex items-center gap-2 h-12 px-4 rounded-xl font-medium transition-all duration-200 shadow ${showFilters || hasActiveFilters
+                    ? 'bg-blue-500 hover:bg-blue-600 text-white'
+                    : 'bg-white/90 hover:bg-white text-gray-700 border border-blue-300/50'
+                  }`}
+              >
+                <FilterIcon />
+                <span>Filters</span>
+                {hasActiveFilters && (
+                  <span className="bg-white/20 text-xs px-2 py-1 rounded-full">•</span>
+                )}
+              </button>
+
+              {/* Clear All Button */}
+              {hasActiveFilters && (
+                <button
+                  onClick={clearFilters}
+                  className="h-12 px-4 bg-red-500/80 hover:bg-red-600 text-white rounded-xl font-medium transition-all duration-200 shadow hover:shadow-lg"
+                >
+                  Clear All
+                </button>
+              )}
+
+              {/* Export Button */}
               <button
                 onClick={exportStudentDataToExcel}
-                className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+                className="flex items-center gap-2 h-12 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-6 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
               >
                 <ExportIcon />
                 Export to Excel
               </button>
             </div>
+          </div>
 
-            {/* Filters Row */}
-            <div className="flex flex-col gap-4">
-              <span className="text-white font-semibold text-sm">🔍 Filters:</span>
-              <div className="flex flex-wrap gap-4">
-                {/* Shifts Filter */}
-                <div className="bg-white/5 p-3 rounded-lg border border-white/20">
-                  <label className="text-white text-sm font-medium mb-2 block">Shifts:</label>
-                  <div className="flex flex-wrap gap-2">
-                    {["morning", "evening", "night"].map((shift) => (
-                      <label key={shift} className="flex items-center gap-2 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={filters.shifts.includes(shift)}
-                          onChange={() => handleMultiFilterChange('shifts', shift)}
-                          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                        />
-                        <span className="text-white text-sm capitalize">{shift}</span>
-                      </label>
-                    ))}
+          {/* Advanced Filters Panel */}
+          {showFilters && (
+            <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-blue-300/30 p-4 animate-fadeIn">
+              <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+                <FilterIcon />
+                Advanced Filters
+              </h3>
+
+              {/* Filter Categories */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Left Column - Basic Filters */}
+                <div className="space-y-4">
+                  {/* Shifts Filter */}
+                  <div className="bg-white/5 p-3 rounded-lg border border-white/20">
+                    <label className="text-white text-sm font-medium mb-2 block">Shifts:</label>
+                    <div className="flex flex-wrap gap-2">
+                      {["morning", "evening", "night"].map((shift) => (
+                        <label key={shift} className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={filters.shifts.includes(shift)}
+                            onChange={() => handleMultiFilterChange('shifts', shift)}
+                            className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                          />
+                          <span className="text-white text-sm capitalize">{shift}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Payment & Status */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-white text-sm font-medium mb-2 block">Payment Mode:</label>
+                      <select
+                        value={filters.paymentMode}
+                        onChange={(e) => handleFilterChange('paymentMode', e.target.value)}
+                        className="w-full h-10 px-3 bg-white/90 border border-blue-300/50 rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-400 shadow"
+                      >
+                        <option value="">All</option>
+                        <option value="online">Online</option>
+                        <option value="cash">Cash</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-white text-sm font-medium mb-2 block">Status:</label>
+                      <select
+                        value={filters.studentStatus}
+                        onChange={(e) => handleFilterChange('studentStatus', e.target.value)}
+                        className="w-full h-10 px-3 bg-white/90 border border-blue-300/50 rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-400 shadow"
+                      >
+                        <option value="active">Active Students</option>
+                        <option value="inactive">Inactive Students</option>
+                        <option value="">All Status</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
 
-                {/* Time Slots Filter */}
-                <div className="bg-white/5 p-3 rounded-lg border border-white/20">
-                  <label className="text-white text-sm font-medium mb-2 block">Time Slots:</label>
-                  <div className="flex flex-wrap gap-2 max-w-md">
-                    {timeOptions.map((option) => (
-                      <label key={option.value} className="flex items-center gap-2 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={filters.timeSlots.includes(option.value)}
-                          onChange={() => handleMultiFilterChange('timeSlots', option.value)}
-                          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                        />
-                        <span className="text-white text-xs">{option.label}</span>
-                      </label>
-                    ))}
+                {/* Right Column - Time Slots & Date Filters */}
+                <div className="space-y-4">
+                  {/* Time Slots Filter */}
+                  <div className="bg-white/5 p-3 rounded-lg border border-white/20">
+                    <label className="text-white text-sm font-medium mb-2 block">Time Slots:</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {timeOptions.map((option) => (
+                        <label key={option.value} className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={filters.timeSlots.includes(option.value)}
+                            onChange={() => handleMultiFilterChange('timeSlots', option.value)}
+                            className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                          />
+                          <span className="text-white text-xs">{option.label}</span>
+                        </label>
+                      ))}
+                    </div>
                   </div>
-                </div>
-
-                {/* Single Select Filters */}
-                <div className="flex gap-4 items-end">
-                  <div>
-                    <label className="text-white text-sm font-medium mb-1 block">Payment Mode:</label>
-                    <select
-                      value={filters.paymentMode}
-                      onChange={(e) => handleFilterChange('paymentMode', e.target.value)}
-                      className="px-3 py-2 bg-white/90 border border-white/30 rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-400"
-                    >
-                      <option value="">All</option>
-                      <option value="online">Online</option>
-                      <option value="cash">Cash</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-white text-sm font-medium mb-1 block">Status:</label>
-                    <select
-                      value={filters.studentStatus}
-                      onChange={(e) => handleFilterChange('studentStatus', e.target.value)}
-                      className="px-3 py-2 bg-white/90 border border-white/30 rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-400"
-                    >
-                      <option value="active">Active Students</option>
-                      <option value="inactive">Inactive Students</option>
-                      <option value="">All Status</option>
-                    </select>
-                  </div>
-                  <button
-                    onClick={clearFilters}
-                    className="px-4 py-2 bg-red-500/80 hover:bg-red-600 text-white rounded-lg text-sm font-medium transition-all duration-200"
-                  >
-                    Clear All
-                  </button>
                 </div>
               </div>
+
+              {/* Date Filters Section */}
+              <div className="mt-4 p-3 bg-white/5 rounded-lg border border-white/20">
+                <label className="text-white text-sm font-medium mb-3 block">Date Filters:</label>
+                <div className="grid grid-cols-1 md:grid-cols-6 gap-3 items-end">
+                  {/* Date Field Selector */}
+                  <div>
+                    <label className="block text-white text-xs font-medium mb-1">Filter by:</label>
+                    <select
+                      value={dateFilterType}
+                      onChange={(e) => setDateFilterType(e.target.value)}
+                      className="w-full h-10 px-3 bg-white/90 border border-blue-300/50 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-gray-800 text-sm shadow"
+                    >
+                      <option value="AdmissionDate">Admission Date</option>
+                      <option value="FeesPaidTillDate">Fees Paid Till</option>
+                      <option value="PaymentExpectedDate">Payment Expected</option>
+                      <option value="createdAt">Created Date</option>
+                      <option value="updatedAt">Updated Date</option>
+                    </select>
+                  </div>
+
+                  {/* Date Range */}
+                  <div>
+                    <label className="block text-white text-xs font-medium mb-1">From:</label>
+                    <input
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => {
+                        setStartDate(e.target.value);
+                        if (endDate && new Date(e.target.value) > new Date(endDate)) setEndDate("");
+                      }}
+                      className="w-full h-10 px-3 bg-white/90 border border-blue-300/50 rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-400 shadow"
+                      max={endDate || undefined}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-white text-xs font-medium mb-1">To:</label>
+                    <input
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      className="w-full h-10 px-3 bg-white/90 border border-blue-300/50 rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-400 shadow"
+                      min={startDate || undefined}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-white text-xs font-medium mb-1">Month:</label>
+                    <select
+                      value={selectedMonth}
+                      onChange={(e) => setSelectedMonth(e.target.value)}
+                      className="w-full h-10 px-3 bg-white/90 border border-blue-300/50 rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-400 shadow"
+                    >
+                      <option value="">All</option>
+                      {[...Array(12)].map((_, i) => (
+                        <option key={i + 1} value={i + 1}>{new Date(2025, i).toLocaleString('default', { month: 'short' })}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-white text-xs font-medium mb-1">Year:</label>
+                    <select
+                      value={selectedYear}
+                      onChange={(e) => setSelectedYear(e.target.value)}
+                      className="w-full h-10 px-3 bg-white/90 border border-blue-300/50 rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-400 shadow"
+                    >
+                      <option value="">All</option>
+                      {[...Array(6)].map((_, i) => {
+                        const year = 2022 + i;
+                        return <option key={year} value={year}>{year}</option>;
+                      })}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Filter Summary */}
+              {hasActiveFilters && (
+                <div className="mt-4 p-3 bg-blue-500/10 rounded-lg border border-blue-400/30">
+                  <p className="text-blue-200 text-sm">
+                    <span className="font-medium">Active Filters:</span>
+                    {filters.studentStatus !== "active" && ` Status: ${filters.studentStatus}`}
+                    {filters.shifts.length > 0 && ` | Shifts: ${filters.shifts.join(', ')}`}
+                    {filters.paymentMode && ` | Payment: ${filters.paymentMode}`}
+                    {filters.timeSlots.length > 0 && ` | Time Slots: ${filters.timeSlots.length} selected`}
+                    {dateFilterType !== "AdmissionDate" && ` | Date Field: ${dateFilterType.replace(/([A-Z])/g, ' $1').trim()}`}
+                    {startDate && ` | From: ${formatDate(startDate)}`}
+                    {endDate && ` | To: ${formatDate(endDate)}`}
+                    {selectedMonth && ` | Month: ${new Date(2025, selectedMonth - 1).toLocaleString('default', { month: 'long' })}`}
+                    {selectedYear && ` | Year: ${selectedYear}`}
+                  </p>
+                </div>
+              )}
             </div>
-          </div>
+          )}
         </div>
         {/* Main Content */}
         {students.length === 0 ? (
