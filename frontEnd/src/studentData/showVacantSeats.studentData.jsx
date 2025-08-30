@@ -5,10 +5,16 @@ import "../styles/neonSeats.css";
 import { getApi } from "../api/api.js";
 import { fetchAllStudentDataUrl } from "../url/index.url.js";
 
-// Search Icon component
+// Icon components
 const SearchIcon = () => (
   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+  </svg>
+);
+
+const FilterIcon = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z" />
   </svg>
 );
 
@@ -19,6 +25,8 @@ const ShowVacantSeats = () => {
   const [selectedStudents, setSelectedStudents] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("active");
+  const [showFilters, setShowFilters] = useState(false);
+  const [dateFilterType, setDateFilterType] = useState("AdmissionDate");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [selectedMonth, setSelectedMonth] = useState("");
@@ -111,40 +119,17 @@ const ShowVacantSeats = () => {
         (statusFilter === "active" && student.StudentActiveStatus === true) ||
         (statusFilter === "inactive" && student.StudentActiveStatus === false);
 
-      // Date filters
+      // Date filters - filter by specific date field
       let matchesDate = true;
-      if (startDate) {
-        matchesDate = ["AdmissionDate", "FeesPaidTillDate", "PaymentExpectedDate", "createdAt", "updatedAt"].some((field) => {
-          const dateVal = new Date(student[field]);
-          return dateVal >= new Date(startDate);
-        });
-      }
-      if (endDate) {
-        matchesDate = matchesDate && ["AdmissionDate", "FeesPaidTillDate", "PaymentExpectedDate", "createdAt", "updatedAt"].some((field) => {
-          const dateVal = new Date(student[field]);
-          return dateVal <= new Date(endDate);
-        });
+      if (startDate || endDate || selectedMonth || selectedYear) {
+        const dateVal = new Date(student[dateFilterType]);
+        if (startDate && dateVal < new Date(startDate)) matchesDate = false;
+        if (endDate && dateVal > new Date(endDate)) matchesDate = false;
+        if (selectedMonth && dateVal.getMonth() + 1 !== parseInt(selectedMonth)) matchesDate = false;
+        if (selectedYear && dateVal.getFullYear() !== parseInt(selectedYear)) matchesDate = false;
       }
 
-      // Month filter
-      let matchesMonth = true;
-      if (selectedMonth) {
-        matchesMonth = ["AdmissionDate", "FeesPaidTillDate", "PaymentExpectedDate", "createdAt", "updatedAt"].some((field) => {
-          const dateVal = new Date(student[field]);
-          return dateVal.getMonth() + 1 === parseInt(selectedMonth);
-        });
-      }
-
-      // Year filter
-      let matchesYear = true;
-      if (selectedYear) {
-        matchesYear = ["AdmissionDate", "FeesPaidTillDate", "PaymentExpectedDate", "createdAt", "updatedAt"].some((field) => {
-          const dateVal = new Date(student[field]);
-          return dateVal.getFullYear() === parseInt(selectedYear);
-        });
-      }
-
-      return matchesSearch && matchesStatus && matchesDate && matchesMonth && matchesYear;
+      return matchesSearch && matchesStatus && matchesDate;
     });
 
     if (!searchTerm.trim() && statusFilter === "active" && !startDate && !endDate && !selectedMonth && !selectedYear) {
@@ -188,11 +173,14 @@ const ShowVacantSeats = () => {
   const clearSearch = () => {
     setSearchTerm("");
     setStatusFilter("active");
+    setDateFilterType("AdmissionDate");
     setStartDate("");
     setEndDate("");
     setSelectedMonth("");
     setSelectedYear("");
   };
+
+  const hasActiveFilters = startDate || endDate || selectedMonth || selectedYear || statusFilter !== "active" || searchTerm;
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -213,9 +201,10 @@ const ShowVacantSeats = () => {
         
         {/* Search and Filter Section */}
         <div className="p-6 pb-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4 items-end mb-6">
+          {/* Search and Filter Toggle Row */}
+          <div className="flex flex-col lg:flex-row gap-4 items-center justify-between mb-4">
             {/* Search */}
-            <div className="relative md:col-span-2 lg:col-span-2 xl:col-span-2">
+            <div className="relative flex-1 max-w-md">
               <input
                 type="text"
                 placeholder="Search by name, registration, contact, address, seat number..."
@@ -228,7 +217,7 @@ const ShowVacantSeats = () => {
               </div>
               {searchTerm && (
                 <button
-                  onClick={clearSearch}
+                  onClick={() => setSearchTerm("")}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-200"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -237,80 +226,148 @@ const ShowVacantSeats = () => {
                 </button>
               )}
             </div>
-            {/* Status Filter */}
-            <div>
+            
+            {/* Filter Controls */}
+            <div className="flex items-center gap-3">
+              {/* Status Filter */}
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full h-12 px-3 bg-white/90 border border-blue-300/50 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-gray-800 shadow"
+                className="h-12 px-3 bg-white/90 border border-blue-300/50 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-gray-800 shadow"
               >
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
+                <option value="active">Active Students</option>
+                <option value="inactive">Inactive Students</option>
                 <option value="all">All Status</option>
               </select>
-            </div>
-            {/* Start Date Filter */}
-            <div>
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => {
-                  setStartDate(e.target.value);
-                  if (endDate && new Date(e.target.value) > new Date(endDate)) setEndDate("");
-                }}
-                className="w-full h-12 px-3 bg-white/90 border border-blue-300/50 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-gray-800 shadow"
-                max={endDate || undefined}
-                title="Start Date"
-              />
-            </div>
-            {/* End Date Filter */}
-            <div>
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="w-full h-12 px-3 bg-white/90 border border-blue-300/50 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-gray-800 shadow"
-                min={startDate || undefined}
-                title="End Date"
-              />
-            </div>
-            {/* Month Filter */}
-            <div>
-              <select
-                value={selectedMonth}
-                onChange={(e) => setSelectedMonth(e.target.value)}
-                className="w-full h-12 px-3 bg-white/90 border border-blue-300/50 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-gray-800 shadow"
-              >
-                <option value="">All Months</option>
-                {[...Array(12)].map((_, i) => (
-                  <option key={i + 1} value={i + 1}>{new Date(2025, i).toLocaleString('default', { month: 'short' })}</option>
-                ))}
-              </select>
-            </div>
-            {/* Year Filter */}
-            <div>
-              <select
-                value={selectedYear}
-                onChange={(e) => setSelectedYear(e.target.value)}
-                className="w-full h-12 px-3 bg-white/90 border border-blue-300/50 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-gray-800 shadow"
-              >
-                <option value="">All Years</option>
-                {[...Array(6)].map((_, i) => {
-                  const year = 2022 + i;
-                  return <option key={year} value={year}>{year}</option>;
-                })}
-              </select>
-            </div>
-            {/* Clear Filters Button */}
-            <div className="md:col-span-2 lg:col-span-4 xl:col-span-1">
+              
+              {/* Filter Toggle Button */}
               <button
-                onClick={clearSearch}
-                className="w-full h-12 bg-red-500/80 hover:bg-red-600 text-white rounded-xl font-medium transition-all duration-200 shadow hover:shadow-lg"
+                onClick={() => setShowFilters(!showFilters)}
+                className={`flex items-center gap-2 h-12 px-4 rounded-xl font-medium transition-all duration-200 shadow ${
+                  showFilters || hasActiveFilters
+                    ? 'bg-blue-500 hover:bg-blue-600 text-white'
+                    : 'bg-white/90 hover:bg-white text-gray-700 border border-blue-300/50'
+                }`}
               >
-                Clear All
+                <FilterIcon />
+                <span>Filters</span>
+                {hasActiveFilters && (
+                  <span className="bg-white/20 text-xs px-2 py-1 rounded-full">•</span>
+                )}
               </button>
+              
+              {/* Clear All Button */}
+              {hasActiveFilters && (
+                <button
+                  onClick={clearSearch}
+                  className="h-12 px-4 bg-red-500/80 hover:bg-red-600 text-white rounded-xl font-medium transition-all duration-200 shadow hover:shadow-lg"
+                >
+                  Clear All
+                </button>
+              )}
             </div>
           </div>
+          
+          {/* Advanced Filters Panel */}
+          {showFilters && (
+            <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-blue-300/30 p-4 mb-4 animate-fadeIn">
+              <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+                <FilterIcon />
+                Date Filters
+              </h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 items-end">
+                {/* Date Field Selector */}
+                <div className="lg:col-span-2">
+                  <label className="block text-white text-sm font-medium mb-2">Filter by Date Field:</label>
+                  <select
+                    value={dateFilterType}
+                    onChange={(e) => setDateFilterType(e.target.value)}
+                    className="w-full h-10 px-3 bg-white/90 border border-blue-300/50 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-gray-800 text-sm shadow"
+                  >
+                    <option value="AdmissionDate">Admission Date</option>
+                    <option value="FeesPaidTillDate">Fees Paid Till Date</option>
+                    <option value="PaymentExpectedDate">Payment Expected Date</option>
+                    <option value="createdAt">Created Date</option>
+                    <option value="updatedAt">Updated Date</option>
+                  </select>
+                </div>
+                
+                {/* Start Date */}
+                <div>
+                  <label className="block text-white text-sm font-medium mb-2">From Date:</label>
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => {
+                      setStartDate(e.target.value);
+                      if (endDate && new Date(e.target.value) > new Date(endDate)) setEndDate("");
+                    }}
+                    className="w-full h-10 px-3 bg-white/90 border border-blue-300/50 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-gray-800 text-sm shadow"
+                    max={endDate || undefined}
+                  />
+                </div>
+                
+                {/* End Date */}
+                <div>
+                  <label className="block text-white text-sm font-medium mb-2">To Date:</label>
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="w-full h-10 px-3 bg-white/90 border border-blue-300/50 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-gray-800 text-sm shadow"
+                    min={startDate || undefined}
+                  />
+                </div>
+                
+                {/* Month Filter */}
+                <div>
+                  <label className="block text-white text-sm font-medium mb-2">Month:</label>
+                  <select
+                    value={selectedMonth}
+                    onChange={(e) => setSelectedMonth(e.target.value)}
+                    className="w-full h-10 px-3 bg-white/90 border border-blue-300/50 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-gray-800 text-sm shadow"
+                  >
+                    <option value="">All Months</option>
+                    {[...Array(12)].map((_, i) => (
+                      <option key={i + 1} value={i + 1}>{new Date(2025, i).toLocaleString('default', { month: 'long' })}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                {/* Year Filter */}
+                <div>
+                  <label className="block text-white text-sm font-medium mb-2">Year:</label>
+                  <select
+                    value={selectedYear}
+                    onChange={(e) => setSelectedYear(e.target.value)}
+                    className="w-full h-10 px-3 bg-white/90 border border-blue-300/50 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-gray-800 text-sm shadow"
+                  >
+                    <option value="">All Years</option>
+                    {[...Array(6)].map((_, i) => {
+                      const year = 2022 + i;
+                      return <option key={year} value={year}>{year}</option>;
+                    })}
+                  </select>
+                </div>
+              </div>
+              
+              {/* Filter Summary */}
+              {hasActiveFilters && (
+                <div className="mt-4 p-3 bg-blue-500/10 rounded-lg border border-blue-400/30">
+                  <p className="text-blue-200 text-sm">
+                    <span className="font-medium">Active Filters:</span>
+                    {statusFilter !== "active" && ` Status: ${statusFilter}`}
+                    {dateFilterType !== "AdmissionDate" && ` | Date Field: ${dateFilterType.replace(/([A-Z])/g, ' $1').trim()}`}
+                    {startDate && ` | From: ${formatDate(startDate)}`}
+                    {endDate && ` | To: ${formatDate(endDate)}`}
+                    {selectedMonth && ` | Month: ${new Date(2025, selectedMonth - 1).toLocaleString('default', { month: 'long' })}`}
+                    {selectedYear && ` | Year: ${selectedYear}`}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
         
         <div className="px-6 pb-6">
@@ -323,7 +380,7 @@ const ShowVacantSeats = () => {
                 onClick={clearSearch}
                 className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
               >
-                Clear Search
+                Clear Filters
               </button>
             </div>
           ) : (
