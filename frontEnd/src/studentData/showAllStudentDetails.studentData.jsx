@@ -449,17 +449,16 @@ const ShowStudentData = () => {
                 </button>
               )}
             </div>
-            
+
             {/* Controls */}
             <div className="flex items-center gap-3">
               {/* Filter Toggle Button */}
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className={`flex items-center gap-2 h-12 px-4 rounded-xl font-medium transition-all duration-200 shadow ${
-                  showFilters || hasActiveFilters
+                className={`flex items-center gap-2 h-12 px-4 rounded-xl font-medium transition-all duration-200 shadow ${showFilters || hasActiveFilters
                     ? 'bg-blue-500 hover:bg-blue-600 text-white'
                     : 'bg-white/90 hover:bg-white text-gray-700 border border-blue-300/50'
-                }`}
+                  }`}
               >
                 <FilterIcon />
                 <span>Filters</span>
@@ -467,7 +466,7 @@ const ShowStudentData = () => {
                   <span className="bg-white/20 text-xs px-2 py-1 rounded-full">•</span>
                 )}
               </button>
-              
+
               {/* Clear All Button */}
               {hasActiveFilters && (
                 <button
@@ -477,18 +476,18 @@ const ShowStudentData = () => {
                   Clear All
                 </button>
               )}
-              
+
               {/* Export Button */}
               <button
                 onClick={exportStudentDataToExcel}
                 className="flex items-center gap-2 h-12 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-6 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
               >
                 <ExportIcon />
-                Export
+                Export to Excel
               </button>
             </div>
           </div>
-          
+
           {/* Advanced Filters Panel */}
           {showFilters && (
             <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-blue-300/30 p-4 animate-fadeIn">
@@ -496,7 +495,7 @@ const ShowStudentData = () => {
                 <FilterIcon />
                 Advanced Filters
               </h3>
-              
+
               {/* Filter Categories */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Left Column - Basic Filters */}
@@ -518,7 +517,7 @@ const ShowStudentData = () => {
                       ))}
                     </div>
                   </div>
-                  
+
                   {/* Payment & Status */}
                   <div className="grid grid-cols-2 gap-3">
                     <div>
@@ -547,7 +546,7 @@ const ShowStudentData = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Right Column - Time Slots & Date Filters */}
                 <div className="space-y-4">
                   {/* Time Slots Filter */}
@@ -569,7 +568,7 @@ const ShowStudentData = () => {
                   </div>
                 </div>
               </div>
-              
+
               {/* Date Filters Section */}
               <div className="mt-4 p-3 bg-white/5 rounded-lg border border-white/20">
                 <label className="text-white text-sm font-medium mb-3 block">Date Filters:</label>
@@ -589,7 +588,7 @@ const ShowStudentData = () => {
                       <option value="updatedAt">Updated Date</option>
                     </select>
                   </div>
-                  
+
                   {/* Date Range */}
                   <div>
                     <label className="block text-white text-xs font-medium mb-1">From:</label>
@@ -643,7 +642,7 @@ const ShowStudentData = () => {
                   </div>
                 </div>
               </div>
-              
+
               {/* Filter Summary */}
               {hasActiveFilters && (
                 <div className="mt-4 p-3 bg-blue-500/10 rounded-lg border border-blue-400/30">
