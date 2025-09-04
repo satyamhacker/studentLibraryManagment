@@ -94,34 +94,40 @@ export const updateStudentData = async (req, res) => {
       filteredUpdatePayload.TimeSlots = TimeSlots;
     }
 
-    // Check if LockerNumber is provided and not 0
-    if (LockerNumber && LockerNumber !== "0") {
-      // Find conflicting student for the same LockerNumber
-      const conflictingLockerStudent = await Student.findOne({
-        where: {
-          LockerNumber,
-          id: { [Op.ne]: id }
-        },
-      });
-
-      if (conflictingLockerStudent) {
-        return res.status(StatusCodes.CONFLICT).json({
-          success: false,
-          error: MESSAGE.put.fail,
-          details: 'This locker is already occupied by another user.',
-          occupiedBy: conflictingLockerStudent.StudentName,
-          lockerNumber: LockerNumber
+    // Handle LockerNumber updates
+    if (LockerNumber !== undefined) {
+      // Check if LockerNumber is empty, null, "0", or 0
+      if (LockerNumber && LockerNumber !== "0" && LockerNumber !== 0 && LockerNumber.toString().trim() !== "") {
+        // Find conflicting student for the same LockerNumber
+        const conflictingLockerStudent = await Student.findOne({
+          where: {
+            LockerNumber,
+            id: { [Op.ne]: id }
+          },
         });
+
+        if (conflictingLockerStudent) {
+          return res.status(StatusCodes.CONFLICT).json({
+            success: false,
+            error: MESSAGE.put.fail,
+            details: 'This locker is already occupied by another user.',
+            occupiedBy: conflictingLockerStudent.StudentName,
+            lockerNumber: LockerNumber
+          });
+        }
+        filteredUpdatePayload.LockerNumber = LockerNumber;
+      } else {
+        // Reset to default value (0) when empty, null, "0", or whitespace
+        filteredUpdatePayload.LockerNumber = 0;
       }
-      // Add LockerNumber to the filtered update payload
-      filteredUpdatePayload.LockerNumber = LockerNumber;
     }
 
     // Update the student with the filtered update payload
     await existingStudent.update({
       ...filteredUpdatePayload,
       SeatNumber: SeatNumber || existingStudent.SeatNumber,
-      TimeSlots: TimeSlots || existingStudent.TimeSlots
+      TimeSlots: TimeSlots || existingStudent.TimeSlots,
+      LockerNumber: filteredUpdatePayload.LockerNumber !== undefined ? filteredUpdatePayload.LockerNumber : existingStudent.LockerNumber
     });
 
     // Fetch the updated student (optional, Sequelize updates in place)
