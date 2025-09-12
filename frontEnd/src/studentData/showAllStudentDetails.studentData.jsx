@@ -275,6 +275,14 @@ const ShowStudentData = () => {
   };
 
   const handleStatusChange = async (studentId, newStatus) => {
+    const student = students.find(s => s.id === studentId);
+    const statusText = newStatus ? "Active" : "Inactive";
+    const confirmMessage = `Are you sure you want to change ${student?.StudentName}'s status to ${statusText}?`;
+    
+    if (!confirm(confirmMessage)) {
+      return;
+    }
+
     try {
       const response = await updateApiById(updateStudentStatusUrl, studentId, { StudentActiveStatus: newStatus });
       if (response && response.success) {
