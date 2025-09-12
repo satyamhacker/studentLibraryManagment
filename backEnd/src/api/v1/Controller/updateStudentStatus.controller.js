@@ -13,7 +13,11 @@ export const updateStudentStatus = async (req, res) => {
       return res.status(StatusCodes.NOT_FOUND).json({ success: false, message: MESSAGE.none });
     }
 
-    await student.update({ StudentActiveStatus });
+    await student.update({ 
+      StudentActiveStatus,
+      SeatNumber: 0,
+      LockerNumber: 0
+    });
 
     res.status(StatusCodes.OK).json({ success: true, message: MESSAGE.put.succ, data: student });
   } catch (error) {
