@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { PublicRoute, PrivateRoute } from "./studentData/index.studentData.js"
+import { HomeButton } from "./components/index.components.js";
 
 import { Login, Signup, ForgotPassword } from "./auth/index.auth.js"
 import { HomePage, AddStudentData, ShowVacantSeats, ShowStudentData, ShowLockers, UnallocatedStudentsSeat, ShowStudentsWithEndedMonth, StudentWithDues, FilterStudentData } from "./studentData/index.studentData.js"
@@ -26,6 +27,7 @@ function App() {
   return (
     <BrowserRouter>
       <div>
+        <HomeButton />
         <Routes>
           <Route path="/login" element={<PublicRoute element={<Login />} />} />
           <Route path="/" element={<PublicRoute element={<Signup />} />} />
