@@ -42,6 +42,10 @@ const paymentModeOptions = [
 
 const ShowStudentData = () => {
   const [students, setStudents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [currentStudent, setCurrentStudent] = useState(null);
@@ -64,8 +68,22 @@ const ShowStudentData = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchStudentData();
+    fetchStudentData(1, true);
   }, []);
+
+  // Infinite scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.innerHeight + document.documentElement.scrollTop >= document.documentElement.offsetHeight - 1000) {
+        if (!loadingMore && hasMore) {
+          loadMoreStudents();
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [loadingMore, hasMore]);
 
   const timeOptions = [
     { label: "06:00 - 10:00", value: "06:00-10:00" },
@@ -76,27 +94,50 @@ const ShowStudentData = () => {
     { label: "Reserved", value: "reserved" },
   ];
 
-  const fetchStudentData = async () => {
+  const fetchStudentData = async (page = 1, reset = false) => {
     try {
-      const response = await getApi(fetchAllStudentDataUrl);
+      if (reset) setLoading(true);
+      else setLoadingMore(true);
+
+      const response = await getApi(`${fetchAllStudentDataUrl}?page=${page}&limit=10`);
       if (response && response.success) {
         const data = response.data || [];
-        if (data.length === 0) {
+        if (reset && data.length === 0) {
           alert("Please add Student data.");
           navigate("/addStudent");
-        } else {
-          setStudents(data);
+          return;
         }
+
+        if (reset) {
+          setStudents(data);
+        } else {
+          setStudents(prev => [...prev, ...data]);
+        }
+
+        setHasMore(response.pagination?.hasNextPage || false);
+        setCurrentPage(page);
+        setLoading(false);
+        setLoadingMore(false);
       } else {
-        setStudents([]);
+        if (reset) setStudents([]);
+        setLoading(false);
+        setLoadingMore(false);
         if (response && response.error) {
           alert(response.error);
         }
       }
     } catch (error) {
-      setStudents([]);
+      if (reset) setStudents([]);
+      setLoading(false);
+      setLoadingMore(false);
       console.error("Error fetching students:", error);
       alert("Failed to fetch student data.");
+    }
+  };
+
+  const loadMoreStudents = () => {
+    if (!loadingMore && hasMore) {
+      fetchStudentData(currentPage + 1, false);
     }
   };
 
@@ -127,7 +168,7 @@ const ShowStudentData = () => {
         setCurrentStudent(null);
         setErrors({});
         alert(response.message || "Student data updated successfully!");
-        fetchStudentData();
+        fetchStudentData(1, true);
         return;
       }
 
@@ -254,7 +295,7 @@ const ShowStudentData = () => {
       const response = await deleteApiById(deleteStudentUrl, id);
       setShowDeleteModal(false);
       setStudentToDelete(null);
-      fetchStudentData();
+      fetchStudentData(1, true);
       alert(response?.message || "Student deleted successfully!");
     } catch (error) {
       console.error("Error deleting student:", error);
@@ -286,7 +327,7 @@ const ShowStudentData = () => {
     try {
       const response = await updateApiById(updateStudentStatusUrl, studentId, { StudentActiveStatus: newStatus });
       if (response && response.success) {
-        fetchStudentData();
+        fetchStudentData(1, true);
         alert(response.message || "Student status updated successfully!");
       } else {
         alert(response?.message || "Failed to update student status");
@@ -682,7 +723,12 @@ const ShowStudentData = () => {
           )}
         </div>
         {/* Main Content */}
-        {students.length === 0 ? (
+        {loading ? (
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 p-12 text-center">
+            <div className="animate-spin w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+            <p className="text-white text-lg">Loading students...</p>
+          </div>
+        ) : students.length === 0 ? (
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 p-12 text-center">
             <div className="text-6xl mb-4">📚</div>
             <h3 className="text-2xl font-semibold text-white mb-2">No Students Found</h3>
@@ -784,6 +830,21 @@ const ShowStudentData = () => {
                 </tbody>
               </table>
             </div>
+            
+            {/* Loading More Indicator */}
+            {loadingMore && (
+              <div className="p-6 text-center border-t border-white/10">
+                <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-2"></div>
+                <p className="text-blue-200 text-sm">Loading more students...</p>
+              </div>
+            )}
+            
+            {/* End of Results Indicator */}
+            {!hasMore && students.length > 0 && (
+              <div className="p-4 text-center border-t border-white/10">
+                <p className="text-blue-300 text-sm">No more students to load</p>
+              </div>
+            )}
           </div>
         )}
       </div>

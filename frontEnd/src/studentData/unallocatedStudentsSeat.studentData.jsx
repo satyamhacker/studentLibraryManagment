@@ -31,6 +31,9 @@ const UserIcon = () => (
 const UnallocatedStudentsSeat = () => {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("active");
   const [showFilters, setShowFilters] = useState(false);
@@ -43,32 +46,65 @@ const UnallocatedStudentsSeat = () => {
 
   // Fetch student data from backend
   useEffect(() => {
-    fetchStudentData();
+    fetchStudentData(1, true);
   }, []);
 
-  const fetchStudentData = async () => {
+  // Infinite scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.innerHeight + document.documentElement.scrollTop >= document.documentElement.offsetHeight - 1000) {
+        if (!loadingMore && hasMore) {
+          loadMoreStudents();
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [loadingMore, hasMore]);
+
+  const fetchStudentData = async (page = 1, reset = false) => {
     try {
-      const response = await getApi(fetchAllStudentDataUrl);
+      if (reset) setLoading(true);
+      else setLoadingMore(true);
+
+      const response = await getApi(`${fetchAllStudentDataUrl}?page=${page}&limit=10`);
       if (response && response.success) {
         const data = response.data || [];
         const unallocatedStudents = data.filter(
           (student) => student.SeatNumber === "0" || student.SeatNumber === 0
         );
 
-        setStudents(unallocatedStudents);
+        if (reset) {
+          setStudents(unallocatedStudents);
+        } else {
+          setStudents(prev => [...prev, ...unallocatedStudents]);
+        }
+
+        setHasMore(response.pagination?.hasNextPage || false);
+        setCurrentPage(page);
         setLoading(false);
+        setLoadingMore(false);
       } else {
-        setStudents([]);
+        if (reset) setStudents([]);
         setLoading(false);
+        setLoadingMore(false);
         if (response && response.error) {
           alert(response.error);
         }
       }
     } catch (error) {
-      setStudents([]);
+      if (reset) setStudents([]);
       setLoading(false);
+      setLoadingMore(false);
       console.error("Error fetching students:", error);
       alert("Failed to fetch student data.");
+    }
+  };
+
+  const loadMoreStudents = () => {
+    if (!loadingMore && hasMore) {
+      fetchStudentData(currentPage + 1, false);
     }
   };
 
@@ -385,6 +421,21 @@ const UnallocatedStudentsSeat = () => {
                 </tbody>
               </table>
             </div>
+            
+            {/* Loading More Indicator */}
+            {loadingMore && (
+              <div className="p-6 text-center border-t border-white/10">
+                <div className="animate-spin w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full mx-auto mb-2"></div>
+                <p className="text-orange-200 text-sm">Loading more students...</p>
+              </div>
+            )}
+            
+            {/* End of Results Indicator */}
+            {!hasMore && students.length > 0 && (
+              <div className="p-4 text-center border-t border-white/10">
+                <p className="text-orange-300 text-sm">No more students to load</p>
+              </div>
+            )}
           </div>
         )}
       </div>
