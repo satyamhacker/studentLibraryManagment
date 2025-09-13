@@ -36,6 +36,10 @@ const UserIcon = () => (
 
 const StudentWithDues = () => {
   const [students, setStudents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("active");
   const [showFilters, setShowFilters] = useState(false);
@@ -49,25 +53,62 @@ const StudentWithDues = () => {
 
   // Fetch student data from backend
   useEffect(() => {
-    fetchStudentData();
+    fetchStudentData(1, true);
   }, []);
 
-  const fetchStudentData = async () => {
+  // Infinite scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.innerHeight + document.documentElement.scrollTop >= document.documentElement.offsetHeight - 1000) {
+        if (!loadingMore && hasMore) {
+          loadMoreStudents();
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [loadingMore, hasMore]);
+
+  const fetchStudentData = async (page = 1, reset = false) => {
     try {
-      const response = await getApi(fetchAllStudentDataUrl);
+      if (reset) setLoading(true);
+      else setLoadingMore(true);
+
+      const response = await getApi(`${fetchAllStudentDataUrl}?page=${page}&limit=10`);
       if (response && response.success) {
         const data = response.data || [];
-        setStudents(data);
+        
+        if (reset) {
+          setStudents(data);
+        } else {
+          setStudents(prev => [...prev, ...data]);
+        }
+
+        setHasMore(response.pagination?.hasNextPage || false);
+        setCurrentPage(page);
+        setLoading(false);
+        setLoadingMore(false);
       } else {
-        setStudents([]);
+        if (reset) setStudents([]);
+        setLoading(false);
+        setLoadingMore(false);
         if (response && response.error) {
           alert(response.error);
         }
       }
     } catch (error) {
-      setStudents([]);
+      if (reset) setStudents([]);
+      setLoading(false);
+      setLoadingMore(false);
       console.error("Error fetching students:", error);
       alert("Failed to fetch student data.");
+    }
+  };
+
+  const loadMoreStudents = () => {
+    if (!loadingMore && hasMore) {
+      fetchStudentData(currentPage + 1, false);
     }
   };
 
@@ -327,7 +368,12 @@ const StudentWithDues = () => {
         </div>
 
         {/* Main Content */}
-        {studentsWithDues.length === 0 ? (
+        {loading ? (
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 p-12 text-center">
+            <div className="animate-spin w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+            <p className="text-white text-lg">Loading students...</p>
+          </div>
+        ) : studentsWithDues.length === 0 ? (
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 p-12 text-center">
             <div className="text-6xl mb-4">🎉</div>
             <h3 className="text-2xl font-semibold text-white mb-2">All Fees Collected!</h3>
@@ -395,6 +441,21 @@ const StudentWithDues = () => {
                 </tbody>
               </table>
             </div>
+            
+            {/* Loading More Indicator */}
+            {loadingMore && (
+              <div className="p-6 text-center border-t border-white/10">
+                <div className="animate-spin w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full mx-auto mb-2"></div>
+                <p className="text-orange-200 text-sm">Loading more students...</p>
+              </div>
+            )}
+            
+            {/* End of Results Indicator */}
+            {!hasMore && students.length > 0 && (
+              <div className="p-4 text-center border-t border-white/10">
+                <p className="text-orange-300 text-sm">No more students to load</p>
+              </div>
+            )}
             
             {/* Summary Footer */}
             <div className="bg-gradient-to-r from-amber-600/20 via-orange-600/20 to-red-600/20 p-6 border-t border-white/10">

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { createApi } from "../api/api.js";
 import { filterStudentsDataUrl } from "../url/index.url.js";
@@ -45,8 +45,61 @@ const FilterStudentData = () => {
   const [filteredData, setFilteredData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
 
   const navigate = useNavigate();
+
+  // Infinite scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.innerHeight + document.documentElement.scrollTop >= document.documentElement.offsetHeight - 1000) {
+        if (!loadingMore && hasMore && filteredData.length > 0) {
+          loadMoreResults();
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [loadingMore, hasMore, filteredData.length]);
+
+  const loadMoreResults = async () => {
+    if (loadingMore || !hasMore) return;
+    
+    setLoadingMore(true);
+    const filterData = {
+      year: selectedYear ? parseInt(selectedYear) : undefined,
+      month: selectedMonth || undefined,
+      dateRange: startDate && endDate ? `${new Date(startDate).toLocaleDateString()} - ${new Date(endDate).toLocaleDateString()}` : undefined,
+      paymentMode: paymentMode || undefined,
+      page: currentPage + 1,
+      limit: 10
+    };
+
+    Object.keys(filterData).forEach(key => filterData[key] === undefined && delete filterData[key]);
+
+    try {
+      const response = await createApi(filterStudentsDataUrl, filterData);
+      if (response && response.data) {
+        let responseData = response.data || [];
+        if (studentStatus === "active") {
+          responseData = responseData.filter(student => student.StudentActiveStatus === true);
+        } else if (studentStatus === "inactive") {
+          responseData = responseData.filter(student => student.StudentActiveStatus === false);
+        }
+        
+        setFilteredData(prev => [...prev, ...responseData]);
+        setHasMore(response.pagination?.hasNextPage || responseData.length === 10);
+        setCurrentPage(prev => prev + 1);
+      }
+    } catch (error) {
+      console.error("Error loading more data:", error);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   const handleApplyFilter = async () => {
     // Validate month selection requires year
@@ -60,7 +113,9 @@ const FilterStudentData = () => {
       year: selectedYear ? parseInt(selectedYear) : undefined,
       month: selectedMonth || undefined,
       dateRange: startDate && endDate ? `${new Date(startDate).toLocaleDateString()} - ${new Date(endDate).toLocaleDateString()}` : undefined,
-      paymentMode: paymentMode || undefined
+      paymentMode: paymentMode || undefined,
+      page: 1,
+      limit: 10
     };
 
     // Remove undefined values
@@ -78,6 +133,8 @@ const FilterStudentData = () => {
         }
         
         setFilteredData(responseData);
+        setCurrentPage(1);
+        setHasMore(response.pagination?.hasNextPage || responseData.length === 10);
         setShowModal(false);
         alert(response.message || "Filter applied successfully");
       } else {
@@ -319,6 +376,21 @@ const FilterStudentData = () => {
                 </tbody>
               </table>
             </div>
+            
+            {/* Loading More Indicator */}
+            {loadingMore && (
+              <div className="p-6 text-center border-t border-white/10">
+                <div className="animate-spin w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full mx-auto mb-2"></div>
+                <p className="text-purple-200 text-sm">Loading more results...</p>
+              </div>
+            )}
+            
+            {/* End of Results Indicator */}
+            {!hasMore && filteredData.length > 0 && (
+              <div className="p-4 text-center border-t border-white/10">
+                <p className="text-purple-300 text-sm">No more results to load</p>
+              </div>
+            )}
           </div>
         )}
 
