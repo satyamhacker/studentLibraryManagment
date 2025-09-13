@@ -9,6 +9,8 @@ export const filterStudentDataValidator = Joi.object({
     ).optional(),
     dateRange: Joi.string().pattern(/^\d{2}\/\d{2}\/\d{4} - \d{2}\/\d{2}\/\d{4}$/).optional(),
     paymentMode: Joi.string().valid('online', 'cash').optional(),
+    page: Joi.number().integer().min(1).optional(),
+    limit: Joi.number().integer().min(1).max(100).optional(),
 });
 
 export const studentDataValidator = Joi.object({

@@ -37,6 +37,10 @@ const UserIcon = () => (
 const ShowStudentsWithEndedMonth = () => {
   const [students, setStudents] = useState([]);
   const [expiredStudents, setExpiredStudents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -58,12 +62,29 @@ const ShowStudentsWithEndedMonth = () => {
 
   // Fetch student data from backend
   useEffect(() => {
-    fetchStudents();
+    fetchStudents(1, true);
   }, []);
 
-  const fetchStudents = async () => {
+  // Infinite scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.innerHeight + document.documentElement.scrollTop >= document.documentElement.offsetHeight - 1000) {
+        if (!loadingMore && hasMore) {
+          loadMoreStudents();
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [loadingMore, hasMore]);
+
+  const fetchStudents = async (page = 1, reset = false) => {
     try {
-      const response = await getApi(fetchAllStudentDataUrl);
+      if (reset) setLoading(true);
+      else setLoadingMore(true);
+
+      const response = await getApi(`${fetchAllStudentDataUrl}?page=${page}&limit=10`);
       if (response && response.success) {
         const studentsData = response.data || [];
         
@@ -74,20 +95,44 @@ const ShowStudentsWithEndedMonth = () => {
           return feesPaidTillDate < currentDate;
         });
 
-        setStudents(studentsData);
-        setExpiredStudents(filteredStudents);
+        if (reset) {
+          setStudents(studentsData);
+          setExpiredStudents(filteredStudents);
+        } else {
+          setStudents(prev => [...prev, ...studentsData]);
+          setExpiredStudents(prev => [...prev, ...filteredStudents]);
+        }
+
+        setHasMore(response.pagination?.hasNextPage || false);
+        setCurrentPage(page);
+        setLoading(false);
+        setLoadingMore(false);
       } else {
-        setStudents([]);
-        setExpiredStudents([]);
+        if (reset) {
+          setStudents([]);
+          setExpiredStudents([]);
+        }
+        setLoading(false);
+        setLoadingMore(false);
         if (response && response.error) {
           alert(response.error);
         }
       }
     } catch (error) {
-      setStudents([]);
-      setExpiredStudents([]);
+      if (reset) {
+        setStudents([]);
+        setExpiredStudents([]);
+      }
+      setLoading(false);
+      setLoadingMore(false);
       console.error("Error fetching students:", error);
       alert("Failed to fetch student data.");
+    }
+  };
+
+  const loadMoreStudents = () => {
+    if (!loadingMore && hasMore) {
+      fetchStudents(currentPage + 1, false);
     }
   };
 
@@ -477,6 +522,21 @@ const ShowStudentsWithEndedMonth = () => {
                 </div>
               );
             })}
+            
+            {/* Loading More Indicator */}
+            {loadingMore && (
+              <div className="col-span-full flex justify-center items-center p-6">
+                <div className="animate-spin w-8 h-8 border-4 border-pink-500 border-t-transparent rounded-full mr-3"></div>
+                <p className="text-pink-200 text-sm">Loading more students...</p>
+              </div>
+            )}
+            
+            {/* End of Results Indicator */}
+            {!hasMore && expiredStudents.length > 0 && (
+              <div className="col-span-full text-center p-4">
+                <p className="text-pink-300 text-sm">No more students to load</p>
+              </div>
+            )}
           </div>
         )}
       </div>

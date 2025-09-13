@@ -3,6 +3,7 @@ import { Student } from '../Models/index.model.js'; // Adjust path to your Stude
 import { Op } from 'sequelize';
 import { StatusCodes } from 'http-status-codes';
 import constants from '../Constants/index.constants.js';
+import { getPaginationParams, createPaginationResponse } from '../utils/pagination.js';
 const MESSAGE = constants.MESSAGE;
 
 const convertStringToDate = (dateString) => {
@@ -11,7 +12,8 @@ const convertStringToDate = (dateString) => {
 };
 
 export const filterStudentData = async (req, res) => {
-  const { year, month, dateRange, paymentMode } = req.body;
+  const { year, month, dateRange, paymentMode, page, limit } = req.body;
+  const { page: paginationPage, limit: paginationLimit, offset } = getPaginationParams({ query: { page, limit } });
 
   try {
     const whereClause = {};
@@ -48,12 +50,23 @@ export const filterStudentData = async (req, res) => {
       whereClause.PaymentMode = paymentMode;
     }
 
-    const filteredStudents = await Student.findAll({ where: whereClause });
+    const { count, rows: filteredStudents } = await Student.findAndCountAll({ 
+      where: whereClause,
+      limit: paginationLimit,
+      offset,
+      order: [['createdAt', 'DESC']]
+    });
 
     if (!filteredStudents || filteredStudents.length === 0) {
-      return res.status(StatusCodes.OK).json({ message: MESSAGE.get.empty, data: [] });
+      return res.status(StatusCodes.OK).json({ 
+        message: MESSAGE.get.empty, 
+        ...createPaginationResponse([], count, paginationPage, paginationLimit)
+      });
     }
-    res.status(StatusCodes.OK).json({ message: MESSAGE.get.succ, data: filteredStudents });
+    res.status(StatusCodes.OK).json({ 
+      message: MESSAGE.get.succ, 
+      ...createPaginationResponse(filteredStudents, count, paginationPage, paginationLimit)
+    });
   } catch (error) {
     console.error('Error filtering student data:', error);
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: MESSAGE.error });
