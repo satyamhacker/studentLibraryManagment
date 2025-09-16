@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getApi } from "../api/api.js";
-import { fetchAllStudentDataUrl } from "../url/index.url.js";
+import { getLockerAllocationDataUrl } from "../url/index.url.js";
 
 // Icons as components
 const SearchIcon = () => (
@@ -31,6 +31,7 @@ const UserIcon = () => (
 const ShowLockers = () => {
   const [occupiedLockers, setOccupiedLockers] = useState([]);
   const [students, setStudents] = useState([]);
+  const [totalLockers, setTotalLockers] = useState(100);
   const [showModal, setShowModal] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -50,10 +51,11 @@ const ShowLockers = () => {
 
   const fetchOccupiedLockers = async () => {
     try {
-      const response = await getApi(fetchAllStudentDataUrl);
+      const response = await getApi(getLockerAllocationDataUrl);
       if (response && response.success) {
         const data = response.data || [];
         setStudents(data);
+        setTotalLockers(response.totalLockers || 100);
 
         // Only consider lockers with LockerNumber as a valid integer > 0
         const lockerNumbers = data
@@ -73,8 +75,7 @@ const ShowLockers = () => {
     }
   };
 
-  // Create an array of locker numbers from 1 to 100
-  const totalLockers = 100;
+  // Create an array of locker numbers from 1 to totalLockers
   const lockers = Array.from({ length: totalLockers }, (_, index) => index + 1);
 
   // Filter lockers based on search term and other filters
@@ -114,8 +115,8 @@ const ShowLockers = () => {
       .map(student => Number(student.LockerNumber))
       .filter(locker => Number.isInteger(locker) && locker > 0);
 
-    return lockers.filter(locker => 
-      matchingLockerNumbers.includes(locker) || 
+    return lockers.filter(locker =>
+      matchingLockerNumbers.includes(locker) ||
       (searchTerm && locker.toString().includes(searchTerm))
     );
   };
@@ -222,7 +223,7 @@ const ShowLockers = () => {
                 </button>
               )}
             </div>
-            
+
             {/* Filter Controls */}
             <div className="flex items-center gap-3">
               {/* Status Filter */}
@@ -235,15 +236,14 @@ const ShowLockers = () => {
                 <option value="inactive">Inactive Students</option>
                 <option value="all">All Status</option>
               </select>
-              
+
               {/* Filter Toggle Button */}
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className={`flex items-center gap-2 h-12 px-4 rounded-xl font-medium transition-all duration-200 shadow ${
-                  showFilters || hasActiveFilters
-                    ? 'bg-blue-500 hover:bg-blue-600 text-white'
-                    : 'bg-white/90 hover:bg-white text-gray-700 border border-blue-300/50'
-                }`}
+                className={`flex items-center gap-2 h-12 px-4 rounded-xl font-medium transition-all duration-200 shadow ${showFilters || hasActiveFilters
+                  ? 'bg-blue-500 hover:bg-blue-600 text-white'
+                  : 'bg-white/90 hover:bg-white text-gray-700 border border-blue-300/50'
+                  }`}
               >
                 <FilterIcon />
                 <span>Filters</span>
@@ -251,7 +251,7 @@ const ShowLockers = () => {
                   <span className="bg-white/20 text-xs px-2 py-1 rounded-full">•</span>
                 )}
               </button>
-              
+
               {/* Clear All Button */}
               {hasActiveFilters && (
                 <button
@@ -263,7 +263,7 @@ const ShowLockers = () => {
               )}
             </div>
           </div>
-          
+
           {/* Advanced Filters Panel */}
           {showFilters && (
             <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-blue-300/30 p-4 mb-4 animate-fadeIn">
@@ -271,7 +271,7 @@ const ShowLockers = () => {
                 <FilterIcon />
                 Date Filters
               </h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 items-end">
                 {/* Date Field Selector */}
                 <div className="lg:col-span-2">
@@ -288,7 +288,7 @@ const ShowLockers = () => {
                     <option value="updatedAt">Updated Date</option>
                   </select>
                 </div>
-                
+
                 {/* Start Date */}
                 <div>
                   <label className="block text-white text-sm font-medium mb-2">From Date:</label>
@@ -303,7 +303,7 @@ const ShowLockers = () => {
                     max={endDate || undefined}
                   />
                 </div>
-                
+
                 {/* End Date */}
                 <div>
                   <label className="block text-white text-sm font-medium mb-2">To Date:</label>
@@ -315,7 +315,7 @@ const ShowLockers = () => {
                     min={startDate || undefined}
                   />
                 </div>
-                
+
                 {/* Month Filter */}
                 <div>
                   <label className="block text-white text-sm font-medium mb-2">Month:</label>
@@ -330,7 +330,7 @@ const ShowLockers = () => {
                     ))}
                   </select>
                 </div>
-                
+
                 {/* Year Filter */}
                 <div>
                   <label className="block text-white text-sm font-medium mb-2">Year:</label>
@@ -347,7 +347,7 @@ const ShowLockers = () => {
                   </select>
                 </div>
               </div>
-              
+
               {/* Filter Summary */}
               {hasActiveFilters && (
                 <div className="mt-4 p-3 bg-blue-500/10 rounded-lg border border-blue-400/30">
@@ -422,9 +422,8 @@ const ShowLockers = () => {
                   >
                     {lockerNumber}
                     {isOccupied && (
-                      <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full animate-pulse ${
-                        isSearchResult ? 'bg-red-400' : 'bg-yellow-400'
-                      }`}></div>
+                      <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full animate-pulse ${isSearchResult ? 'bg-red-400' : 'bg-yellow-400'
+                        }`}></div>
                     )}
                   </div>
                 );

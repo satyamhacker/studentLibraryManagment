@@ -8,6 +8,9 @@ import { filterStudentData } from "./filterStudentData.controller.js";
 import { exportStudentDataToExcel } from "./exportStudentData.controller.js";
 import { updateStudentStatus } from "./updateStudentStatus.controller.js";
 import { getNextRegistrationNumber } from "./getNextRegistrationNumber.controller.js";
+import { updateStudentData } from "./updateStudentData.controller.js";
+import { getAllSeatAllocationData } from "./seatAllocation.controller.js";
+import { getLockerAllocationData } from "./lockerAllocationData.controller.js";
 export {
   signupCreate,
   login,
@@ -21,5 +24,8 @@ export {
   resetPassword,
   exportStudentDataToExcel,
   updateStudentStatus,
-  getNextRegistrationNumber
+  getNextRegistrationNumber,
+  updateStudentData,
+  getAllSeatAllocationData,
+  getLockerAllocationData
 };
