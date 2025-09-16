@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/neonSeats.css";
 import { getApi } from "../api/api.js";
-import { fetchAllStudentDataUrl } from "../url/index.url.js";
+import { getSeatAllocationDataUrl } from "../url/index.url.js";
 
 // Icon components
 const SearchIcon = () => (
@@ -21,6 +21,7 @@ const FilterIcon = () => (
 const ShowVacantSeats = () => {
   const [occupiedSeats, setOccupiedSeats] = useState([]);
   const [students, setStudents] = useState([]);
+  const [totalSeats, setTotalSeats] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [selectedStudents, setSelectedStudents] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -40,18 +41,27 @@ const ShowVacantSeats = () => {
 
   const fetchOccupiedSeats = async () => {
     try {
-      const response = await getApi(fetchAllStudentDataUrl);
+      const response = await getApi(getSeatAllocationDataUrl);
       if (response && response.success) {
-        const data = response.data || [];
-        setStudents(data);
-        // Only consider seats with SeatNumber as a valid integer > 0
-        const seatNumbers = data
-          .map((student) => Number(student.SeatNumber))
-          .filter((seat) => Number.isInteger(seat) && seat > 0);
-        setOccupiedSeats(seatNumbers);
+        const seatData = response.data || [];
+        
+        // Extract students from allocated seats
+        const studentsData = seatData
+          .filter(seat => seat.isAllocated && seat.student)
+          .map(seat => seat.student);
+        
+        // Extract occupied seat numbers
+        const occupiedSeatNumbers = seatData
+          .filter(seat => seat.isAllocated)
+          .map(seat => seat.seatNumber);
+
+        setStudents(studentsData);
+        setOccupiedSeats(occupiedSeatNumbers);
+        setTotalSeats(response.totalSeats || 0);
       } else {
         setStudents([]);
         setOccupiedSeats([]);
+        setTotalSeats(0);
         if (response && response.error) {
           alert(response.error);
         }
@@ -59,6 +69,7 @@ const ShowVacantSeats = () => {
     } catch (error) {
       setStudents([]);
       setOccupiedSeats([]);
+      setTotalSeats(0);
       console.error("Error fetching occupied seats:", error);
       alert("Failed to fetch student data.");
     }
@@ -93,14 +104,13 @@ const ShowVacantSeats = () => {
 
   const isSeatReserved = (seatNumber) => {
     const seatStudents = students.filter(s => Number(s.SeatNumber) === seatNumber);
-    const hasReservedTimeSlot = seatStudents.some(student => 
+    const hasReservedTimeSlot = seatStudents.some(student =>
       student.TimeSlots && student.TimeSlots.includes("reserved")
     );
     const occupiedSlots = getSeatOccupancy(seatNumber);
     return hasReservedTimeSlot || occupiedSlots.length === 5;
   };
 
-  const totalSeats = 136;
   const seats = Array.from({ length: totalSeats }, (_, index) => index + 1);
 
   // Filter seats based on search term and other filters
@@ -140,8 +150,8 @@ const ShowVacantSeats = () => {
       .map(student => Number(student.SeatNumber))
       .filter(seat => Number.isInteger(seat) && seat > 0);
 
-    return seats.filter(seat => 
-      matchingSeatNumbers.includes(seat) || 
+    return seats.filter(seat =>
+      matchingSeatNumbers.includes(seat) ||
       (searchTerm && seat.toString().includes(searchTerm))
     );
   };
@@ -198,7 +208,7 @@ const ShowVacantSeats = () => {
           <h2 className="text-center text-3xl sm:text-4xl font-extrabold text-white drop-shadow neon-header tracking-wider">Seat Allocation List</h2>
           <div className="mb-0 text-blue-100 text-sm">Click on an occupied seat to view student details. Reserved seats (5) have all time slots occupied.</div>
         </div>
-        
+
         {/* Search and Filter Section */}
         <div className="p-6 pb-4">
           {/* Search and Filter Toggle Row */}
@@ -226,7 +236,7 @@ const ShowVacantSeats = () => {
                 </button>
               )}
             </div>
-            
+
             {/* Filter Controls */}
             <div className="flex items-center gap-3">
               {/* Status Filter */}
@@ -239,15 +249,14 @@ const ShowVacantSeats = () => {
                 <option value="inactive">Inactive Students</option>
                 <option value="all">All Status</option>
               </select>
-              
+
               {/* Filter Toggle Button */}
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className={`flex items-center gap-2 h-12 px-4 rounded-xl font-medium transition-all duration-200 shadow ${
-                  showFilters || hasActiveFilters
-                    ? 'bg-blue-500 hover:bg-blue-600 text-white'
-                    : 'bg-white/90 hover:bg-white text-gray-700 border border-blue-300/50'
-                }`}
+                className={`flex items-center gap-2 h-12 px-4 rounded-xl font-medium transition-all duration-200 shadow ${showFilters || hasActiveFilters
+                  ? 'bg-blue-500 hover:bg-blue-600 text-white'
+                  : 'bg-white/90 hover:bg-white text-gray-700 border border-blue-300/50'
+                  }`}
               >
                 <FilterIcon />
                 <span>Filters</span>
@@ -255,7 +264,7 @@ const ShowVacantSeats = () => {
                   <span className="bg-white/20 text-xs px-2 py-1 rounded-full">•</span>
                 )}
               </button>
-              
+
               {/* Clear All Button */}
               {hasActiveFilters && (
                 <button
@@ -267,7 +276,7 @@ const ShowVacantSeats = () => {
               )}
             </div>
           </div>
-          
+
           {/* Advanced Filters Panel */}
           {showFilters && (
             <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-blue-300/30 p-4 mb-4 animate-fadeIn">
@@ -275,7 +284,7 @@ const ShowVacantSeats = () => {
                 <FilterIcon />
                 Date Filters
               </h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 items-end">
                 {/* Date Field Selector */}
                 <div className="lg:col-span-2">
@@ -292,7 +301,7 @@ const ShowVacantSeats = () => {
                     <option value="updatedAt">Updated Date</option>
                   </select>
                 </div>
-                
+
                 {/* Start Date */}
                 <div>
                   <label className="block text-white text-sm font-medium mb-2">From Date:</label>
@@ -307,7 +316,7 @@ const ShowVacantSeats = () => {
                     max={endDate || undefined}
                   />
                 </div>
-                
+
                 {/* End Date */}
                 <div>
                   <label className="block text-white text-sm font-medium mb-2">To Date:</label>
@@ -319,7 +328,7 @@ const ShowVacantSeats = () => {
                     min={startDate || undefined}
                   />
                 </div>
-                
+
                 {/* Month Filter */}
                 <div>
                   <label className="block text-white text-sm font-medium mb-2">Month:</label>
@@ -334,7 +343,7 @@ const ShowVacantSeats = () => {
                     ))}
                   </select>
                 </div>
-                
+
                 {/* Year Filter */}
                 <div>
                   <label className="block text-white text-sm font-medium mb-2">Year:</label>
@@ -351,7 +360,7 @@ const ShowVacantSeats = () => {
                   </select>
                 </div>
               </div>
-              
+
               {/* Filter Summary */}
               {hasActiveFilters && (
                 <div className="mt-4 p-3 bg-blue-500/10 rounded-lg border border-blue-400/30">
@@ -369,7 +378,7 @@ const ShowVacantSeats = () => {
             </div>
           )}
         </div>
-        
+
         <div className="px-6 pb-6">
           {displayedSeats.length === 0 ? (
             <div className="text-center py-12">
@@ -395,26 +404,24 @@ const ShowVacantSeats = () => {
                     <div className="relative">
                       <button
                         onClick={() => isOccupied && handleSeatClick(seatNumber)}
-                        className={`relative w-14 h-10 rounded-xl font-bold text-sm transition-all duration-300 transform border-2 shadow-lg ${
-                          isOccupied
-                            ? isReserved
-                              ? isSearchResult
-                                ? "bg-gradient-to-br from-yellow-600 to-orange-600 border-yellow-400 text-white cursor-pointer hover:scale-110 hover:shadow-yellow-400/50 hover:shadow-xl group-hover:border-yellow-300 animate-pulse"
-                                : "bg-gradient-to-br from-green-600 to-green-800 border-green-400 text-white cursor-pointer hover:scale-110 hover:shadow-green-400/50 hover:shadow-xl group-hover:border-green-300"
-                              : isSearchResult
-                                ? "bg-gradient-to-br from-yellow-600 to-orange-600 border-yellow-400 text-white cursor-pointer hover:scale-110 hover:shadow-yellow-400/50 hover:shadow-xl group-hover:border-yellow-300 animate-pulse"
-                                : "bg-gradient-to-br from-slate-700 to-slate-800 border-emerald-400 text-white cursor-pointer hover:scale-110 hover:shadow-emerald-400/50 hover:shadow-xl group-hover:border-emerald-300"
-                            : "bg-gradient-to-br from-gray-300 to-gray-400 text-gray-600 border-gray-400 cursor-not-allowed opacity-70"
-                        }`}
+                        className={`relative w-14 h-10 rounded-xl font-bold text-sm transition-all duration-300 transform border-2 shadow-lg ${isOccupied
+                          ? isReserved
+                            ? isSearchResult
+                              ? "bg-gradient-to-br from-yellow-600 to-orange-600 border-yellow-400 text-white cursor-pointer hover:scale-110 hover:shadow-yellow-400/50 hover:shadow-xl group-hover:border-yellow-300 animate-pulse"
+                              : "bg-gradient-to-br from-green-600 to-green-800 border-green-400 text-white cursor-pointer hover:scale-110 hover:shadow-green-400/50 hover:shadow-xl group-hover:border-green-300"
+                            : isSearchResult
+                              ? "bg-gradient-to-br from-yellow-600 to-orange-600 border-yellow-400 text-white cursor-pointer hover:scale-110 hover:shadow-yellow-400/50 hover:shadow-xl group-hover:border-yellow-300 animate-pulse"
+                              : "bg-gradient-to-br from-slate-700 to-slate-800 border-emerald-400 text-white cursor-pointer hover:scale-110 hover:shadow-emerald-400/50 hover:shadow-xl group-hover:border-emerald-300"
+                          : "bg-gradient-to-br from-gray-300 to-gray-400 text-gray-600 border-gray-400 cursor-not-allowed opacity-70"
+                          }`}
                         title={isOccupied ? (isReserved ? "Reserved (All time slots)" : `Occupied (${occupiedSlots.length}/5 time slots)`) : "Vacant"}
                         tabIndex={isOccupied ? 0 : -1}
                         aria-label={`Seat ${seatNumber} ${isOccupied ? (isReserved ? "Reserved" : "Occupied") : "Vacant"}`}
                       >
                         {seatNumber}
                         {isOccupied && !isReserved && (
-                          <div className={`absolute -top-2 -right-2 w-5 h-5 rounded-full border-2 border-white shadow-lg flex items-center justify-center ${
-                            isSearchResult ? 'bg-gradient-to-br from-red-400 to-red-500' : 'bg-gradient-to-br from-yellow-400 to-orange-500'
-                          }`}>
+                          <div className={`absolute -top-2 -right-2 w-5 h-5 rounded-full border-2 border-white shadow-lg flex items-center justify-center ${isSearchResult ? 'bg-gradient-to-br from-red-400 to-red-500' : 'bg-gradient-to-br from-yellow-400 to-orange-500'
+                            }`}>
                             <span className="text-xs font-bold text-white">{occupiedSlots.length}</span>
                           </div>
                         )}
@@ -422,19 +429,18 @@ const ShowVacantSeats = () => {
                     </div>
                     {isOccupied && (
                       <div className="flex gap-1 mt-2 p-1 bg-black/20 rounded-full backdrop-blur-sm">
-                        {[0,1,2,3,4].map(slot => {
+                        {[0, 1, 2, 3, 4].map(slot => {
                           const seatStudents = students.filter(s => Number(s.SeatNumber) === seatNumber);
-                          const hasReservedTimeSlot = seatStudents.some(student => 
+                          const hasReservedTimeSlot = seatStudents.some(student =>
                             student.TimeSlots && student.TimeSlots.includes("reserved")
                           );
                           return (
                             <div
                               key={slot}
-                              className={`w-2 h-2 rounded-full transition-all duration-200 ${
-                                hasReservedTimeSlot || occupiedSlots.includes(slot)
-                                  ? "bg-gradient-to-br from-emerald-400 to-green-500 shadow-lg shadow-emerald-400/50 scale-110"
-                                  : "bg-gray-500/60"
-                              }`}
+                              className={`w-2 h-2 rounded-full transition-all duration-200 ${hasReservedTimeSlot || occupiedSlots.includes(slot)
+                                ? "bg-gradient-to-br from-emerald-400 to-green-500 shadow-lg shadow-emerald-400/50 scale-110"
+                                : "bg-gray-500/60"
+                                }`}
                               title={`Time slot ${slot + 1}: ${hasReservedTimeSlot || occupiedSlots.includes(slot) ? 'Occupied' : 'Vacant'}`}
                             />
                           );
