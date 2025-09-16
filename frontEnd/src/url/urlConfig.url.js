@@ -17,6 +17,8 @@ const filterStudentsDataUrl = '/student-data/filter-student-data'
 const updateStudentStatusUrl = '/student-data/update-student-status'
 const getNextRegistrationNumberUrl = '/student-data/next-registration-number'
 const getSeatAllocationDataUrl = '/student-data/fetch-all-seat-allocation-data'
+const getLockerAllocationDataUrl = '/student-data/fetch-all-locker-allocation-data'
+
 
 export {
     localStorageToken,
@@ -33,5 +35,6 @@ export {
     filterStudentsDataUrl,
     updateStudentStatusUrl,
     getNextRegistrationNumberUrl,
-    getSeatAllocationDataUrl
+    getSeatAllocationDataUrl,
+    getLockerAllocationDataUrl
 }

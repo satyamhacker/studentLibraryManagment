@@ -10,6 +10,7 @@ import { updateStudentStatus } from "./updateStudentStatus.controller.js";
 import { getNextRegistrationNumber } from "./getNextRegistrationNumber.controller.js";
 import { updateStudentData } from "./updateStudentData.controller.js";
 import { getAllSeatAllocationData } from "./seatAllocation.controller.js";
+import { getLockerAllocationData } from "./lockerAllocationData.controller.js";
 export {
   signupCreate,
   login,
@@ -25,5 +26,6 @@ export {
   updateStudentStatus,
   getNextRegistrationNumber,
   updateStudentData,
-  getAllSeatAllocationData
+  getAllSeatAllocationData,
+  getLockerAllocationData
 };
