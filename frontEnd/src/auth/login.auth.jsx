@@ -34,7 +34,7 @@ const Login = () => {
         localStorage.setItem("jwtToken", response.token);
         localStorage.setItem("isLoggedIn", "true");
         alert(response.message || "Login successful!");
-        navigate("/homePage");
+        window.location.reload();
       } else {
         // Handle failed login
         const errorMessage = response?.message || response?.error || "Login failed. Please check your credentials.";
@@ -57,10 +57,11 @@ const Login = () => {
 
   // Optional: Auto-logout on unmount (but better to handle via a logout button)
   useEffect(() => {
-    return () => {
-      // Cleanup if needed
-    };
-  }, []);
+    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+    if (isLoggedIn) {
+      navigate("/homePage");
+    }
+  }, [navigate]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
