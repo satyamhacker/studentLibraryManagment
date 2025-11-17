@@ -14,8 +14,7 @@ const Signup = () => {
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
     if (isLoggedIn) {
-      const useHashRouter = import.meta.env.VITE_USE_HASH_ROUTER === 'true';
-      window.location.href = useHashRouter ? "#/homePage" : "/homePage";
+      navigate("/homePage");
     }
   }, [navigate]);
 

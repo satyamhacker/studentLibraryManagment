@@ -34,8 +34,7 @@ const Login = () => {
         localStorage.setItem("jwtToken", response.token);
         localStorage.setItem("isLoggedIn", "true");
         alert(response.message || "Login successful!");
-        const useHashRouter = import.meta.env.VITE_USE_HASH_ROUTER === 'true';
-        window.location.href = useHashRouter ? "#/homePage" : "/homePage";
+        navigate("/homePage");
       } else {
         // Handle failed login
         const errorMessage = response?.message || response?.error || "Login failed. Please check your credentials.";
