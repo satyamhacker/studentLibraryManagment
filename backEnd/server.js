@@ -16,19 +16,13 @@ const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.join(__dirname, '../.env') });
 
 const app = express();
-const port = process.env.SERVER_PORT || 3100;
+const port = process.env.PORT || process.env.SERVER_PORT || 3100;
 
 // ✅ Enhanced CORS config
-const allowedOrigins = [
-    "http://localhost:5173", // Dev frontend
-    "https://lakshyalibrary.maalaxmi.store" // Prod frontend
-];
-
-
 app.use(cors({
-    origin: allowedOrigins,
+    origin: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
     credentials: true
 }));
 
