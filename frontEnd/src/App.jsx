@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { HashRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, BrowserRouter, Routes, Route } from "react-router-dom";
 import { PublicRoute, PrivateRoute } from "./studentData/index.studentData.js"
 import { HomeButton } from "./components/index.components.js";
 
@@ -24,8 +24,10 @@ function App() {
     };
   }, []);
 
+  const Router = import.meta.env.VITE_USE_HASH_ROUTER === 'true' ? HashRouter : BrowserRouter;
+
   return (
-    <HashRouter>
+    <Router>
       <div>
         <HomeButton />
         <Routes>
@@ -85,7 +87,7 @@ function App() {
 
         </Routes>
       </div>
-    </HashRouter>
+    </Router>
   );
 }
 
