@@ -18,19 +18,13 @@ dotenv.config({ path: path.join(__dirname, '../.env') });
 const app = express();
 const port = process.env.PORT || process.env.SERVER_PORT || 3100;
 
-// ✅ Enhanced CORS config - Allow all origins
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-    if (req.method === 'OPTIONS') {
-        res.sendStatus(200);
-    } else {
-        next();
-    }
-});
-
-app.use(cors());
+// ✅ CORS configuration
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+    credentials: false
+}));
 
 // Parse JSON requests
 app.use(express.json({ limit: '50mb' }));
