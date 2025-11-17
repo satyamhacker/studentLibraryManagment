@@ -14,7 +14,7 @@ requiredEnvVars.forEach((varName) => {
 });
 
 const sequelize = new Sequelize(
-  process.env.DB_DATABASE, // DB_DATABASE instead of DB_NAME
+  process.env.DB_DATABASE,
   process.env.DB_USERNAME,
   process.env.DB_PASSWORD,
   {
@@ -23,15 +23,27 @@ const sequelize = new Sequelize(
     dialect: 'mysql',
     logging: false,
     dialectOptions: {
-      connectTimeout: 15000,
+      ssl: {
+        require: true,
+        rejectUnauthorized: false
+      },
+      connectTimeout: 60000,
+      acquireTimeout: 60000,
+      timeout: 60000
     },
+    pool: {
+      max: 5,
+      min: 0,
+      acquire: 30000,
+      idle: 10000
+    }
   }
 );
 
 const connectToDatabase = async () => {
   try {
     await sequelize.authenticate();
-    console.log('Connected to the MySQL database');
+    console.log('Connected to TiDB Cloud database');
 
     // Sync all models to create tables if they don’t exist
     // await sequelize.sync({ alter: true }); // Use 'alter: true' to update existing tables, 'force: true' to recreate (dev only)
