@@ -12,10 +12,10 @@ const Signup = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Redirect to home if the user is already logged in
     const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
     if (isLoggedIn) {
-      navigate("/homePage");
+      const useHashRouter = import.meta.env.VITE_USE_HASH_ROUTER === 'true';
+      window.location.href = useHashRouter ? "#/homePage" : "/homePage";
     }
   }, [navigate]);
 
