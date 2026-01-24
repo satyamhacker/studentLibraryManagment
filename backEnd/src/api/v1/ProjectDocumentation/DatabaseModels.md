@@ -85,6 +85,9 @@ export class User {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }
 
 // ================================================
@@ -535,6 +538,9 @@ export class Enquiry {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }
 
 // ================================================
@@ -883,6 +889,9 @@ export class SeatHistory {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }
 
 // ================================================
@@ -918,6 +927,9 @@ export class ShiftMigration {
 
   @CreateDateColumn()
   migratedAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }
 
 // ================================================
@@ -1073,6 +1085,9 @@ export class DailySettlement {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }
 
 // ================================================
@@ -1111,6 +1126,9 @@ export class BulkImport {
 
   @CreateDateColumn()
   uploadedAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }
 ```
 
