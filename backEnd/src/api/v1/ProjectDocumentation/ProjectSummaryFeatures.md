@@ -96,6 +96,15 @@ Ye ek Library Owner ko "Register-Pen" se hata kar "Data-Driven CEO" banata hai. 
 
 
 * **Document Vault:** Photo, Aadhar Card upload & storage.
+* **Group Admission (Batch-wise):**
+    * Same college ka 10 students ek saath join kare toh 10-15% group discount apply ho.
+    * Bulk management easy ho.
+* **Referral Bonus System:**
+    * "Aap jo naya student le aao toh ₹200 cashback aapke account mein jayega".
+    * Viral growth ke liye.
+* **Seat Maintenance Log:**
+    * Track karo: Seat 5 ko leg kharab tha, repair done on 15th Jan, working status ✓.
+    * Auto-alert agar maintenance due ho.
 
 ## **Module 4: Fees & Subscription Engine**
 
@@ -104,6 +113,15 @@ Ye ek Library Owner ko "Register-Pen" se hata kar "Data-Driven CEO" banata hai. 
 * **Security Deposit Tracking:** Refundable deposit ka alag section.
 * **Discount Coupons:** Admin can apply "NEWYEAR50" code.
 * **Auto-Invoice:** GST compliant invoice generation (PDF).
+* **Late Fee / Penalty System:**
+    * Fee due tha 15th ko, payment hua 20th ko → +₹50 penalty add ho.
+    * Rules set karo: "₹50 per day after 5 days".
+* **Auto-Downgrade on Non-Payment:**
+    * 10 days payment late → Seat access automatically suspend ho jayega.
+    * Auto-restore on payment.
+* **Referral Discounts / Promo Codes (Dynamic):**
+    * Admin dynamically create kar sakta hai: "FRIEND50" = ₹50 discount.
+    * Track karo kitna use hua, ROI dekho.
 
 ## **Module 5: Operations & Resource Management**
 
@@ -247,3 +265,5 @@ Agar aap isse market mein bechna chahte hain, toh yahan pricing models hain:
 Isme ab **CRM, Finance, Operations, Inventory, HR (Shift), aur Marketing** sab cover ho gaya hai. Ab ye sirf ek project nahi, ek **Commercial Product** hai jo kisi bhi Library owner ki life aasaan bana dega.
 
 Does this look perfect for your goal?
+
+
