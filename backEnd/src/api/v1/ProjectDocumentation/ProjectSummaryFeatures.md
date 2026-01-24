@@ -125,6 +125,9 @@ Ye ek Library Owner ko "Register-Pen" se hata kar "Data-Driven CEO" banata hai. 
 * **Late Fee / Penalty System:**
     * Fee due tha 15th ko, payment hua 20th ko → +₹50 penalty add ho.
     * Rules set karo: "₹50 per day after 5 days".
+* **Dynamic Capacity Scaling:**
+    * "Seats 100 se 150 ho gayi?" System auto-detects max seat number.
+    * No need to change code. Just assign Seat 150, system upgrades total capacity.
 * **Auto-Downgrade on Non-Payment:**
     * 10 days payment late → Seat access automatically suspend ho jayega.
     * Auto-restore on payment.
@@ -232,6 +235,7 @@ Ye wo features hain jo client ko deal close karne par majboor kar denge:
 | **15** | **Blacklist System** | Troublemaker students ko blacklist karo taaki wo dobara join na kar sakein. |
 | **16** | **Staff Fraud Detection** | Audit logs batayenge agar staff ne paise lekar entry delete kar di. |
 | **17** | **White-Labeling (Branding)** | Client apna logo aur color scheme use kar sakta hai. Make it "Their App". |
+| **18** | **Auto-Scale Infrastructure** | Library expand hui? System auto-scale karega (No limit on Seats/Lockers). |
 
 ---
 
