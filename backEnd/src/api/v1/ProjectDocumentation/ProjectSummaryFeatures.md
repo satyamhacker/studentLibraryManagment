@@ -26,6 +26,8 @@ Here is the **Ultimate, Sellable Product Documentation**:
 4. [15+ Killer USPs (Selling Points)](https://www.google.com/search?q=%23killer-usps)
 5. [The "Student Life Cycle" Journey](https://www.google.com/search?q=%23user-journey)
 6. [Revenue Model (How you make money)](https://www.google.com/search?q=%23revenue-model)
+7. [Why SaaS? (Technical Edge)](https://www.google.com/search?q=%23saas-edge)
+8. [Onboarding (The Easy-Switch)](https://www.google.com/search?q=%23onboarding)
 
 ---
 
@@ -73,6 +75,9 @@ Ye ek Library Owner ko "Register-Pen" se hata kar "Data-Driven CEO" banata hai. 
 * **Financial Health:** Today's Collection vs Today's Expense.
 * **Action Items:** 5 Renewals Due, 2 New Enquiries, 1 Complaint Pending.
 * **Seat Matrix Visualization:**  Ek visual grid jisme Green (Free), Red (Occupied), aur Orange (Expiring Soon) seats dikhein.
+* **Advanced Filtering Engine:**
+    * Filter by "Shift = Morning" + "Exam = UPSC" + "Fees = Due".
+    * Exact target audience nikalne ke liye.
 
 ## **Module 2: Enquiry & Lead CRM (Sales Engine)**
 
@@ -122,6 +127,9 @@ Ye ek Library Owner ko "Register-Pen" se hata kar "Data-Driven CEO" banata hai. 
 * **Referral Discounts / Promo Codes (Dynamic):**
     * Admin dynamically create kar sakta hai: "FRIEND50" = ₹50 discount.
     * Track karo kitna use hua, ROI dekho.
+* **Promise to Pay (PTP) Tracking:**
+    * Student ne bola "20th ko dunga". Admin sets 'Expected Date' = 20th.
+    * 20th ko system Reminder bhejega. "Aaj commitment date hai".
 
 ## **Module 5: Operations & Resource Management**
 
@@ -160,6 +168,33 @@ Ye ek Library Owner ko "Register-Pen" se hata kar "Data-Driven CEO" banata hai. 
 * **Complaint Box:** "AC cooling nahi kar raha" (Anonymous complaints allowed).
 * **WiFi Voucher Management:** Student ko WiFi password/OTP assign karna.
 
+## **Module 9: Security & Admin Control (SaaS Essentials)**
+
+**Trust factor increase karne ke liye:**
+
+* **Role-Based Access Control (RBAC):**
+    * **Super Admin (Owner):** Can see Revenue, Delete items, Change settings.
+    * **Staff (Manager):** Can only Mark Attendance, Add Student, Collect Fee. Cannot Delete data or see Profit.
+* **Audit Logs (The "Post-Mortem"):**
+    * "Staff Rahul deleted a receipt of ₹500 at 4:30 PM".
+    * Har sensitive action ka log maintain hoga. Fraud pakdne ke liye.
+* **Automated Data Backups:**
+    * Daily Nightly Backup to Cloud.
+    * "System crashed? Don't worry, kal raat ka data safe hai."
+* **Secure Account Recovery:**
+    * "Forgot Password?" logic with OTP verification (Email/SMS).
+    * Secure access restoration like banking apps.
+
+## **Module 10: Onboarding & Migration (The Easy-Switch)**
+
+**Client purana data kaise layega?**
+
+* **Bulk Data Import:**
+    * Upload Excel sheet -> 100 students imported in 5 seconds.
+    * **Error Handling:** "Row 5 mein Mobile Number missing hai" -> System batayega.
+* **Setup Wizard:**
+    * First time login karne par step-by-step guide: "Add Shift -> Add Seats -> Create Plan".
+
 ---
 
 ---
@@ -185,6 +220,8 @@ Ye wo features hain jo client ko deal close karne par majboor kar denge:
 | **13** | **Data Export** | Client ko data ka control chahiye. 1-click Excel Backup. |
 | **14** | **Daily Settlement Report** | Staff owner ko raat mein SMS bhejta hai: "Aaj ka cash ₹5000, UPI ₹2000. Total ₹7000". |
 | **15** | **Blacklist System** | Troublemaker students ko blacklist karo taaki wo dobara join na kar sakein. |
+| **16** | **Staff Fraud Detection** | Audit logs batayenge agar staff ne paise lekar entry delete kar di. |
+| **17** | **White-Labeling (Branding)** | Client apna logo aur color scheme use kar sakta hai. Make it "Their App". |
 
 ---
 
@@ -262,7 +299,7 @@ Agar aap isse market mein bechna chahte hain, toh yahan pricing models hain:
 
 ### **🚀 Final Check**
 
-Isme ab **CRM, Finance, Operations, Inventory, HR (Shift), aur Marketing** sab cover ho gaya hai. Ab ye sirf ek project nahi, ek **Commercial Product** hai jo kisi bhi Library owner ki life aasaan bana dega.
+Isme ab **CRM, Finance, Operations, Inventory, HR (Shift), Marketing, aur Security** sab cover ho gaya hai. Ab ye sirf ek project nahi, ek **Commercial Product** hai jo kisi bhi Library owner ki life aasaan bana dega.
 
 Does this look perfect for your goal?
 
