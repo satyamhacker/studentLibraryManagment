@@ -11,10 +11,11 @@ Maine market mein chal rahe top Library Management Systems (jaise unke CRM, ID C
 Here is the **Ultimate, Sellable Product Documentation**:
 
 ---
-
+* **Data Export:** Excel support included.
 # 🏛️ Smart Library 360 - Enterprise Management System
 
 **Complete Business Automation for Self-Study Centers & Reading Rooms**
+*(Powered by Smart ID Auto-Fill & Trust-Score Algorithms)*
 
 ---
 
@@ -94,6 +95,9 @@ Ye ek Library Owner ko "Register-Pen" se hata kar "Data-Driven CEO" banata hai. 
 * **Shift Management:**
 * *Fixed Shifts:* (e.g., 6AM-12PM, 12PM-6PM).
 * *Flexible Slots:* (User defined custom hours).
+* **Multi-Slot Support (Hybrid Schedules):**
+    * Student can book "8 AM - 10 AM" AND "5 PM - 8 PM" (JSON Array support).
+    * Perfect for students jo beech mein college jate hain.
 
 
 * **Shift Swapping/Migration:** Agar student Morning se Evening jana chahta hai?
@@ -130,6 +134,9 @@ Ye ek Library Owner ko "Register-Pen" se hata kar "Data-Driven CEO" banata hai. 
 * **Promise to Pay (PTP) Tracking:**
     * Student ne bola "20th ko dunga". Admin sets 'Expected Date' = 20th.
     * 20th ko system Reminder bhejega. "Aaj commitment date hai".
+* **Commitment Reliability Score:**
+    * System tracks *kitni baar* student ne date change ki (`PaymentExpectedDateChanged`).
+    * Agar score high hai (e.g., 5 times changed), toh Manager ko warning milegi "Low Trust Student".
 
 ## **Module 5: Operations & Resource Management**
 
@@ -164,6 +171,9 @@ Ye ek Library Owner ko "Register-Pen" se hata kar "Data-Driven CEO" banata hai. 
 
 ## **Module 8: Student Engagement & Alerts**
 
+* **Smart ID Auto-Fill (Gap Filling):**
+    * Agar ID #3 wala student chhod gaya, next student ko ID #3 milega (Not #100).
+    * Keeps records compact and serial.
 * **Notice Board:** "Library will be closed on Holi". (Broadcast SMS/WhatsApp).
 * **Complaint Box:** "AC cooling nahi kar raha" (Anonymous complaints allowed).
 * **WiFi Voucher Management:** Student ko WiFi password/OTP assign karna.
