@@ -138,6 +138,40 @@ Authorization: Bearer <access_token>
 
 **Response**: Same as registration
 
+### 1.3 Forgot Password
+**POST** `/api/v1/auth/forgot-password`
+
+**Request**:
+```json
+{
+  "phone": "+919876543210"
+}
+```
+
+**Logic**:
+1. Check if user exists
+2. Generate 6-digit OTP
+3. Store OTP in Redis (expiry 10 mins)
+4. Send OTP via SMS
+
+### 1.4 Reset Password
+**POST** `/api/v1/auth/reset-password`
+
+**Request**:
+```json
+{
+  "phone": "+919876543210",
+  "otp": "123456",
+  "newPassword": "NewPass@123"
+}
+```
+
+**Logic**:
+1. Verify OTP from Redis
+2. Hash new password
+3. Update User record
+4. Invalidate OTP
+
 ---
 
 ## SERVICE 2: BRANCH MANAGEMENT (`/api/v1/branches`)
@@ -230,6 +264,17 @@ Authorization: Bearer <access_token>
 ```
 
 **Business Logic**: Append to `followUps` JSONB array
+
+### 3.4 Follow-up Scheduler
+**Cron Job** (Runs Daily 9 AM):
+```typescript
+const pendingFollowUps = await enquiryRepo.createQueryBuilder('enquiry')
+  .where("followUps @> '[{\"nextFollowupDate\": \"" + today + "\"}]'")
+  .getMany();
+
+// Send Alert to Handler
+await sendWhatsApp(enquiry.handledBy.phone, `Call ${enquiry.name} today!`);
+```
 
 ---
 
@@ -720,7 +765,7 @@ const settlement = {
 
 ## SERVICE 15: REPORTS & ANALYTICS (`/api/v1/reports`)
 
-**Purpose**: Business intelligence
+**Purpose**: Business intelligence, Power Saving decisions
 
 ### 15.1 Dashboard Stats
 **GET** `/api/v1/reports/dashboard`
